@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface Booking {
   id: number
@@ -32,6 +33,7 @@ interface Booking {
 }
 
 export default function AdminPage() {
+  const router = useRouter()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -44,7 +46,15 @@ export default function AdminPage() {
     fetchBookings()
   }, [])
 
-  const fetchBookings = async () => {
+  const handleLogout = () => {
+    // Clear admin session/auth if stored
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('adminAuth')
+      sessionStorage.removeItem('adminAuth')
+    }
+    // Redirect to home page
+    router.push('/')
+  }
     setIsLoading(true)
     setError(null)
     try {
@@ -162,13 +172,22 @@ export default function AdminPage() {
               <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
               <p className="text-gray-400 mt-1">Manage bookings and customers</p>
             </div>
-            <Button
-              onClick={fetchBookings}
-              className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={fetchBookings}
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+              <Button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
