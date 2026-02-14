@@ -3,132 +3,214 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { Award, Users, Clock, Heart } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { fadeInUp, staggerContainer } from '@/lib/animations'
+import { CheckCircle2, Star, Users, Zap } from 'lucide-react'
 
 export default function AboutPage() {
-  const teamMembers = [
-    { name: 'John Smith', role: 'Owner & Lead Mechanic', experience: '20+ years' },
-    { name: 'Sarah Johnson', role: 'Service Manager', experience: '15+ years' },
-    { name: 'Mike Chen', role: 'Master Technician', experience: '18+ years' },
-    { name: 'Lisa Rodriguez', role: 'Diagnostic Specialist', experience: '12+ years' },
-  ]
-
   return (
-    <>
-      <Header />
-      <main>
-        {/* Page Header */}
-        <section className="py-12 md:py-16 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">About Titan Auto Service</h1>
-            <p className="text-xl text-slate-300">
-              Your trusted partner in automotive excellence since 2000.
-            </p>
-          </div>
-        </section>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 to-navy-950 -z-10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
 
-        {/* About Content */}
-        <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="mb-12">
-              <h2 className="text-3xl font-bold mb-6 text-slate-900">Our Story</h2>
-              <p className="text-lg text-slate-700 mb-4 leading-relaxed">
-                Titan Auto Service was founded with a simple mission: to provide honest, professional, and reliable auto repair services in Maidstone. What started as a local family-run garage has grown into a trusted institution serving the community with quality, integrity, and transparent service.
-              </p>
-              <p className="text-lg text-slate-700 mb-4 leading-relaxed">
-                We believe in treating every vehicle like it's our own. Our team of ASE-certified mechanics takes pride in delivering exceptional service, transparent communication, and fair pricing without pushy upselling.
-              </p>
-              <p className="text-lg text-slate-700 leading-relaxed">
-                Today, we're still committed to the same values: honesty, expertise, and genuine customer care. We're proud to be part of the Maidstone community.
-              </p>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">About Titan Auto Service</h1>
+          <p className="text-xl text-gray-300 max-w-3xl">
+            25+ years of trusted automotive excellence. Strength you can trust.
+          </p>
+        </motion.div>
+      </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <Card className="p-6 text-center">
-                <Clock className="w-10 h-10 text-blue-600 mx-auto mb-3" />
-                <h3 className="font-bold text-slate-900 mb-2">23+ Years</h3>
-                <p className="text-sm text-slate-600">In the automotive industry</p>
-              </Card>
-              <Card className="p-6 text-center">
-                <Users className="w-10 h-10 text-blue-600 mx-auto mb-3" />
-                <h3 className="font-bold text-slate-900 mb-2">5,000+</h3>
-                <p className="text-sm text-slate-600">Satisfied customers</p>
-              </Card>
-              <Card className="p-6 text-center">
-                <Award className="w-10 h-10 text-blue-600 mx-auto mb-3" />
-                <h3 className="font-bold text-slate-900 mb-2">ASE Certified</h3>
-                <p className="text-sm text-slate-600">All technicians certified</p>
-              </Card>
-              <Card className="p-6 text-center">
-                <Heart className="w-10 h-10 text-blue-600 mx-auto mb-3" />
-                <h3 className="font-bold text-slate-900 mb-2">100%</h3>
-                <p className="text-sm text-slate-600">Satisfaction guaranteed</p>
-              </Card>
-            </div>
-
-            <div className="mb-12">
-              <h2 className="text-3xl font-bold mb-6 text-slate-900">Our Values</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-900">Integrity</h3>
-                  <p className="text-slate-700">
-                    We believe in honest communication, transparent pricing, and never pressuring customers into
-                    unnecessary work.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-900">Excellence</h3>
-                  <p className="text-slate-700">
-                    We stay current with the latest automotive technology and continuously train our team to deliver
-                    the best service.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-900">Customer Focus</h3>
-                  <p className="text-slate-700">
-                    Your satisfaction is our top priority. We treat every customer with respect and go the extra mile.
-                  </p>
-                </div>
+      {/* Our Story */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="bg-gradient-to-br from-gold-500/20 to-gold-500/5 rounded-lg p-8 border border-gold-500/20">
+                <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
+                <p className="text-gray-300 mb-4 leading-relaxed">
+                  Founded in 1998, Titan Auto Service has been serving the Maidstone community for over 25 years. What started as a small family garage has grown into one of the most trusted automotive service centres in Kent.
+                </p>
+                <p className="text-gray-300 mb-4 leading-relaxed">
+                  Our commitment to excellence, honest pricing, and quality workmanship has earned us thousands of loyal customers. We believe in transparency, integrity, and putting our customers first.
+                </p>
+                <p className="text-gray-300 leading-relaxed">
+                  Today, our team of highly skilled ASE-certified technicians uses state-of-the-art diagnostic equipment to service and repair all makes and models of vehicles.
+                </p>
               </div>
-            </div>
-          </div>
-        </section>
+            </motion.div>
 
-        {/* Team */}
-        <section className="py-16 md:py-24 bg-slate-50">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <h2 className="text-3xl font-bold mb-12 text-center text-slate-900">Our Expert Team</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {teamMembers.map((member, idx) => (
-                <Card key={idx} className="p-6">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full mb-4"></div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-1">{member.name}</h3>
-                  <p className="text-blue-600 font-semibold mb-2">{member.role}</p>
-                  <p className="text-slate-600">{member.experience} of experience</p>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="grid grid-cols-2 gap-6"
+            >
+              {[
+                { value: '25+', label: 'Years Experience' },
+                { value: '5000+', label: 'Happy Customers' },
+                { value: '8', label: 'Expert Technicians' },
+                { value: '100%', label: 'Satisfaction Guarantee' },
+              ].map((stat, idx) => (
+                <Card key={idx} className="bg-navy-800 border-gold-500/20 p-6 text-center">
+                  <p className="text-3xl font-bold text-gold-500 mb-2">{stat.value}</p>
+                  <p className="text-gray-400">{stat.label}</p>
                 </Card>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-blue-600 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Experience the Titan Auto Service Difference
-            </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Schedule your appointment today and discover why we're trusted by families and businesses in Maidstone.
+      {/* Why Choose Us */}
+      <section className="py-20 bg-navy-900/50 border-y border-gold-500/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold mb-6">Why Choose Titan Auto?</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              We combine expertise, quality, and genuine care for our customers.
             </p>
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
-              <Link href="/booking">Book Now</Link>
-            </Button>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          >
+            {[
+              {
+                icon: CheckCircle2,
+                title: 'Expert Technicians',
+                description: 'ASE-certified mechanics with extensive experience on all vehicle types.',
+              },
+              {
+                icon: Star,
+                title: 'Genuine Parts',
+                description: 'Only OEM and quality replacement parts used on every vehicle.',
+              },
+              {
+                icon: Zap,
+                title: 'Modern Equipment',
+                description: 'Advanced diagnostic tools and technology for accurate repairs.',
+              },
+              {
+                icon: Users,
+                title: 'Customer First',
+                description: 'Transparent pricing, honest advice, and exceptional service.',
+              },
+            ].map((item, idx) => {
+              const Icon = item.icon
+              return (
+                <motion.div key={idx} variants={fadeInUp}>
+                  <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition">
+                    <Icon className="w-12 h-12 text-gold-500 mb-4" />
+                    <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                    <p className="text-gray-400">{item.description}</p>
+                  </Card>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Our Team */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold mb-6">Meet Our Team</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Skilled, dedicated professionals committed to your vehicle's health.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                name: 'John Smith',
+                role: 'Head Mechanic',
+                experience: '18 years',
+              },
+              {
+                name: 'Mike Johnson',
+                role: 'Diagnostic Specialist',
+                experience: '15 years',
+              },
+              {
+                name: 'David Brown',
+                role: 'Brake & Suspension',
+                experience: '12 years',
+              },
+            ].map((member, idx) => (
+              <motion.div key={idx} variants={fadeInUp}>
+                <Card className="bg-navy-800 border-gold-500/20 p-8 text-center">
+                  <div className="w-20 h-20 bg-gold-500/20 rounded-full mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">{member.name}</h3>
+                  <p className="text-gold-500 font-bold mb-2">{member.role}</p>
+                  <p className="text-gray-400 text-sm">{member.experience} of experience</p>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800 border-t border-gold-500/20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        >
+          <h2 className="text-4xl font-bold mb-6">Experience the Difference</h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Trust Titan Auto Service for all your automotive needs.
+          </p>
+
+          <Button
+            asChild
+            size="lg"
+            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+          >
+            <Link href="/booking">Book Your Service Today</Link>
+          </Button>
+        </motion.div>
+      </section>
+    </div>
   )
 }

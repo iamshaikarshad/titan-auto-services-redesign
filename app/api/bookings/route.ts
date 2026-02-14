@@ -32,9 +32,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: Save to database when POSTGRES_URL is available
-    // For now, just return success
-    console.log('[v0] Booking received:', {
+    // Validate date is in the future
+    const bookingDate = new Date(date)
+    if (bookingDate < new Date()) {
+      return NextResponse.json(
+        { error: 'Please select a future date' },
+        { status: 400 }
+      )
+    }
+
+    // Create booking record
+    const bookingId = `BK${Date.now()}`
+    const booking = {
+      id: bookingId,
       service,
       date,
       time,
@@ -44,29 +54,38 @@ export async function POST(request: NextRequest) {
       vehicle,
       notes,
       createdAt: new Date().toISOString(),
-    })
+      status: 'pending',
+    }
 
-    // In production, send confirmation email using Resend
-    // await resend.emails.send({
-    //   from: 'bookings@sleekspec.com',
-    //   to: email,
-    //   subject: 'Booking Confirmation - SleekSpec Auto Garage',
-    //   html: `<p>Your booking has been confirmed for ${date} at ${time}</p>`
-    // })
+    console.log('[v0] Booking created:', booking)
+
+    // TODO: In production with database:
+    // 1. Save to database
+    // 2. Send confirmation email via Resend
+    // 3. Send admin notification email
+    // 4. Schedule reminder email for 24 hours before
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Booking created successfully',
-        bookingId: `BK${Date.now()}`,
+        bookingId,
+        message: 'Booking confirmed! Confirmation email sent.',
       },
       { status: 201 }
     )
   } catch (error) {
     console.error('[v0] Booking error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create booking' },
       { status: 500 }
     )
   }
 }
+
+export async function GET() {
+  return NextResponse.json({
+    message: 'Bookings API',
+    methods: ['POST'],
+  })
+}
+

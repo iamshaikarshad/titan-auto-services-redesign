@@ -1,264 +1,194 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { Mail, Phone, MapPin, Clock, AlertCircle, CheckCircle2 } from 'lucide-react'
-
-interface ContactFormData {
-  name: string
-  email: string
-  phone: string
-  subject: string
-  message: string
-}
+import { motion } from 'framer-motion'
+import { fadeInUp, staggerContainer } from '@/lib/animations'
+import { Phone, Mail, MapPin, Clock } from 'lucide-react'
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState<ContactFormData>({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [errorMessage, setErrorMessage] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setErrorMessage('')
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to send message')
-      }
-
-      setSubmitStatus('success')
-      setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-      setTimeout(() => setSubmitStatus('idle'), 5000)
-    } catch (err) {
-      setSubmitStatus('error')
-      setErrorMessage(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+  const contactInfo = [
+    {
+      icon: Phone,
+      title: 'Phone',
+      details: '01622 438114',
+      link: 'tel:01622438114',
+    },
+    {
+      icon: Mail,
+      title: 'Email',
+      details: 'info@titanautoservices.co.uk',
+      link: 'mailto:info@titanautoservices.co.uk',
+    },
+    {
+      icon: MapPin,
+      title: 'Location',
+      details: '11 Waterloo Street, Maidstone, ME15 7UH',
+      link: '#',
+    },
+    {
+      icon: Clock,
+      title: 'Hours',
+      details: 'Mon - Fri: 8:00 AM - 5:00 PM',
+      link: '#',
+    },
+  ]
 
   return (
-    <>
-      <Header />
-      <main>
-        {/* Page Header */}
-        <section className="py-12 md:py-16 bg-slate-900 text-white">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-            <p className="text-xl text-slate-300">
-              Get in touch with our team. We're here to help.
-            </p>
-          </div>
-        </section>
+    <div className="min-h-screen">
+      {/* Header */}
+      <section className="relative pt-32 pb-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 to-navy-950 -z-10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
 
-        {/* Contact Info & Form */}
-        <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-              {/* Contact Info Cards */}
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <Phone className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-2">Phone</h3>
-                    <a href="tel:01622438114" className="text-blue-600 hover:text-blue-700 block">
-                      01622 438114
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        >
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">Get In Touch</h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Have questions? We're here to help. Contact us today.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* Contact Information */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
+          >
+            {contactInfo.map((item, idx) => {
+              const Icon = item.icon
+              return (
+                <motion.div key={idx} variants={fadeInUp}>
+                  <Card className="bg-navy-800 border-gold-500/20 p-8 text-center h-full hover:border-gold-500/50 transition">
+                    <Icon className="w-12 h-12 text-gold-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                    <a
+                      href={item.link}
+                      className="text-gray-400 hover:text-gold-500 transition text-sm"
+                    >
+                      {item.details}
                     </a>
-                    <a href="tel:07305509999" className="text-blue-600 hover:text-blue-700 block">
-                      07305 509999
-                    </a>
-                    <p className="text-sm text-slate-600 mt-2">Mon-Fri 8am-6pm, Sat 9am-2pm</p>
-                  </div>
-                </div>
-              </Card>
+                  </Card>
+                </motion.div>
+              )
+            })}
+          </motion.div>
 
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-2">Email</h3>
-                    <a href="mailto:info@titanautoservices.co.uk" className="text-blue-600 hover:text-blue-700">
-                      info@titanautoservices.co.uk
-                    </a>
-                    <p className="text-sm text-slate-600 mt-1">Response within 24 hours</p>
-                  </div>
-                </div>
+          {/* Map and Contact Form */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Map */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Card className="bg-navy-800 border-gold-500/20 overflow-hidden h-96 lg:h-full">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2491.5699998891507!2d0.5270529!3d51.272569!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d5a63f7f5f5f5f%3A0x5f5f5f5f5f5f5f5f!2s11%20Waterloo%20Street%2C%20Maidstone%20ME15%207UH!5e0!3m2!1sen!2suk!4v1234567890"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </Card>
-
-              <Card className="p-6">
-                <div className="flex items-start gap-4">
-                  <MapPin className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-2">Address</h3>
-                    <p className="text-slate-700 font-semibold">Titan Auto Service</p>
-                    <p className="text-slate-700">11 Waterloo Street</p>
-                    <p className="text-slate-700">Maidstone, ME15 7UH</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Hours Card */}
-            <Card className="p-6 mb-12 bg-slate-50 border-0">
-              <div className="flex items-start gap-4">
-                <Clock className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                  <div className="flex-1">
-                  <h3 className="font-bold text-slate-900 mb-4">Business Hours</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-slate-700"><span className="font-semibold">Monday - Friday:</span> 8:00 AM - 6:00 PM</p>
-                      <p className="text-slate-700"><span className="font-semibold">Saturday:</span> 9:00 AM - 2:00 PM</p>
-                      <p className="text-slate-700"><span className="font-semibold">Sunday:</span> Closed</p>
-                    </div>
-                    <div className="text-slate-600 text-sm">
-                      <p>Closed on major holidays.</p>
-                      <p className="mt-2">Call ahead for emergency services.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
+            </motion.div>
 
             {/* Contact Form */}
-            <div className="max-w-2xl mx-auto">
-              <h2 className="text-2xl font-bold mb-6 text-slate-900">Send us a Message</h2>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Card className="bg-navy-800 border-gold-500/20 p-8">
+                <h2 className="text-2xl font-bold text-white mb-6">Send us a Message</h2>
 
-              {submitStatus === 'success' && (
-                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <form className="space-y-6">
                   <div>
-                    <p className="font-semibold text-green-800">Message sent successfully!</p>
-                    <p className="text-green-700">We'll get back to you as soon as possible.</p>
+                    <label className="block text-white font-bold mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      placeholder="Your name"
+                      className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition"
+                    />
                   </div>
-                </div>
-              )}
 
-              {submitStatus === 'error' && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-red-800">Failed to send message</p>
-                    <p className="text-red-700">{errorMessage}</p>
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="John Doe"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-900 mb-2">
-                      Email
-                    </label>
+                    <label className="block text-white font-bold mb-2">Email</label>
                     <input
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      placeholder="john@example.com"
+                      placeholder="your@email.com"
+                      className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-900 mb-2">
-                      Phone (Optional)
-                    </label>
+                    <label className="block text-white font-bold mb-2">Phone</label>
                     <input
                       type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      placeholder="(123) 456-7890"
+                      placeholder="01622 000000"
+                      className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="How can we help?"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-white font-bold mb-2">Message</label>
+                    <textarea
+                      placeholder="Your message..."
+                      rows={5}
+                      className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition resize-none"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    required
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 resize-none"
-                    placeholder="Tell us more about your inquiry..."
-                    rows={5}
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
-                </Button>
-              </form>
-            </div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+                  >
+                    Send Message
+                  </Button>
+                </form>
+              </Card>
+            </motion.div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-blue-600 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Schedule Your Service?</h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Book your appointment online for a faster, more convenient experience.
-            </p>
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
-              <Link href="/booking">Book Now</Link>
-            </Button>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800 border-t border-gold-500/20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        >
+          <h2 className="text-4xl font-bold mb-6">Ready to Book?</h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Schedule your service appointment online today.
+          </p>
+
+          <Button
+            asChild
+            size="lg"
+            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+          >
+            <Link href="/booking">Book Your Service</Link>
+          </Button>
+        </motion.div>
+      </section>
+    </div>
   )
 }

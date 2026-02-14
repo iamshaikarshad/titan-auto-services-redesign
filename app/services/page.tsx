@@ -3,164 +3,216 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { CheckCircle2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { fadeInUp, staggerContainer } from '@/lib/animations'
+import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight } from 'lucide-react'
 
-const servicesData = [
+const allServices = [
   {
-    id: 'oil-change',
-    title: 'Oil Change',
-    price: '$49.99',
-    duration: '30 minutes',
-    description: 'Regular oil and filter changes to keep your engine running smoothly.',
-    features: ['Synthetic or conventional oil', 'New oil filter', 'Fluid level check', 'Multi-point inspection'],
+    icon: Gauge,
+    title: 'MOT Testing Maidstone',
+    description: 'Professional MOT testing with DVSA approval. Complete vehicle inspection and diagnostics.',
+    price: 'From £45',
+    features: ['DVSA Approved', 'Expert Inspection', '30-Min Test', 'Instant Results'],
+    href: '/services/mot',
   },
   {
-    id: 'brake-service',
-    title: 'Brake Service',
-    price: '$129.99',
-    duration: '1-2 hours',
-    description: 'Brake pad replacement, rotor servicing, and brake fluid checks.',
-    features: ['Brake pad replacement', 'Rotor inspection and servicing', 'Brake fluid check', 'System testing'],
+    icon: Wrench,
+    title: 'Car Servicing',
+    description: 'Full and interim servicing with genuine parts and comprehensive maintenance.',
+    price: 'From £150',
+    features: ['Oil & Filter', 'Fluid Checks', 'Parts Inspection', 'Warranty Included'],
+    href: '/services/servicing',
   },
   {
-    id: 'tire-service',
-    title: 'Tire Service',
-    price: '$79.99',
-    duration: '45 minutes',
-    description: 'Tire rotation, balancing, alignment, and repair services.',
-    features: ['Tire rotation', 'Balancing', 'Alignment check', 'Pressure adjustment'],
+    icon: Zap,
+    title: 'Tyres & Wheel Alignment',
+    description: 'Tyre fitting, balancing, rotation, and professional wheel alignment.',
+    price: 'From £60',
+    features: ['Quality Tyres', 'Balancing', 'Alignment', 'Free Rotation'],
+    href: '/services/tyres',
   },
   {
-    id: 'engine-diagnostics',
+    icon: Shield,
+    title: 'Brake Service & Repairs',
+    description: 'Complete brake system repairs, pad replacement, and safety inspections.',
+    price: 'From £80',
+    features: ['Pad Replacement', 'Rotor Service', 'Safety Check', 'Warranty'],
+    href: '/services/brakes',
+  },
+  {
+    icon: Clock,
     title: 'Engine Diagnostics',
-    price: '$89.99',
-    duration: '1 hour',
-    description: 'Computer diagnostics to identify engine issues and problems.',
-    features: ['Full system scan', 'Error code reading', 'Diagnostic report', 'Repair recommendations'],
+    description: 'Advanced diagnostic equipment to identify and resolve engine issues.',
+    price: 'From £50',
+    features: ['Advanced Tech', 'Fast Results', 'Expert Advice', 'Transparent Pricing'],
+    href: '/services/diagnostics',
   },
   {
-    id: 'battery-replacement',
-    title: 'Battery Replacement',
-    price: '$99.99',
-    duration: '30 minutes',
-    description: 'Battery testing, replacement, and terminal cleaning.',
-    features: ['Battery testing', 'New battery installation', 'Terminal cleaning', '2-year warranty'],
-  },
-  {
-    id: 'transmission-service',
-    title: 'Transmission Service',
-    price: '$149.99',
-    duration: '2-3 hours',
-    description: 'Transmission fluid change and filter replacement.',
-    features: ['Fluid flush', 'Filter replacement', 'System inspection', 'Performance testing'],
-  },
-  {
-    id: 'ac-service',
-    title: 'AC Service',
-    price: '$119.99',
-    duration: '1.5 hours',
-    description: 'Air conditioning system service, recharge, and repair.',
-    features: ['System inspection', 'Refrigerant recharge', 'Belt and hose check', 'Performance test'],
-  },
-  {
-    id: 'suspension-repair',
-    title: 'Suspension Repair',
-    price: '$159.99',
-    duration: '2-3 hours',
-    description: 'Suspension system inspection, repair, and replacement.',
-    features: ['Spring and shock inspection', 'Strut replacement', 'Alignment adjustment', 'Road test'],
+    icon: Award,
+    title: 'Air Conditioning Service',
+    description: 'Professional air conditioning maintenance and refrigerant recharge.',
+    price: 'From £75',
+    features: ['A/C Recharge', 'System Check', 'Refrigerant', 'Leak Detection'],
+    href: '/services/air-con',
   },
 ]
 
 export default function ServicesPage() {
   return (
-    <>
-      <Header />
-      <main>
-        {/* Page Header */}
-        <section className="py-12 md:py-16 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Services</h1>
-            <p className="text-xl text-slate-300">
-              Professional auto repair and maintenance solutions you can rely on.
-            </p>
-          </div>
-        </section>
+    <div className="min-h-screen">
+      {/* Header Section */}
+      <section className="relative pt-32 pb-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 to-navy-950 -z-10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
 
-        {/* Services Grid */}
-        <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 gap-4">
-              {servicesData.map((service) => (
-                <Card
-                  key={service.id}
-                  className="p-4 cursor-pointer transition border-2 border-slate-200 hover:border-blue-600 hover:shadow-lg"
-                  onClick={() => window.location.href = `/booking?service=${service.id}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-slate-900 mb-1">{service.title}</h3>
-                      <p className="text-sm text-slate-600 mb-3">{service.description}</p>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="text-slate-600"><span className="font-semibold">Duration:</span> {service.duration}</span>
-                        <span className="text-blue-600 font-semibold">{service.price}</span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        >
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">Our Services</h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Comprehensive automotive solutions for all your car maintenance and repair needs.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* Services Grid */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {allServices.map((service, idx) => {
+              const Icon = service.icon
+              return (
+                <motion.div key={idx} variants={fadeInUp}>
+                  <Card className="bg-navy-800 border-gold-500/20 hover:border-gold-500/50 transition p-8 h-full flex flex-col group hover:shadow-lg hover:shadow-gold-500/10">
+                    <div className="mb-6">
+                      <div className="w-16 h-16 bg-gold-500/10 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 transition">
+                        <Icon className="w-8 h-8 text-gold-500" />
                       </div>
                     </div>
-                    <Button asChild className="bg-blue-600 hover:bg-blue-700 ml-4">
-                      <Link href={`/booking?service=${service.id}`}>Book</Link>
+
+                    <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
+                    <p className="text-gray-400 mb-4 flex-grow">{service.description}</p>
+
+                    <div className="mb-6">
+                      <p className="text-gold-500 font-bold text-lg mb-4">{service.price}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {service.features.map((feature, i) => (
+                          <span key={i} className="text-xs bg-gold-500/10 text-gold-400 px-3 py-1 rounded-full">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button
+                      asChild
+                      className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold group/btn"
+                    >
+                      <Link href={service.href} className="flex items-center justify-center gap-2">
+                        Learn More
+                        <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
+                      </Link>
                     </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+                  </Card>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Additional Info */}
-        <section className="py-16 md:py-24 bg-slate-50">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center text-slate-900">
-              What Makes Our Service Special
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-xl font-bold mb-3 text-slate-900">Certified Technicians</h3>
-              <p className="text-slate-600">
-                All our mechanics are ASE certified and continuously trained on the latest automotive technology.
-              </p>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-xl font-bold mb-3 text-slate-900">Genuine Parts</h3>
-              <p className="text-slate-600">
-                We use only genuine and OEM-quality parts to ensure your vehicle's longevity and reliability.
-              </p>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-md transition">
-              <h3 className="text-xl font-bold mb-3 text-slate-900">Warranty Protection</h3>
-              <p className="text-slate-600">
-                Every service comes with a comprehensive warranty on parts and labor for your peace of mind.
-              </p>
-            </div>
-          </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-blue-600 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Schedule Your Service?</h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Book your appointment online today and experience the Titan Auto Service difference.
+      {/* Why Choose Us */}
+      <section className="py-20 bg-navy-900/50 border-y border-gold-500/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold mb-6">Why Choose Titan Auto?</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              We combine expertise, quality, and customer care to deliver exceptional service.
             </p>
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                title: 'Expert Technicians',
+                description: 'ASE-certified mechanics with 25+ years of combined experience.',
+              },
+              {
+                title: 'Genuine Parts',
+                description: 'We use only quality OEM and genuine replacement parts.',
+              },
+              {
+                title: 'Warranty Protection',
+                description: 'Every service comes with comprehensive warranty coverage.',
+              },
+            ].map((item, idx) => (
+              <motion.div key={idx} variants={fadeInUp}>
+                <Card className="bg-navy-800 border-gold-500/20 p-8">
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400">{item.description}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        >
+          <h2 className="text-4xl font-bold mb-6">Ready to Book?</h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Schedule your service appointment online or call us today.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+            >
               <Link href="/booking">Book Now</Link>
             </Button>
+
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-navy-950 font-bold"
+            >
+              <a href="tel:01622438114">Call: 01622 438114</a>
+            </Button>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+        </motion.div>
+      </section>
+    </div>
   )
 }

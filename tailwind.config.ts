@@ -11,6 +11,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Titan brand colors
+        gold: {
+          50: '#fef8f3',
+          100: '#fdf1e6',
+          200: '#f9dcc8',
+          300: '#f5c9a6',
+          400: '#e8b58c',
+          500: '#d4a574',
+          600: '#c9a961',
+          700: '#b8934a',
+          800: '#a67e3a',
+          900: '#8b6730',
+        },
+        // Dark navy backgrounds
+        navy: {
+          50: '#f0f1f5',
+          100: '#dfe1eb',
+          200: '#bfc4d8',
+          300: '#9fa6c3',
+          400: '#7f89ae',
+          500: '#5f6b99',
+          600: '#4a5264',
+          700: '#3a3f4f',
+          800: '#2a2d3a',
+          900: '#1a1f2e',
+          950: '#0a0e1a',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -69,20 +96,12 @@ const config: Config = {
       },
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
       },
       animation: {
