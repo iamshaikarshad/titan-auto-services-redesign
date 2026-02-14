@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         c.city,
         c.postal_code,
         s.name as service_name,
-        s.price as service_price
+        s.base_price as service_price
       FROM bookings b
       JOIN customers c ON b.customer_id = c.id
       LEFT JOIN services s ON b.service_id = s.id
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('[v0] Admin bookings error:', error)
     return NextResponse.json(
-      { error: 'Failed to retrieve bookings' },
+      { error: 'Failed to retrieve bookings', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   } finally {
