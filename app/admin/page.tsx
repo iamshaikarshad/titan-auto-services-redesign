@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X } from 'lucide-react'
 
 interface Booking {
   id: number
@@ -20,6 +20,15 @@ interface Booking {
   last_name: string
   email: string
   phone: string
+  car_make?: string
+  car_model?: string
+  car_year?: number
+  registration_number?: string
+  address?: string
+  city?: string
+  postal_code?: string
+  service_name?: string
+  service_price?: number
 }
 
 export default function AdminPage() {
@@ -27,6 +36,9 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [updateError, setUpdateError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchBookings()
@@ -45,6 +57,37 @@ export default function AdminPage() {
       console.error('[v0] Error fetching bookings:', err)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const updateBookingStatus = async (bookingId: number, newStatus: string) => {
+    setIsUpdating(true)
+    setUpdateError(null)
+    try {
+      const response = await fetch('/api/admin/bookings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, status: newStatus }),
+      })
+
+      if (!response.ok) throw new Error('Failed to update booking')
+
+      // Update local state
+      setBookings(bookings.map(b => 
+        b.id === bookingId ? { ...b, status: newStatus as any } : b
+      ))
+
+      // Update selected booking
+      if (selectedBooking && selectedBooking.id === bookingId) {
+        setSelectedBooking({ ...selectedBooking, status: newStatus as any })
+      }
+
+      console.log('[v0] Booking status updated:', bookingId, newStatus)
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : 'Failed to update booking')
+      console.error('[v0] Error updating booking:', err)
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -194,7 +237,10 @@ export default function AdminPage() {
             ) : (
               filteredBookings.map((booking) => (
                 <motion.div key={booking.id} variants={fadeInUp}>
-                  <Card className="bg-navy-800 border-gold-500/20 hover:border-gold-500/50 transition p-6">
+                  <Card 
+                    onClick={() => setSelectedBooking(booking)}
+                    className="bg-navy-800 border-gold-500/20 hover:border-gold-500/50 transition p-6 cursor-pointer"
+                  >
                     <div className="flex items-start justify-between gap-6 flex-wrap">
                       {/* Left Section - Customer Info */}
                       <div className="flex-1 min-w-64">
@@ -250,6 +296,152 @@ export default function AdminPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Booking Details Modal */}
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-navy-900 border border-gold-500/30 rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto"
+          >
+            {/* Modal Header */}
+            <div className="bg-navy-800 border-b border-gold-500/20 px-6 py-4 flex items-center justify-between sticky top-0">
+              <h2 className="text-2xl font-bold text-white">Booking Details</h2>
+              <button
+                onClick={() => setSelectedBooking(null)}
+                className="text-gray-400 hover:text-white transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Customer Info */}
+              <div>
+                <h3 className="text-lg font-bold text-gold-500 mb-3">Customer Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Name</p>
+                    <p className="text-white font-medium">{selectedBooking.first_name} {selectedBooking.last_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Email</p>
+                    <p className="text-white font-medium">{selectedBooking.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Phone</p>
+                    <p className="text-white font-medium">{selectedBooking.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Registration</p>
+                    <p className="text-white font-medium">{selectedBooking.registration_number || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vehicle Info */}
+              {selectedBooking.car_make && (
+                <div>
+                  <h3 className="text-lg font-bold text-gold-500 mb-3">Vehicle Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-400">Make</p>
+                      <p className="text-white font-medium">{selectedBooking.car_make}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Model</p>
+                      <p className="text-white font-medium">{selectedBooking.car_model || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Year</p>
+                      <p className="text-white font-medium">{selectedBooking.car_year || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Booking Info */}
+              <div>
+                <h3 className="text-lg font-bold text-gold-500 mb-3">Booking Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Date & Time</p>
+                    <p className="text-white font-medium">
+                      {new Date(selectedBooking.booking_date).toLocaleString('en-GB', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Service</p>
+                    <p className="text-white font-medium">{selectedBooking.service_name || `Service #${selectedBooking.service_id}`}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Price</p>
+                    <p className="text-gold-500 font-bold">£{parseFloat(String(selectedBooking.total_price)).toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Current Status</p>
+                    <div className={`flex items-center gap-2 px-2 py-1 rounded-full border w-fit ${getStatusBadgeColor(selectedBooking.status)}`}>
+                      {getStatusIcon(selectedBooking.status)}
+                      <span className="capitalize text-xs font-medium">{selectedBooking.status}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {selectedBooking.notes && (
+                <div>
+                  <h3 className="text-lg font-bold text-gold-500 mb-3">Notes</h3>
+                  <p className="text-gray-300 bg-navy-800 p-3 rounded-lg">{selectedBooking.notes}</p>
+                </div>
+              )}
+
+              {/* Status Update */}
+              <div>
+                <h3 className="text-lg font-bold text-gold-500 mb-3">Update Status</h3>
+                {updateError && (
+                  <p className="text-red-400 text-sm mb-3">{updateError}</p>
+                )}
+                <div className="flex gap-2 flex-wrap">
+                  {['pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+                    <Button
+                      key={status}
+                      onClick={() => updateBookingStatus(selectedBooking.id, status)}
+                      disabled={isUpdating || selectedBooking.status === status}
+                      className={`capitalize ${
+                        selectedBooking.status === status
+                          ? 'bg-gold-500 text-navy-950 cursor-default'
+                          : 'bg-navy-800 text-gray-300 hover:bg-navy-700 border border-gold-500/20'
+                      }`}
+                    >
+                      {isUpdating && selectedBooking.status === status ? 'Updating...' : status}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-navy-800 border-t border-gold-500/20 px-6 py-4 flex justify-end">
+              <Button
+                onClick={() => setSelectedBooking(null)}
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+              >
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
