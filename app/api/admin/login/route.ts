@@ -1,30 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Pool } from '@neondatabase/serverless'
+import bcrypt from 'bcryptjs'
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 export async function POST(request: NextRequest) {
+  let client
   try {
     const body = await request.json()
-    const { password } = body
+    const { email, password } = body
 
-    if (!password) {
+    if (!email || !password) {
       return NextResponse.json(
-        { error: 'Password is required' },
+        { error: 'Email and password are required' },
         { status: 400 }
       )
     }
 
-    // Get admin password from environment variable
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+    client = await pool.connect()
 
-    // Verify password
-    if (password !== adminPassword) {
-      console.log('[v0] Invalid admin password attempt')
+    // Get admin user from database
+    const result = await client.query(
+      'SELECT id, email, password_hash FROM users WHERE email = $1 AND role = $2',
+      [email, 'admin']
+    )
+
+    if (result.rows.length === 0) {
+      console.log('[v0] Admin user not found:', email)
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Invalid email or password' },
         { status: 401 }
       )
     }
 
-    console.log('[v0] Admin login successful')
+    const user = result.rows[0]
+
+    // Verify password against bcrypt hash
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash)
+
+    if (!isPasswordValid) {
+      console.log('[v0] Invalid password attempt for:', email)
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
+    }
+
+    console.log('[v0] Admin login successful:', email)
 
     // Create response with success message
     const response = NextResponse.json(
@@ -48,5 +70,9 @@ export async function POST(request: NextRequest) {
       { error: 'Login failed' },
       { status: 500 }
     )
+  } finally {
+    if (client) {
+      client.release()
+    }
   }
 }

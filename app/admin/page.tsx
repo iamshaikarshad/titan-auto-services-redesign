@@ -5,8 +5,9 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { ChangePasswordModal } from '@/components/change-password-modal'
 
 interface Booking {
   id: number
@@ -41,6 +42,7 @@ export default function AdminPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [updateError, setUpdateError] = useState<string | null>(null)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -186,6 +188,13 @@ export default function AdminPage() {
               <p className="text-gray-400 mt-1">Manage bookings and customers</p>
             </div>
             <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setShowChangePasswordModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-2"
+              >
+                <Lock className="w-4 h-4" />
+                Change Password
+              </Button>
               <Button
                 onClick={fetchBookings}
                 className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center gap-2"
@@ -474,6 +483,16 @@ export default function AdminPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+        onSuccess={() => {
+          setShowChangePasswordModal(false)
+          // Optionally show success message or refresh
+        }}
+      />
     </div>
   )
 }

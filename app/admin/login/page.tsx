@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Lock } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
+import Link from 'next/link'
 
 export default function AdminLoginPage() {
   const router = useRouter()
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -23,7 +25,7 @@ export default function AdminLoginPage() {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
@@ -74,16 +76,35 @@ export default function AdminLoginPage() {
               </motion.div>
             )}
 
+            {/* Email Field */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Admin Password
+                Admin Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@titanautomaidstone.com"
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 pl-10 bg-navy-800 border border-gold-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Password
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
+                  placeholder="Enter your password"
                   disabled={isLoading}
                   className="w-full px-4 py-3 bg-navy-800 border border-gold-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
@@ -104,12 +125,22 @@ export default function AdminLoginPage() {
 
             <Button
               type="submit"
-              disabled={isLoading || !password}
+              disabled={isLoading || !email || !password}
               className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold py-3 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
+
+          {/* Forgot Password Link */}
+          <div className="mt-6 text-center">
+            <Link
+              href="/admin/forgot-password"
+              className="text-gold-500 hover:text-gold-400 text-sm font-medium transition"
+            >
+              Forgot your password?
+            </Link>
+          </div>
 
           {/* Footer */}
           <div className="mt-8 pt-8 border-t border-gold-500/20">
