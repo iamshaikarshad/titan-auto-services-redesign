@@ -13,13 +13,11 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
-              </div>
-              <span className="font-bold text-xl">SleekSpec</span>
+              <img src="/titan-logo.jpg" alt="Titan Auto" className="w-10 h-10 rounded-lg" />
+              <span className="font-bold text-xl">Titan Auto</span>
             </div>
             <p className="text-slate-400 text-sm">
-              Premium auto repair and maintenance services you can trust.
+              Professional auto repair and maintenance services in Maidstone. Honest, transparent, and reliable.
             </p>
           </div>
 
@@ -56,19 +54,28 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2 text-slate-400">
                 <Phone className="w-4 h-4" />
-                <a href="tel:+1234567890" className="hover:text-white transition">
-                  (123) 456-7890
+                <a href="tel:01622438114" className="hover:text-white transition">
+                  01622 438114
+                </a>
+              </li>
+              <li className="flex items-center gap-2 text-slate-400">
+                <Phone className="w-4 h-4" />
+                <a href="tel:07305509999" className="hover:text-white transition">
+                  07305 509999
                 </a>
               </li>
               <li className="flex items-center gap-2 text-slate-400">
                 <Mail className="w-4 h-4" />
-                <a href="mailto:info@sleekspec.com" className="hover:text-white transition">
-                  info@sleekspec.com
+                <a href="mailto:info@titanautoservices.co.uk" className="hover:text-white transition">
+                  info@titanautoservices.co.uk
                 </a>
               </li>
               <li className="flex items-start gap-2 text-slate-400">
-                <MapPin className="w-4 h-4 mt-1" />
-                <span>123 Main Street, City, State 12345</span>
+                <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
+                <div className="text-sm">
+                  <p>11 Waterloo Street</p>
+                  <p>Maidstone, ME15 7UH</p>
+                </div>
               </li>
             </ul>
           </div>
@@ -104,7 +111,7 @@ export function Footer() {
 
         {/* Bottom Section */}
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-slate-400">
-          <p>&copy; {currentYear} SleekSpec Auto Garage. All rights reserved.</p>
+          <p>&copy; {currentYear} Titan Auto Service. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="#" className="hover:text-white transition">
               Privacy Policy

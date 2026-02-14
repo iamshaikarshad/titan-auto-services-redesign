@@ -7,12 +7,12 @@ const _geist = Geist({ subsets: ['latin'] })
 const _geistMono = Geist_Mono({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'SleekSpec Auto Garage - Professional Car Repair & Maintenance',
-  description: 'Premium auto repair and maintenance services. Book your appointment online. Expert mechanics, genuine parts, warranty on all work.',
+  title: 'Titan Auto Service - Professional Car Repair & Maintenance',
+  description: 'Professional auto repair and maintenance services in Maidstone. Expert mechanics, genuine parts, warranty on all work. Book online today.',
   generator: 'v0.app',
-  keywords: ['auto repair', 'car maintenance', 'mechanics', 'oil change', 'brake service', 'tire service'],
+  keywords: ['auto repair', 'car maintenance', 'mechanics', 'MOT', 'brake service', 'tire service', 'Maidstone'],
   openGraph: {
-    title: 'SleekSpec Auto Garage',
+    title: 'Titan Auto Service',
     description: 'Professional auto repair and maintenance services',
     type: 'website',
   },

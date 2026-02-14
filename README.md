@@ -1,6 +1,6 @@
-# SleekSpec Auto Garage - Booking & Management System
+# Titan Auto Service - Professional Auto Repair Website
 
-A modern, professional auto garage website with online booking system, built with Next.js 16, TypeScript, Tailwind CSS, and shadcn/ui.
+A modern, responsive auto garage booking website for Titan Auto Service in Maidstone, UK. Built with Next.js 16, TypeScript, Tailwind CSS, and shadcn/ui.
 
 ## 🚀 Features
 
@@ -42,7 +42,7 @@ Before getting started, ensure you have:
 
 ```bash
 git clone <repository-url>
-cd sleekspec-auto-garage
+cd titan-auto-service
 ```
 
 ### 2. Install Dependencies
@@ -74,7 +74,7 @@ ADMIN_PASSWORD=your_secure_admin_password
 GOOGLE_REVIEWS_API_KEY=your_google_api_key
 
 # Base URL (for production)
-NEXT_PUBLIC_BASE_URL=https://sleekspec.com
+NEXT_PUBLIC_BASE_URL=https://titanautoservices.co.uk
 ```
 
 ### 4. Set Up Database
@@ -85,13 +85,7 @@ The project includes a database migration script. Once you have `POSTGRES_URL` c
 pnpm run migrate
 ```
 
-This will create all necessary tables:
-- `services` - Service listings
-- `customers` - Customer information
-- `bookings` - Service bookings
-- `reviews` - Customer reviews
-- `operating_hours` - Business hours
-- `admin_users` - Admin authentication
+This will create all necessary tables for managing services, bookings, customers, and operating hours.
 
 ### 5. Run Development Server
 
@@ -104,7 +98,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📁 Project Structure
 
 ```
-sleekspec-auto-garage/
+titan-auto-service/
 ├── app/
 │   ├── layout.tsx              # Root layout with metadata
 │   ├── page.tsx                # Homepage
@@ -127,7 +121,7 @@ sleekspec-auto-garage/
 │   └── utils.ts                # Utility functions
 ├── public/
 │   ├── robots.txt              # SEO robots file
-│   └── images/                 # Image assets
+│   └── titan-logo.jpg          # Business logo
 ├── scripts/
 │   └── init-db.sql             # Database initialization
 └── styles/
@@ -205,7 +199,7 @@ Modify the services list in:
 ### Business Info
 Update business details in:
 - `/components/header.tsx` - Company name and logo
-- `/components/footer.tsx` - Contact information
+- `/components/footer.tsx` - Contact information (01622 438114, 07305 509999, Maidstone address)
 - `/lib/seo.ts` - Business schema data
 
 ## 🚀 Deployment
@@ -274,4 +268,4 @@ For issues, questions, or improvements:
 
 ---
 
-Built with ❤️ for modern auto service businesses.
+Built with ❤️ for Titan Auto Service and modern auto repair businesses.

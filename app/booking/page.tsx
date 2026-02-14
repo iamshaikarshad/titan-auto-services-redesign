@@ -1,6 +1,5 @@
 'use client'
 
-import type { Metadata } from 'next'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -8,16 +7,6 @@ import { Card } from '@/components/ui/card'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'Book Your Service | SleekSpec Auto Garage',
-  description: 'Schedule your auto repair appointment online. Quick and easy booking for all our services. Same-day availability.',
-  openGraph: {
-    title: 'Book Your Service | SleekSpec',
-    description: 'Schedule your auto repair appointment online',
-    type: 'website',
-  },
-}
 
 const services = [
   { id: 'oil-change', name: 'Oil Change', price: 49.99 },

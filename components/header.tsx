@@ -13,10 +13,8 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">S</span>
-          </div>
-          <span className="font-bold text-xl text-slate-900 hidden sm:inline">SleekSpec</span>
+          <img src="/titan-logo.jpg" alt="Titan Auto Service" className="w-10 h-10 rounded-lg" />
+          <span className="font-bold text-xl text-slate-900 hidden sm:inline">Titan Auto</span>
         </Link>
 
         {/* Desktop Navigation */}

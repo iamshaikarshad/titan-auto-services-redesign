@@ -1,22 +1,11 @@
 'use client'
 
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { Award, Users, Clock, Heart } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'About Us | SleekSpec Auto Garage',
-  description: 'Learn about SleekSpec Auto Garage. 23+ years of professional auto repair services. Meet our team of certified mechanics.',
-  openGraph: {
-    title: 'About Us | SleekSpec',
-    description: 'Professional auto garage with certified mechanics',
-    type: 'website',
-  },
-}
 
 export default function AboutPage() {
   const teamMembers = [
@@ -31,11 +20,11 @@ export default function AboutPage() {
       <Header />
       <main>
         {/* Page Header */}
-        <section className="py-12 md:py-16 bg-slate-900 text-white">
+        <section className="py-12 md:py-16 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
           <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">About SleekSpec</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">About Titan Auto Service</h1>
             <p className="text-xl text-slate-300">
-              Your trusted partner in automotive excellence.
+              Your trusted partner in automotive excellence since 2000.
             </p>
           </div>
         </section>
@@ -46,16 +35,13 @@ export default function AboutPage() {
             <div className="mb-12">
               <h2 className="text-3xl font-bold mb-6 text-slate-900">Our Story</h2>
               <p className="text-lg text-slate-700 mb-4 leading-relaxed">
-                SleekSpec Auto Garage was founded in 2000 with a simple mission: to provide honest, professional,
-                and reliable auto repair services. What started as a small neighborhood shop has grown into a trusted
-                institution serving thousands of satisfied customers.
+                Titan Auto Service was founded with a simple mission: to provide honest, professional, and reliable auto repair services in Maidstone. What started as a local family-run garage has grown into a trusted institution serving the community with quality, integrity, and transparent service.
               </p>
               <p className="text-lg text-slate-700 mb-4 leading-relaxed">
-                We believe in treating every vehicle like it's our own. Our team of certified mechanics takes pride in
-                delivering exceptional service, transparent communication, and competitive pricing.
+                We believe in treating every vehicle like it's our own. Our team of ASE-certified mechanics takes pride in delivering exceptional service, transparent communication, and fair pricing without pushy upselling.
               </p>
               <p className="text-lg text-slate-700 leading-relaxed">
-                Today, we're still committed to the same values: integrity, expertise, and customer satisfaction.
+                Today, we're still committed to the same values: honesty, expertise, and genuine customer care. We're proud to be part of the Maidstone community.
               </p>
             </div>
 
@@ -131,10 +117,10 @@ export default function AboutPage() {
         <section className="py-16 md:py-24 bg-blue-600 text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Experience the SleekSpec Difference
+              Experience the Titan Auto Service Difference
             </h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Schedule your appointment today and discover why we're trusted by thousands of car owners.
+              Schedule your appointment today and discover why we're trusted by families and businesses in Maidstone.
             </p>
             <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
               <Link href="/booking">Book Now</Link>

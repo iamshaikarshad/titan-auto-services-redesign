@@ -1,6 +1,5 @@
 'use client'
 
-import type { Metadata } from 'next'
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -8,16 +7,6 @@ import { Card } from '@/components/ui/card'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { Mail, Phone, MapPin, Clock, AlertCircle, CheckCircle2 } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'Contact Us | SleekSpec Auto Garage',
-  description: 'Get in touch with SleekSpec Auto Garage. Phone: (123) 456-7890. Hours: Mon-Fri 8am-6pm, Sat 9am-4pm.',
-  openGraph: {
-    title: 'Contact Us | SleekSpec',
-    description: 'Contact information for SleekSpec Auto Garage',
-    type: 'website',
-  },
-}
 
 interface ContactFormData {
   name: string
@@ -90,10 +79,13 @@ export default function ContactPage() {
                   <Phone className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h3 className="font-bold text-slate-900 mb-2">Phone</h3>
-                    <a href="tel:+1234567890" className="text-blue-600 hover:text-blue-700">
-                      (123) 456-7890
+                    <a href="tel:01622438114" className="text-blue-600 hover:text-blue-700 block">
+                      01622 438114
                     </a>
-                    <p className="text-sm text-slate-600 mt-1">Mon-Fri 8am-6pm, Sat 9am-4pm</p>
+                    <a href="tel:07305509999" className="text-blue-600 hover:text-blue-700 block">
+                      07305 509999
+                    </a>
+                    <p className="text-sm text-slate-600 mt-2">Mon-Fri 8am-6pm, Sat 9am-2pm</p>
                   </div>
                 </div>
               </Card>
@@ -103,8 +95,8 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h3 className="font-bold text-slate-900 mb-2">Email</h3>
-                    <a href="mailto:info@sleekspec.com" className="text-blue-600 hover:text-blue-700">
-                      info@sleekspec.com
+                    <a href="mailto:info@titanautoservices.co.uk" className="text-blue-600 hover:text-blue-700">
+                      info@titanautoservices.co.uk
                     </a>
                     <p className="text-sm text-slate-600 mt-1">Response within 24 hours</p>
                   </div>
@@ -116,8 +108,9 @@ export default function ContactPage() {
                   <MapPin className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <h3 className="font-bold text-slate-900 mb-2">Address</h3>
-                    <p className="text-slate-700">123 Main Street</p>
-                    <p className="text-slate-700">City, State 12345</p>
+                    <p className="text-slate-700 font-semibold">Titan Auto Service</p>
+                    <p className="text-slate-700">11 Waterloo Street</p>
+                    <p className="text-slate-700">Maidstone, ME15 7UH</p>
                   </div>
                 </div>
               </Card>
@@ -127,12 +120,12 @@ export default function ContactPage() {
             <Card className="p-6 mb-12 bg-slate-50 border-0">
               <div className="flex items-start gap-4">
                 <Clock className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
-                <div className="flex-1">
+                  <div className="flex-1">
                   <h3 className="font-bold text-slate-900 mb-4">Business Hours</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-slate-700"><span className="font-semibold">Monday - Friday:</span> 8:00 AM - 6:00 PM</p>
-                      <p className="text-slate-700"><span className="font-semibold">Saturday:</span> 9:00 AM - 4:00 PM</p>
+                      <p className="text-slate-700"><span className="font-semibold">Saturday:</span> 9:00 AM - 2:00 PM</p>
                       <p className="text-slate-700"><span className="font-semibold">Sunday:</span> Closed</p>
                     </div>
                     <div className="text-slate-600 text-sm">
