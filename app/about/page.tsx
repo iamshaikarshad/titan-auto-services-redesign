@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
 import { CheckCircle2, Star, Users, Zap } from 'lucide-react'
+import Image from 'next/image'
 
 export default function AboutPage() {
   return (
@@ -135,7 +136,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Our Team */}
+      {/* Our Team - Bigger Cards with Images */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -145,9 +146,9 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold mb-6">Meet Our Team</h2>
+            <h2 className="text-4xl font-bold mb-6">Meet Our Expert Team</h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Skilled, dedicated professionals committed to your vehicle's health.
+              Skilled, dedicated professionals committed to your vehicle's health and your satisfaction.
             </p>
           </motion.div>
 
@@ -161,26 +162,45 @@ export default function AboutPage() {
             {[
               {
                 name: 'John Smith',
-                role: 'Head Mechanic',
-                experience: '18 years',
+                role: 'Head Mechanic & Owner',
+                experience: '22 years',
+                image: '/team-mechanic-1.jpg',
+                bio: 'Founder of Titan Auto with extensive expertise in all vehicle types.',
               },
               {
                 name: 'Mike Johnson',
                 role: 'Diagnostic Specialist',
-                experience: '15 years',
+                experience: '18 years',
+                image: '/team-mechanic-2.jpg',
+                bio: 'Expert in engine diagnostics and complex repair solutions.',
               },
               {
                 name: 'David Brown',
-                role: 'Brake & Suspension',
-                experience: '12 years',
+                role: 'Brake & Suspension Specialist',
+                experience: '15 years',
+                image: '/team-mechanic-3.jpg',
+                bio: 'Specialized in safety-critical systems and suspension work.',
               },
             ].map((member, idx) => (
               <motion.div key={idx} variants={fadeInUp}>
-                <Card className="bg-navy-800 border-gold-500/20 p-8 text-center">
-                  <div className="w-20 h-20 bg-gold-500/20 rounded-full mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">{member.name}</h3>
-                  <p className="text-gold-500 font-bold mb-2">{member.role}</p>
-                  <p className="text-gray-400 text-sm">{member.experience} of experience</p>
+                <Card className="bg-navy-800 border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition h-full flex flex-col hover:shadow-lg hover:shadow-gold-500/10">
+                  {/* Image */}
+                  <div className="relative w-full h-72 bg-navy-700">
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-8 flex flex-col flex-grow">
+                    <h3 className="text-2xl font-bold text-white mb-2">{member.name}</h3>
+                    <p className="text-gold-500 font-bold mb-2">{member.role}</p>
+                    <p className="text-sm text-gray-400 mb-4">{member.experience} of experience</p>
+                    <p className="text-gray-300 text-sm flex-grow">{member.bio}</p>
+                  </div>
                 </Card>
               </motion.div>
             ))}

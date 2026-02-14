@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
 import { Phone, Mail, MapPin, Clock } from 'lucide-react'
+import Image from 'next/image'
 
 export default function ContactPage() {
   const contactInfo = [
