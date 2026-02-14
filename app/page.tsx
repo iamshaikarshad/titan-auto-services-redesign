@@ -97,10 +97,14 @@ export default function HomePage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-balance">
-                Premium Car Servicing in{' '}
-                <span className="gradient-gold bg-clip-text text-transparent">Maidstone</span>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+                Premium Car Servicing in
+                <br />
+                <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent inline-block">
+                  Maidstone
+                </span>
               </h1>
+
 
               <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl text-balance">
                 Expert mechanics. Genuine parts. Transparent pricing. Strength you can trust.
