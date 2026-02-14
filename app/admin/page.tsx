@@ -239,7 +239,7 @@ export default function AdminPage() {
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-gray-400">Total</p>
-                          <p className="text-xl font-bold text-gold-500">£{booking.total_price.toFixed(2)}</p>
+                          <p className="text-xl font-bold text-gold-500">£{parseFloat(String(booking.total_price)).toFixed(2)}</p>
                         </div>
                       </div>
                     </div>
