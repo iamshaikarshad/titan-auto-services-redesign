@@ -46,14 +46,25 @@ export default function AdminPage() {
     fetchBookings()
   }, [])
 
-  const handleLogout = () => {
-    // Clear admin session/auth if stored
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('adminAuth')
-      sessionStorage.removeItem('adminAuth')
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) {
+        throw new Error('Logout failed')
+      }
+
+      console.log('[v0] Logout successful')
+      // Redirect to login page
+      router.push('/admin/login')
+    } catch (err) {
+      console.error('[v0] Logout error:', err)
+      // Fallback to login page anyway
+      router.push('/admin/login')
     }
-    // Redirect to home page
-    router.push('/')
   }
 
   const fetchBookings = async () => {
