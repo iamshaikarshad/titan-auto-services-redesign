@@ -55,6 +55,8 @@ export default function AdminPage() {
     // Redirect to home page
     router.push('/')
   }
+
+  const fetchBookings = async () => {
     setIsLoading(true)
     setError(null)
     try {
