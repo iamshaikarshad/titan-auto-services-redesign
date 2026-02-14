@@ -86,41 +86,32 @@ const allServices = [
 export default function ServicesPage() {
   return (
     <div className="min-h-screen">
-      {/* Header Section with Image */}
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 to-navy-950 -z-10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
+      {/* Header Section with Background Image */}
+      <section className="relative pt-32 pb-20 overflow-hidden flex items-center min-h-96">
+        {/* Background Image */}
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/services-garage-interior.jpg"
+            alt="Professional garage services at Titan Auto"
+            fill
+            className="object-cover"
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/90 to-navy-900/80" />
+        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
-            {/* Text */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h1 className="text-5xl md:text-6xl font-bold mb-6">Our Services</h1>
-              <p className="text-xl text-gray-300 max-w-3xl">
-                Comprehensive automotive solutions for all your car maintenance and repair needs.
-              </p>
-            </motion.div>
-
-            {/* Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative h-64 lg:h-80 rounded-lg overflow-hidden"
-            >
-              <Image
-                src="/services-garage-interior.jpg"
-                alt="Professional garage services at Titan Auto"
-                fill
-                className="object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 rounded-lg border-2 border-gold-500/30" />
-            </motion.div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">Our Services</h1>
+            <p className="text-xl text-gray-300 max-w-3xl">
+              Comprehensive automotive solutions for all your car maintenance and repair needs.
+            </p>
+          </motion.div>
         </div>
       </section>
 

@@ -82,85 +82,73 @@ const googleReviews = [
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Fixed */}
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 to-navy-950 -z-10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
+      {/* Hero Section - Background Image */}
+      <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/hero-car-service.jpg"
+            alt="Professional car servicing at Titan Auto"
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/85 to-navy-900/70" />
+        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Side - Text */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-                Premium Car Servicing in
-                <br />
-                <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent inline-block">
-                  Maidstone
-                </span>
-              </h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl"
+          >
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              Premium Car Servicing in
+              <br />
+              <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent inline-block">
+                Maidstone
+              </span>
+            </h1>
 
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl text-balance">
+              Expert mechanics. Genuine parts. Transparent pricing. Strength you can trust.
+            </p>
 
-              <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl text-balance">
-                Expert mechanics. Genuine parts. Transparent pricing. Strength you can trust.
-              </p>
+            <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+                >
+                  <Link href="/booking">Book MOT</Link>
+                </Button>
+              </motion.div>
 
-              <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
-                  >
-                    <Link href="/booking">Book MOT</Link>
-                  </Button>
-                </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+                >
+                  <Link href="/booking">Book Service</Link>
+                </Button>
+              </motion.div>
 
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
-                  >
-                    <Link href="/booking">Book Service</Link>
-                  </Button>
-                </motion.div>
-
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-navy-950 font-bold"
-                  >
-                    <Link href="/services">View All Services</Link>
-                  </Button>
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Right Side - Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative h-96 lg:h-full rounded-lg overflow-hidden"
-            >
-              <Image
-                src="/hero-car-service.jpg"
-                alt="Professional car servicing at Titan Auto"
-                fill
-                className="object-cover rounded-lg"
-                priority
-              />
-              <div className="absolute inset-0 rounded-lg border-2 border-gold-500/30" />
-            </motion.div>
-          </div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-navy-950 font-bold"
+                >
+                  <Link href="/services">View All Services</Link>
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -221,6 +209,59 @@ export default function HomePage() {
                   </div>
                   <p className="text-gray-300 mb-4 text-sm italic">"{review.text}"</p>
                   <p className="text-gold-500 font-semibold text-sm">— {review.author}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="py-20 bg-gradient-to-b from-navy-900/50 to-navy-950/50 border-y border-gold-500/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose Titan Auto?</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              We combine expertise, quality, and genuine care for our customers to deliver exceptional automotive service.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          >
+            {[
+              {
+                title: 'Expert Technicians',
+                description: 'ASE-certified mechanics with 25+ years of combined experience on all vehicle types.',
+              },
+              {
+                title: 'Genuine Parts',
+                description: 'We use only quality OEM and genuine replacement parts for durability.',
+              },
+              {
+                title: 'Warranty Protection',
+                description: 'Every service comes with comprehensive warranty coverage for peace of mind.',
+              },
+              {
+                title: 'Transparent Pricing',
+                description: 'Honest, upfront quotes with no hidden fees or surprises.',
+              },
+            ].map((item, idx) => (
+              <motion.div key={idx} variants={fadeInUp}>
+                <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition h-full">
+                  <div className="w-12 h-12 bg-gold-500/20 rounded-lg mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400">{item.description}</p>
                 </Card>
               </motion.div>
             ))}
