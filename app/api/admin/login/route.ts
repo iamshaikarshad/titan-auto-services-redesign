@@ -48,8 +48,17 @@ export async function POST(request: NextRequest) {
     console.log('[v0] User found:', user.email, 'Password hash length:', user.password_hash?.length)
 
     // Verify password against bcrypt hash
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash)
-    console.log('[v0] Password valid:', isPasswordValid)
+    let isPasswordValid = false
+    try {
+      isPasswordValid = await bcrypt.compare(password, user.password_hash)
+      console.log('[v0] bcrypt.compare result:', isPasswordValid)
+    } catch (bcryptError) {
+      console.error('[v0] bcrypt compare error:', bcryptError)
+      return NextResponse.json(
+        { error: 'Authentication error - invalid password format' },
+        { status: 500 }
+      )
+    }
 
     if (!isPasswordValid) {
       console.log('[v0] Invalid password attempt for:', email)
