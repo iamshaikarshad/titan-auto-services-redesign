@@ -17,27 +17,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('[v0] ===== LOGIN ATTEMPT =====')
+    console.log('[v0] Email:', email)
+    console.log('[v0] Password length:', password.length)
+
     client = await pool.connect()
 
-    console.log('[v0] Login attempt with email:', email)
+    // First, get ALL users to see what we have
+    const allUsersResult = await client.query(
+      'SELECT id, email, role, password_hash FROM users'
+    )
+    console.log('[v0] Total users in database:', allUsersResult.rows.length)
+    allUsersResult.rows.forEach((row: any) => {
+      console.log('[v0] User:', row.email, 'Role:', row.role, 'Hash length:', row.password_hash?.length)
+    })
 
-    // Get admin user from database
+    // Now get the specific user
     const result = await client.query(
-      'SELECT id, email, password_hash FROM users WHERE email = $1 AND role = $2',
-      [email, 'admin']
+      'SELECT id, email, role, password_hash FROM users WHERE email = $1',
+      [email]
     )
 
-    console.log('[v0] Query result rows:', result.rows.length)
+    console.log('[v0] Query for email returned:', result.rows.length, 'rows')
 
     if (result.rows.length === 0) {
-      console.log('[v0] Admin user not found:', email)
-      // Try without role check to debug
-      const debugResult = await client.query(
-        'SELECT id, email, role, password_hash FROM users WHERE email = $1',
-        [email]
-      )
-      console.log('[v0] Debug - All users with this email:', debugResult.rows)
-      
+      console.log('[v0] User not found')
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -45,30 +49,52 @@ export async function POST(request: NextRequest) {
     }
 
     const user = result.rows[0]
-    console.log('[v0] User found:', user.email, 'Password hash length:', user.password_hash?.length)
+    console.log('[v0] User found:')
+    console.log('[v0]   - Email:', user.email)
+    console.log('[v0]   - Role:', user.role)
+    console.log('[v0]   - Hash exists:', !!user.password_hash)
+    console.log('[v0]   - Hash length:', user.password_hash?.length)
+    console.log('[v0]   - Hash prefix:', user.password_hash?.substring(0, 30))
 
-    // Verify password against bcrypt hash
-    let isPasswordValid = false
-    try {
-      isPasswordValid = await bcrypt.compare(password, user.password_hash)
-      console.log('[v0] bcrypt.compare result:', isPasswordValid)
-    } catch (bcryptError) {
-      console.error('[v0] bcrypt compare error:', bcryptError)
-      return NextResponse.json(
-        { error: 'Authentication error - invalid password format' },
-        { status: 500 }
-      )
-    }
-
-    if (!isPasswordValid) {
-      console.log('[v0] Invalid password attempt for:', email)
+    // Check role
+    if (user.role !== 'admin') {
+      console.log('[v0] User role is not admin:', user.role)
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       )
     }
 
-    console.log('[v0] Admin login successful:', email)
+    // Check if hash exists
+    if (!user.password_hash) {
+      console.log('[v0] No password hash found for user')
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
+    }
+
+    // Verify password
+    console.log('[v0] Starting bcrypt comparison...')
+    let isPasswordValid = false
+    
+    try {
+      isPasswordValid = await bcrypt.compare(password, user.password_hash)
+      console.log('[v0] bcrypt.compare result:', isPasswordValid)
+    } catch (bcryptError) {
+      console.error('[v0] bcrypt error:', bcryptError instanceof Error ? bcryptError.message : String(bcryptError))
+      throw bcryptError
+    }
+
+    if (!isPasswordValid) {
+      console.log('[v0] Password is invalid')
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
+    }
+
+    console.log('[v0] LOGIN SUCCESS')
 
     // Create response with success message
     const response = NextResponse.json(
@@ -81,15 +107,19 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60, // 24 hours
+      maxAge: 24 * 60 * 60,
       path: '/',
     })
 
     return response
   } catch (error) {
-    console.error('[v0] Login error:', error)
+    console.error('[v0] Login error:', error instanceof Error ? error.message : String(error))
+    console.error('[v0] Error stack:', error instanceof Error ? error.stack : 'No stack')
     return NextResponse.json(
-      { error: 'Login failed' },
+      { 
+        error: 'Login failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   } finally {
