@@ -19,14 +19,25 @@ export async function POST(request: NextRequest) {
 
     client = await pool.connect()
 
+    console.log('[v0] Login attempt with email:', email)
+
     // Get admin user from database
     const result = await client.query(
       'SELECT id, email, password_hash FROM users WHERE email = $1 AND role = $2',
       [email, 'admin']
     )
 
+    console.log('[v0] Query result rows:', result.rows.length)
+
     if (result.rows.length === 0) {
       console.log('[v0] Admin user not found:', email)
+      // Try without role check to debug
+      const debugResult = await client.query(
+        'SELECT id, email, role, password_hash FROM users WHERE email = $1',
+        [email]
+      )
+      console.log('[v0] Debug - All users with this email:', debugResult.rows)
+      
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
@@ -34,9 +45,11 @@ export async function POST(request: NextRequest) {
     }
 
     const user = result.rows[0]
+    console.log('[v0] User found:', user.email, 'Password hash length:', user.password_hash?.length)
 
     // Verify password against bcrypt hash
     const isPasswordValid = await bcrypt.compare(password, user.password_hash)
+    console.log('[v0] Password valid:', isPasswordValid)
 
     if (!isPasswordValid) {
       console.log('[v0] Invalid password attempt for:', email)
