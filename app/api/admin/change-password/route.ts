@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from '@neondatabase/serverless'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
