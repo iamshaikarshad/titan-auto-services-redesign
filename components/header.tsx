@@ -13,7 +13,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <img src="/titan-icon3.svg" alt="Titan Auto Service" className="w-14 h-14" />
+          <img src="/titan-icon4.svg" alt="Titan Auto Service" className="w-14 h-14" />
           <img src="/titan-banner.svg" alt="Titan Auto" className="h-8 hidden sm:inline" />
         </Link>
 
