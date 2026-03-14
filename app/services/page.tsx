@@ -405,21 +405,20 @@ export default function ServicesPage() {
       </section>
 
       {/* ── Single generic modal ─────────────────────────────────────────────── */}
-      <Dialog open={activeModal !== null} onOpenChange={(open) => { if (!open) setActiveModal(null) }}>
-        <DialogContent className="bg-navy-900 border border-gold-500/30 text-white max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {detail && (
-            <>
-              <DialogHeader className="mb-4">
-                <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center shrink-0">
-                    <detail.icon className="w-5 h-5 text-gold-500" />
-                  </div>
-                  {detail.title}
-</DialogTitle>
-            <DialogDescription className="text-gray-300">
-              {detail.description}
-            </DialogDescription>
-          </DialogHeader>
+      {detail && (
+        <Dialog open={activeModal !== null} onOpenChange={(open) => { if (!open) setActiveModal(null) }}>
+          <DialogContent className="bg-navy-900 border border-gold-500/30 text-white max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="mb-4">
+              <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center shrink-0">
+                  <detail.icon className="w-5 h-5 text-gold-500" />
+                </div>
+                {detail.title}
+              </DialogTitle>
+              <DialogDescription className="text-gray-300 mt-2">
+                {detail.description}
+              </DialogDescription>
+            </DialogHeader>
 
               {/* ── Car Servicing: fuel toggle + engine table ── */}
               {activeModal === 'servicing' && (
@@ -499,19 +498,18 @@ export default function ServicesPage() {
                 ))}
               </div>
 
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold" onClick={() => setActiveModal(null)}>
-                  <Link href={detail.bookingHref}>{detail.bookingLabel}</Link>
-                </Button>
-                <Button variant="outline" className="flex-1 border-gold-500/40 text-gray-300 hover:bg-navy-800" onClick={() => setActiveModal(null)}>
-                  Close
-                </Button>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button asChild className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold" onClick={() => setActiveModal(null)}>
+                <Link href={detail.bookingHref}>{detail.bookingLabel}</Link>
+              </Button>
+              <Button variant="outline" className="flex-1 border-gold-500/40 text-gray-300 hover:bg-navy-800" onClick={() => setActiveModal(null)}>
+                Close
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800">
