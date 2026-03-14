@@ -103,29 +103,34 @@ function RegWidget() {
       transition={{ duration: 0.6, delay: 0.5 }}
       className="mt-10 max-w-2xl"
     >
-      <p className="text-white font-bold text-lg mb-1">Get an instant price for your MOT or service and book for free.</p>
-      <div className="flex items-stretch gap-3 rounded-lg overflow-visible shadow-lg shadow-black/30 border border-white/10 mt-3">
-        {/* UK flag badge */}
-        <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0 rounded-l-lg">
-          <span className="text-xl leading-none">🇬🇧</span>
-          <span className="text-white text-[10px] font-bold leading-none tracking-widest">UK</span>
+      <p className="text-white font-bold text-lg mb-3">Get an instant price for your MOT or service and book for free.</p>
+
+      <div className="flex items-stretch gap-3">
+        {/* Flag + input joined flush */}
+        <div className="flex flex-1 rounded-lg overflow-hidden shadow-lg shadow-black/40 min-w-0">
+          {/* UK flag badge */}
+          <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0">
+            <span className="text-xl leading-none">🇬🇧</span>
+            <span className="text-white text-[10px] font-bold leading-none tracking-widest">UK</span>
+          </div>
+          {/* Reg input */}
+          <input
+            type="text"
+            value={reg}
+            onChange={(e) => setReg(e.target.value.toUpperCase())}
+            onKeyDown={(e) => e.key === 'Enter' && handleGetPrice()}
+            placeholder="ENTER YOUR REG"
+            maxLength={8}
+            spellCheck={false}
+            className="font-plate flex-1 min-w-0 bg-[#F5C500] text-navy-950 placeholder-navy-950/50 text-xl px-4 py-3 focus:outline-none uppercase"
+            aria-label="Enter your car registration number"
+          />
         </div>
-        {/* Reg input */}
-        <input
-          type="text"
-          value={reg}
-          onChange={(e) => setReg(e.target.value.toUpperCase())}
-          onKeyDown={(e) => e.key === 'Enter' && handleGetPrice()}
-          placeholder="ENTER YOUR REG"
-          maxLength={8}
-          spellCheck={false}
-          className="flex-1 bg-[#F5C500] text-navy-950 placeholder-navy-950/60 font-black text-xl tracking-widest px-4 py-3 focus:outline-none uppercase"
-          aria-label="Enter your car registration number"
-        />
-        {/* CTA button */}
+
+        {/* CTA button — separated by gap-3 */}
         <button
           onClick={handleGetPrice}
-          className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-base px-6 py-3 transition whitespace-nowrap shrink-0 rounded-r-lg"
+          className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-base px-6 py-3 rounded-lg transition whitespace-nowrap shrink-0 shadow-lg shadow-black/30"
         >
           Get a price now &rsaquo;
         </button>
