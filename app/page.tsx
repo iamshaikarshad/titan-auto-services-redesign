@@ -296,12 +296,27 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h2>
             <p className="text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Comprehensive automotive solutions for all your car maintenance and repair needs.
             </p>
+          </motion.div>
+
+          {/* Workshop image */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="mb-16 rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl shadow-gold-500/5"
+          >
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/titin-workshop-0WU73m4UMiEfRIFQ2vB7CUhbK8Edfe.jpg"
+              alt="Titan Auto Services workshop - professional garage with hydraulic lifts and tyre storage"
+              className="w-full h-72 md:h-96 object-cover object-center"
+            />
           </motion.div>
 
           <motion.div

@@ -129,7 +129,17 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
+              className="space-y-6"
             >
+              {/* Garage exterior photo */}
+              <div className="rounded-xl overflow-hidden border border-gold-500/20 shadow-lg shadow-gold-500/5">
+                <img
+                  src="/images/titan-garage-exterior.jpg"
+                  alt="Titan Auto Services - 11 Waterloo Street, Maidstone"
+                  className="w-full h-64 object-cover"
+                />
+              </div>
+
               <Card className="bg-navy-800 border-gold-500/20 p-8">
                 <h3 className="text-2xl font-bold text-white mb-6">Our Values</h3>
                 <ul className="space-y-4">
