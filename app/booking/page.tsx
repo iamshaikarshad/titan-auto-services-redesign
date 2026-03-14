@@ -108,6 +108,47 @@ function validatePhone(phone: string): boolean {
   return /^[\d\s\+\-\(\)]{7,}$/.test(phone.trim())
 }
 
+function RegWidget() {
+  const [reg, setReg] = useState('')
+
+  const handleGetPrice = () => {
+    if (!reg.trim()) return
+    const url = `https://bookmygarage.com/garage-detail/titan-auto-services_bt/me157uh/book/?ref=www.titanautoservices.co.uk&vrm=${encodeURIComponent(reg.trim().toUpperCase())}&referrer=widget`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  return (
+    <div className="mt-8 max-w-2xl mx-auto">
+      <p className="text-gray-300 text-center mb-3">Get an instant price for your MOT or service and book for free.</p>
+      <div className="flex items-stretch gap-3">
+        <div className="flex flex-1 rounded-lg overflow-hidden shadow-lg shadow-black/40 min-w-0">
+          <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0">
+            <span className="text-xl leading-none">🇬🇧</span>
+            <span className="text-white text-[10px] font-bold leading-none tracking-widest">UK</span>
+          </div>
+          <input
+            type="text"
+            value={reg}
+            onChange={(e) => setReg(e.target.value.toUpperCase())}
+            onKeyDown={(e) => e.key === 'Enter' && handleGetPrice()}
+            placeholder="ENTER YOUR REG"
+            maxLength={8}
+            spellCheck={false}
+            className="font-plate flex-1 min-w-0 bg-[#F5C500] text-navy-950 placeholder-navy-950/50 text-xl px-4 py-3 focus:outline-none uppercase"
+            aria-label="Enter your car registration number"
+          />
+        </div>
+        <button
+          onClick={handleGetPrice}
+          className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-base px-6 py-3 rounded-lg transition whitespace-nowrap shrink-0 shadow-lg shadow-black/30"
+        >
+          Get a price now &rsaquo;
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function BookingPageContent() {
   const searchParams = useSearchParams()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
@@ -222,6 +263,16 @@ function BookingPageContent() {
         >
           <h1 className="text-5xl md:text-6xl font-bold mb-6">Book Your Service</h1>
           <p className="text-xl text-gray-300">Fast, reliable, professional servicing in Maidstone.</p>
+
+          <RegWidget />
+
+          {/* OR divider */}
+          <div className="flex items-center gap-4 mt-10 max-w-2xl mx-auto">
+            <div className="flex-1 h-px bg-gold-500/20" />
+            <span className="text-gray-400 font-bold tracking-widest text-sm">OR</span>
+            <div className="flex-1 h-px bg-gold-500/20" />
+          </div>
+          <p className="text-gray-400 mt-4 text-sm">Fill in the form below to book directly with us</p>
         </motion.div>
       </div>
 
