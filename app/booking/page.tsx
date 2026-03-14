@@ -46,9 +46,19 @@ const servicingEngineSizes = {
   ],
 }
 
-const timeSlots = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'
+const sessions = [
+  {
+    id: 'morning',
+    label: 'Morning Session',
+    time: '09:00 – 12:00',
+    description: 'Drop off between 9am and 12pm',
+  },
+  {
+    id: 'afternoon',
+    label: 'Afternoon Session',
+    time: '13:00 – 17:00',
+    description: 'Drop off between 1pm and 5pm',
+  },
 ]
 
 interface BookingFormData {
@@ -400,19 +410,24 @@ function BookingPageContent() {
                   )}
                 </div>
                 <div className="mb-8">
-                  <label className="block text-white font-bold mb-3">Preferred Time</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {timeSlots.map((time) => (
+                  <label className="block text-white font-bold mb-3">Preferred Session</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {sessions.map((session) => (
                       <button
-                        key={time}
-                        onClick={() => setFormData({ ...formData, time })}
-                        className={`py-2 rounded transition text-sm font-bold ${
-                          formData.time === time
-                            ? 'bg-gold-500 text-navy-950'
-                            : 'bg-navy-700 text-gray-300 hover:bg-gold-500/20'
+                        key={session.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, time: session.id })}
+                        className={`p-5 rounded-lg border-2 text-left transition ${
+                          formData.time === session.id
+                            ? 'border-gold-500 bg-gold-500/10'
+                            : 'border-gold-500/20 bg-navy-700 hover:border-gold-500/50'
                         }`}
                       >
-                        {time}
+                        <p className={`font-bold text-lg mb-1 ${formData.time === session.id ? 'text-gold-500' : 'text-white'}`}>
+                          {session.label}
+                        </p>
+                        <p className="text-gold-400 font-mono text-sm mb-1">{session.time}</p>
+                        <p className="text-gray-400 text-sm">{session.description}</p>
                       </button>
                     ))}
                   </div>
@@ -531,8 +546,8 @@ function BookingPageContent() {
                       { label: 'Fuel Type', value: formData.fuelType === 'petrol' ? 'Petrol / Diesel' : 'Hybrid' },
                       { label: 'Engine Size', value: formData.engineSize },
                     ] : []),
-                    { label: 'Date', value: formData.date },
-                    { label: 'Time', value: formData.time },
+                    { label: 'Date', value: new Date(formData.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) },
+                    { label: 'Session', value: sessions.find(s => s.id === formData.time)?.label + ' (' + sessions.find(s => s.id === formData.time)?.time + ')' },
                     { label: 'Name', value: formData.name },
                     { label: 'Email', value: formData.email },
                     { label: 'Phone', value: formData.phone },
