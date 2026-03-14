@@ -51,41 +51,37 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen pt-24">
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-b from-navy-900 to-navy-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center lg:text-left"
-            >
-              <h1 className="text-5xl md:text-6xl font-bold mb-6">
-                About{' '}
-                <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent">
-                  Titan Auto Services
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
-                Your trusted, family-run garage in the heart of Maidstone
-              </p>
-            </motion.div>
+    <div className="min-h-screen">
+      {/* Hero Section - Background Image */}
+      <section className="relative min-h-[60vh] pt-24 pb-20 overflow-hidden flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 -z-10">
+          <img
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/titin-workshop-0WU73m4UMiEfRIFQ2vB7CUhbK8Edfe.jpg"
+            alt="Titan Auto Services workshop"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/85 to-navy-900/60" />
+        </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-              className="rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl shadow-gold-500/5"
-            >
-              <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/titin-workshop-0WU73m4UMiEfRIFQ2vB7CUhbK8Edfe.jpg"
-                alt="Titan Auto Services workshop - professional garage with hydraulic lifts and tyre storage"
-                className="w-full h-96 object-cover"
-              />
-            </motion.div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl"
+          >
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              About{' '}
+              <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent">
+                Titan Auto Services
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-2xl">
+              Your trusted, family-run garage in the heart of Maidstone — honest, professional, and proud to serve our community.
+            </p>
+          </motion.div>
         </div>
       </section>
 
