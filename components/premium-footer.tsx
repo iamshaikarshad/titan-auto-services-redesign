@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react'
-import { TitanLogo } from '@/components/titan-logo'
 import { Button } from '@/components/ui/button'
 
 export function PremiumFooter() {
@@ -16,8 +15,8 @@ export function PremiumFooter() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <TitanLogo className="w-12 h-12" />
-              <span className="font-bold text-xl text-white">Titan Auto</span>
+              <img src="/titan-icon.svg" alt="Titan Auto" className="w-12 h-12" />
+              <img src="/titan-banner.svg" alt="Titan Auto" className="h-8" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               Professional auto repair and maintenance services in Maidstone. Strength you can trust.
