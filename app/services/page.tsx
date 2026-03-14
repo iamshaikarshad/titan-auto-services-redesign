@@ -4,9 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, ChevronDown, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
+import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, X, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
 import Image from 'next/image'
 
 const tyrePricing = [
@@ -103,7 +104,7 @@ const allServices = [
 ]
 
 export default function ServicesPage() {
-  const [tyresExpanded, setTyresExpanded] = useState(false)
+  const [tyresModalOpen, setTyresModalOpen] = useState(false)
 
   return (
     <div className="min-h-screen">
@@ -172,49 +173,13 @@ export default function ServicesPage() {
                     </div>
 
                     {service.isTyres ? (
-                      <>
-                        <Button
-                          onClick={() => setTyresExpanded(!tyresExpanded)}
-                          className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center justify-center gap-2 mb-4"
-                        >
-                          Learn More
-                          <ChevronDown size={18} className={`transition-transform duration-300 ${tyresExpanded ? 'rotate-180' : ''}`} />
-                        </Button>
-
-                        <AnimatePresence>
-                          {tyresExpanded && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="border-t border-gold-500/20 pt-6">
-                                <h4 className="text-xl font-bold text-white mb-4">Tyre Fitting Price Guide</h4>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-                                  {tyrePricing.map((t) => (
-                                    <div key={t.size} className="bg-navy-700 border border-gold-500/20 rounded-lg p-4 text-center">
-                                      <p className="text-gold-500 font-bold text-xl mb-1">{t.size}</p>
-                                      <p className="text-white text-sm font-medium">£{t.from} – £{t.to}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                                <div className="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4 space-y-1">
-                                  <p className="text-gold-400 text-sm font-medium">Most common sizes available same day.</p>
-                                  <p className="text-gold-400 text-sm font-medium">Premium brands also available on request.</p>
-                                </div>
-                                <Button
-                                  asChild
-                                  className="w-full mt-5 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
-                                >
-                                  <Link href="/booking?service=tyres">Book Tyre Fitting</Link>
-                                </Button>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </>
+                      <Button
+                        onClick={() => setTyresModalOpen(true)}
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold mt-auto flex items-center justify-center gap-2 group/btn"
+                      >
+                        Learn More
+                        <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
+                      </Button>
                     ) : (
                       <Button
                         asChild
@@ -281,6 +246,66 @@ export default function ServicesPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Tyres & Wheel Alignment Modal */}
+      <Dialog open={tyresModalOpen} onOpenChange={setTyresModalOpen}>
+        <DialogContent className="bg-navy-900 border border-gold-500/30 text-white max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                <Zap className="w-5 h-5 text-gold-500" />
+              </div>
+              Tyres &amp; Wheel Alignment
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-gray-300 mb-6">
+            Tyre fitting, balancing, rotation, and professional wheel alignment for all makes and models.
+          </p>
+
+          {/* Pricing table */}
+          <h3 className="text-lg font-bold text-gold-500 mb-4">Tyre Fitting Price Guide</h3>
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            {tyrePricing.map((t) => (
+              <div key={t.size} className="bg-navy-800 border border-gold-500/20 rounded-lg p-4 text-center">
+                <p className="text-gold-500 font-bold text-2xl mb-1">{t.size}</p>
+                <p className="text-white text-sm font-medium">£{t.from} – £{t.to}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Notes */}
+          <div className="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4 space-y-1 mb-6">
+            <p className="text-gold-400 text-sm font-medium">Most common sizes available same day.</p>
+            <p className="text-gold-400 text-sm font-medium">Premium brands also available on request.</p>
+          </div>
+
+          {/* Features */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {['Quality Tyres', 'Balancing', 'Alignment', 'Same Day Available'].map((f) => (
+              <span key={f} className="text-xs bg-gold-500/10 text-gold-400 px-3 py-1 rounded-full">{f}</span>
+            ))}
+          </div>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              asChild
+              className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+              onClick={() => setTyresModalOpen(false)}
+            >
+              <Link href="/booking?service=tyres">Book Tyre Fitting</Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 border-gold-500/40 text-gray-300 hover:bg-navy-800"
+              onClick={() => setTyresModalOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800">
