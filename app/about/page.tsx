@@ -5,32 +5,77 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle2, Star, Users, Zap } from 'lucide-react'
-import Image from 'next/image'
+import { Car, UserCheck, Coffee, BadgeDollarSign, Heart, MapPin, Phone, Clock, CheckCircle } from 'lucide-react'
+
+const whyChooseUs = [
+  {
+    icon: Car,
+    title: 'Local Pickup & Drop-off',
+    description: 'We offer convenient local pickup and drop-off services within Maidstone to make your experience hassle-free.',
+  },
+  {
+    icon: UserCheck,
+    title: 'Professional Technicians',
+    description: 'Our skilled mechanics are trained to handle a wide range of vehicles with precision and care.',
+  },
+  {
+    icon: Coffee,
+    title: 'Comfortable Waiting Area',
+    description: 'Relax in our welcoming waiting area with complimentary refreshments while we service your vehicle.',
+  },
+  {
+    icon: BadgeDollarSign,
+    title: 'Honest & Transparent',
+    description: 'We believe in clear communication and fair pricing - no hidden fees, no unnecessary upsells.',
+  },
+  {
+    icon: Heart,
+    title: 'Family-Operated',
+    description: 'As a family-run business, we treat every customer like one of our own and take pride in building lasting relationships.',
+  },
+  {
+    icon: MapPin,
+    title: 'Community First',
+    description: 'We are proud to serve the Maidstone community and are dedicated to keeping local drivers safe on the road.',
+  },
+]
+
+const values = [
+  'Honest and transparent service',
+  'Quality workmanship on every job',
+  'Fair and competitive pricing',
+  'Building lasting customer relationships',
+  'Supporting our local community',
+  'Continuous improvement and training',
+]
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-24">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-900 to-navy-950 -z-10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl -z-10" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">About Titan Auto Service</h1>
-          <p className="text-xl text-gray-300 max-w-3xl">
-            25+ years of trusted automotive excellence. Strength you can trust.
-          </p>
-        </motion.div>
+      <section className="py-20 bg-gradient-to-b from-navy-900 to-navy-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              About{' '}
+              <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent">
+                Titan Auto Services
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed">
+              Your trusted, family-run garage in the heart of Maidstone
+            </p>
+          </motion.div>
+        </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-20">
+      {/* Who We Are Section */}
+      <section className="py-20 bg-navy-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -39,17 +84,43 @@ export default function AboutPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="bg-gradient-to-br from-gold-500/20 to-gold-500/5 rounded-lg p-8 border border-gold-500/20">
-                <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
-                <p className="text-gray-300 mb-4 leading-relaxed">
-                  Founded in 1998, Titan Auto Service has been serving the Maidstone community for over 25 years. What started as a small family garage has grown into one of the most trusted automotive service centres in Kent.
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">Who We Are</h2>
+              <div className="space-y-4 text-lg text-gray-300 leading-relaxed">
+                <p>
+                  Titan Auto Services is a reliable, family-run garage located in the heart of Maidstone. 
+                  We are committed to providing the local community with honest, professional, and affordable 
+                  automotive services.
                 </p>
-                <p className="text-gray-300 mb-4 leading-relaxed">
-                  Our commitment to excellence, honest pricing, and quality workmanship has earned us thousands of loyal customers. We believe in transparency, integrity, and putting our customers first.
+                <p>
+                  Whether you need a routine service, MOT, or a complex repair, our experienced team is here 
+                  to help. We take pride in treating every customer like family and every vehicle like our own.
                 </p>
-                <p className="text-gray-300 leading-relaxed">
-                  Today, our team of highly skilled ASE-certified technicians uses state-of-the-art diagnostic equipment to service and repair all makes and models of vehicles.
+                <p>
+                  Our mission is simple: to deliver quality workmanship, transparent pricing, and exceptional 
+                  customer service. We believe in building lasting relationships with our customers based on 
+                  trust and reliability.
                 </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+                >
+                  <Link href="/booking">Book a Service</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-navy-950 font-bold"
+                >
+                  <a href="tel:01622438114">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call Us
+                  </a>
+                </Button>
               </div>
             </motion.div>
 
@@ -57,27 +128,72 @@ export default function AboutPage() {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="grid grid-cols-2 gap-6"
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {[
-                { value: '25+', label: 'Years Experience' },
-                { value: '5000+', label: 'Happy Customers' },
-                { value: '8', label: 'Expert Technicians' },
-                { value: '100%', label: 'Satisfaction Guarantee' },
-              ].map((stat, idx) => (
-                <Card key={idx} className="bg-navy-800 border-gold-500/20 p-6 text-center">
-                  <p className="text-3xl font-bold text-gold-500 mb-2">{stat.value}</p>
-                  <p className="text-gray-400">{stat.label}</p>
-                </Card>
-              ))}
+              <Card className="bg-navy-800 border-gold-500/20 p-8">
+                <h3 className="text-2xl font-bold text-white mb-6">Our Values</h3>
+                <ul className="space-y-4">
+                  {values.map((value, idx) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-gold-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-300 text-lg">{value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
             </motion.div>
           </div>
         </div>
       </section>
 
+      {/* Contact Info Section */}
+      <section className="py-16 bg-navy-950 border-y border-gold-500/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            <motion.div variants={fadeInUp} className="text-center">
+              <div className="w-14 h-14 bg-gold-500/20 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <MapPin className="w-7 h-7 text-gold-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Our Location</h3>
+              <p className="text-gray-300">
+                11 Waterloo Street<br />
+                Maidstone, ME15 7UH
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="text-center">
+              <div className="w-14 h-14 bg-gold-500/20 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <Phone className="w-7 h-7 text-gold-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Contact Us</h3>
+              <p className="text-gray-300">
+                <a href="tel:01622438114" className="hover:text-gold-500 transition">01622 438114</a><br />
+                <a href="tel:07305509999" className="hover:text-gold-500 transition">07305 509999</a>
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="text-center">
+              <div className="w-14 h-14 bg-gold-500/20 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <Clock className="w-7 h-7 text-gold-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Opening Hours</h3>
+              <p className="text-gray-300">
+                Mon - Fri: 8:00am - 6:00pm<br />
+                Saturday: 9:00am - 2:00pm
+              </p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Why Choose Us */}
-      <section className="py-20 bg-navy-900/50 border-y border-gold-500/20">
+      <section className="py-20 bg-gradient-to-b from-navy-900/50 to-navy-950/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -86,9 +202,9 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold mb-6">Why Choose Titan Auto?</h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We combine expertise, quality, and genuine care for our customers.
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose Us?</h2>
+            <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              We are committed to providing the Maidstone community with reliable, honest, and professional automotive services.
             </p>
           </motion.div>
 
@@ -97,37 +213,18 @@ export default function AboutPage() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {[
-              {
-                icon: CheckCircle2,
-                title: 'Expert Technicians',
-                description: 'ASE-certified mechanics with extensive experience on all vehicle types.',
-              },
-              {
-                icon: Star,
-                title: 'Genuine Parts',
-                description: 'Only OEM and quality replacement parts used on every vehicle.',
-              },
-              {
-                icon: Zap,
-                title: 'Modern Equipment',
-                description: 'Advanced diagnostic tools and technology for accurate repairs.',
-              },
-              {
-                icon: Users,
-                title: 'Customer First',
-                description: 'Transparent pricing, honest advice, and exceptional service.',
-              },
-            ].map((item, idx) => {
+            {whyChooseUs.map((item, idx) => {
               const Icon = item.icon
               return (
                 <motion.div key={idx} variants={fadeInUp}>
-                  <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition">
-                    <Icon className="w-12 h-12 text-gold-500 mb-4" />
-                    <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                    <p className="text-gray-400">{item.description}</p>
+                  <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition h-full group">
+                    <div className="w-14 h-14 bg-gold-500/20 rounded-lg mb-5 flex items-center justify-center group-hover:bg-gold-500/30 transition">
+                      <Icon className="w-7 h-7 text-gold-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-3">{item.title}</h3>
+                    <p className="text-gray-300 text-lg leading-relaxed">{item.description}</p>
                   </Card>
                 </motion.div>
               )
@@ -136,79 +233,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Our Team - Bigger Cards with Images */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold mb-6">Meet Our Expert Team</h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Skilled, dedicated professionals committed to your vehicle's health and your satisfaction.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                name: 'John Smith',
-                role: 'Head Mechanic & Owner',
-                experience: '22 years',
-                image: '/team-mechanic-1.jpg',
-                bio: 'Founder of Titan Auto with extensive expertise in all vehicle types.',
-              },
-              {
-                name: 'Mike Johnson',
-                role: 'Diagnostic Specialist',
-                experience: '18 years',
-                image: '/team-mechanic-2.jpg',
-                bio: 'Expert in engine diagnostics and complex repair solutions.',
-              },
-              {
-                name: 'David Brown',
-                role: 'Brake & Suspension Specialist',
-                experience: '15 years',
-                image: '/team-mechanic-3.jpg',
-                bio: 'Specialized in safety-critical systems and suspension work.',
-              },
-            ].map((member, idx) => (
-              <motion.div key={idx} variants={fadeInUp}>
-                <Card className="bg-navy-800 border-gold-500/20 overflow-hidden hover:border-gold-500/50 transition h-full flex flex-col hover:shadow-lg hover:shadow-gold-500/10">
-                  {/* Image */}
-                  <div className="relative w-full h-72 bg-navy-700">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-8 flex flex-col flex-grow">
-                    <h3 className="text-2xl font-bold text-white mb-2">{member.name}</h3>
-                    <p className="text-gold-500 font-bold mb-2">{member.role}</p>
-                    <p className="text-sm text-gray-400 mb-4">{member.experience} of experience</p>
-                    <p className="text-gray-300 text-sm flex-grow">{member.bio}</p>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA */}
+      {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800 border-t border-gold-500/20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -217,18 +242,29 @@ export default function AboutPage() {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         >
-          <h2 className="text-4xl font-bold mb-6">Experience the Difference</h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Trust Titan Auto Service for all your automotive needs.
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Experience the Difference?</h2>
+          <p className="text-2xl text-gray-300 mb-8 leading-relaxed">
+            Book your service today and see why Maidstone drivers trust Titan Auto Services.
           </p>
 
-          <Button
-            asChild
-            size="lg"
-            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
-          >
-            <Link href="/booking">Book Your Service Today</Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+            >
+              <Link href="/booking">Book Now</Link>
+            </Button>
+
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-navy-950 font-bold"
+            >
+              <a href="tel:01622438114">Call: 01622 438114</a>
+            </Button>
+          </div>
         </motion.div>
       </section>
     </div>

@@ -19,7 +19,7 @@ export function PremiumFooter() {
               <img src="/titan-banner.svg" alt="Titan Auto" className="h-8" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Professional auto repair and maintenance services in Maidstone. Strength you can trust.
+              A reliable, family-run garage located in the heart of Maidstone. Honest, professional, and affordable automotive services.
             </p>
           </div>
 
