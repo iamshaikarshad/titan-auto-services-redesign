@@ -26,6 +26,26 @@ const tyreSizes = [
   { label: '19" — from £80 to £110', value: '19"' },
 ]
 
+const servicingEngineSizes = {
+  petrol: [
+    { label: 'Up to 1000cc — Interim £105 / Full £205', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc — Interim £145 / Full £205', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc — Interim £155 / Full £205', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc — Interim £165 / Full £245', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc — Interim £175 / Full £250', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc — Interim £195 / Full £265', value: 'Up to 3500cc' },
+  ],
+  hybrid: [
+    { label: 'Up to 1000cc — Interim £140 / Full £225', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc — Interim £165 / Full £235', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc — Interim £175 / Full £245', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc — Interim £185 / Full £255', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc — Interim £195 / Full £265', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc — Interim £215 / Full £285', value: 'Up to 3500cc' },
+    { label: 'Up to 4500cc — Interim £235 / Full £305', value: 'Up to 4500cc' },
+  ],
+}
+
 const timeSlots = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'
@@ -40,6 +60,8 @@ interface BookingFormData {
   phone: string
   vehicle: string
   tyreSize: string
+  fuelType: string
+  engineSize: string
   notes: string
 }
 
@@ -55,6 +77,8 @@ function BookingPageContent() {
     phone: '',
     vehicle: '',
     tyreSize: '',
+    fuelType: 'petrol',
+    engineSize: '',
     notes: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -62,8 +86,11 @@ function BookingPageContent() {
 
   const selectedService = services.find((s) => s.id === formData.service)
   const isTyresSelected = formData.service === 'tyres'
+  const isServicingSelected = formData.service === 'servicing'
   const isStepValid = {
-    service: formData.service !== '' && (!isTyresSelected || formData.tyreSize !== ''),
+    service: formData.service !== ''
+      && (!isTyresSelected || formData.tyreSize !== '')
+      && (!isServicingSelected || formData.engineSize !== ''),
     datetime: formData.date !== '' && formData.time !== '',
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
   }
@@ -99,6 +126,8 @@ function BookingPageContent() {
     try {
       const notesWithTyre = isTyresSelected && formData.tyreSize
         ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isServicingSelected && formData.engineSize
+        ? `Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
         : formData.notes
       const response = await fetch('/api/bookings', {
         method: 'POST',
@@ -174,7 +203,7 @@ function BookingPageContent() {
                   return (
                     <Card
                       key={service.id}
-                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '' })}
+                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '', engineSize: '', fuelType: 'petrol' })}
                       className={`p-6 cursor-pointer transition border-2 ${
                         formData.service === service.id
                           ? 'border-gold-500 bg-navy-800'
@@ -188,6 +217,55 @@ function BookingPageContent() {
                   )
                 })}
               </div>
+
+              {/* Servicing options - shown only when Car Servicing selected */}
+              {isServicingSelected && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="mb-6"
+                >
+                  <Card className="bg-navy-800 border-gold-500/30 p-6 space-y-5">
+                    <div>
+                      <label className="block text-white font-bold mb-3">
+                        Fuel Type <span className="text-gold-500">*</span>
+                      </label>
+                      <div className="flex gap-2 bg-navy-700 p-1 rounded-lg">
+                        {[{ label: 'Petrol / Diesel', value: 'petrol' }, { label: 'Hybrid', value: 'hybrid' }].map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, fuelType: opt.value, engineSize: '' })}
+                            className={`flex-1 py-2.5 rounded-md text-sm font-bold transition ${
+                              formData.fuelType === opt.value
+                                ? 'bg-gold-500 text-navy-950'
+                                : 'text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-white font-bold mb-3">
+                        Engine Size <span className="text-gold-500">*</span>
+                      </label>
+                      <select
+                        value={formData.engineSize}
+                        onChange={(e) => setFormData({ ...formData, engineSize: e.target.value })}
+                        className="w-full bg-navy-700 border border-gold-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold-500 text-base"
+                      >
+                        <option value="">-- Select engine size --</option>
+                        {servicingEngineSizes[formData.fuelType as 'petrol' | 'hybrid'].map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
 
               {/* Tyre size dropdown - shown only when Tyres selected */}
               {isTyresSelected && (
@@ -358,6 +436,10 @@ function BookingPageContent() {
                   {[
                     { label: 'Service', value: selectedService?.name },
                     ...(isTyresSelected && formData.tyreSize ? [{ label: 'Tyre Size', value: formData.tyreSize }] : []),
+                    ...(isServicingSelected && formData.engineSize ? [
+                      { label: 'Fuel Type', value: formData.fuelType === 'petrol' ? 'Petrol / Diesel' : 'Hybrid' },
+                      { label: 'Engine Size', value: formData.engineSize },
+                    ] : []),
                     { label: 'Date', value: formData.date },
                     { label: 'Time', value: formData.time },
                     { label: 'Name', value: formData.name },
