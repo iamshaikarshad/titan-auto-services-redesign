@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
@@ -156,7 +155,9 @@ function RegWidget() {
 
 function BookingPageContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
+  const [bookingSuccess, setBookingSuccess] = useState(false)
   const [formData, setFormData] = useState<BookingFormData>({
     service: searchParams.get('service') || '',
     date: '',
@@ -253,12 +254,51 @@ function BookingPageContent() {
         const errorData = await response.json()
         throw new Error(errorData.error || 'Booking failed')
       }
-      setStep('confirmation')
+      setBookingSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Booking failed')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Auto-redirect to home after successful booking
+  useEffect(() => {
+    if (bookingSuccess) {
+      const timer = setTimeout(() => {
+        router.push('/')
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [bookingSuccess, router])
+
+  // Show success screen after booking is confirmed
+  if (bookingSuccess) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full text-center"
+        >
+          <div className="w-20 h-20 bg-gold-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10 text-gold-500" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Booking Confirmed!</h1>
+          <p className="text-gray-300 text-lg mb-8">
+            Your request has been registered. We will get in touch with you shortly to confirm your appointment. Thank you for choosing Titan Auto Services!
+          </p>
+          <p className="text-gray-500 text-sm mb-6">Redirecting to home page in a few seconds...</p>
+          <Button
+            onClick={() => router.push('/')}
+            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold px-8"
+          >
+            Go to Home
+          </Button>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
