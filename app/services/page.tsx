@@ -149,7 +149,7 @@ export default function ServicesPage() {
             {allServices.map((service, idx) => {
               const Icon = service.icon
               return (
-                <motion.div key={idx} variants={fadeInUp} className={service.isTyres ? 'md:col-span-2 lg:col-span-3' : ''}>
+                <motion.div key={idx} variants={fadeInUp}>
                   <Card className="bg-navy-800 border-gold-500/20 hover:border-gold-500/50 transition p-8 h-full flex flex-col group hover:shadow-lg hover:shadow-gold-500/10">
                     <div className="mb-6">
                       <div className="w-16 h-16 bg-gold-500/10 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 transition">
