@@ -1,12 +1,22 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
+import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, ChevronDown, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
 import Image from 'next/image'
+
+const tyrePricing = [
+  { size: '14"', from: 35, to: 45 },
+  { size: '15"', from: 40, to: 50 },
+  { size: '16"', from: 60, to: 70 },
+  { size: '17"', from: 65, to: 85 },
+  { size: '18"', from: 70, to: 90 },
+  { size: '19"', from: 80, to: 110 },
+]
 
 const allServices = [
   {
@@ -16,6 +26,7 @@ const allServices = [
     price: 'From £45',
     features: ['DVSA Approved', 'Expert Inspection', '30-Min Test', 'Instant Results'],
     href: '/services/mot',
+    isTyres: false,
   },
   {
     icon: Wrench,
@@ -24,14 +35,16 @@ const allServices = [
     price: 'From £150',
     features: ['Oil & Filter', 'Fluid Checks', 'Parts Inspection', 'Warranty Included'],
     href: '/services/servicing',
+    isTyres: false,
   },
   {
     icon: Zap,
     title: 'Tyres & Wheel Alignment',
     description: 'Tyre fitting, balancing, rotation, and professional wheel alignment.',
-    price: 'From £60',
-    features: ['Quality Tyres', 'Balancing', 'Alignment', 'Free Rotation'],
+    price: 'From £35',
+    features: ['Quality Tyres', 'Balancing', 'Alignment', 'Same Day Available'],
     href: '/services/tyres',
+    isTyres: true,
   },
   {
     icon: Shield,
@@ -40,6 +53,7 @@ const allServices = [
     price: 'From £80',
     features: ['Pad Replacement', 'Rotor Service', 'Safety Check', 'Warranty'],
     href: '/services/brakes',
+    isTyres: false,
   },
   {
     icon: Clock,
@@ -48,6 +62,7 @@ const allServices = [
     price: 'From £50',
     features: ['Advanced Tech', 'Fast Results', 'Expert Advice', 'Transparent Pricing'],
     href: '/services/diagnostics',
+    isTyres: false,
   },
   {
     icon: Award,
@@ -56,6 +71,7 @@ const allServices = [
     price: 'From £75',
     features: ['A/C Recharge', 'System Check', 'Refrigerant', 'Leak Detection'],
     href: '/services/air-con',
+    isTyres: false,
   },
   {
     icon: Wind,
@@ -64,6 +80,7 @@ const allServices = [
     price: 'From £120',
     features: ['Repairs & Welding', 'Full Replacement', 'Emissions Check', 'Quality Parts'],
     href: '/services/exhaust',
+    isTyres: false,
   },
   {
     icon: Lightbulb,
@@ -72,6 +89,7 @@ const allServices = [
     price: 'From £150',
     features: ['Strut Replacement', 'Spring Service', 'Alignment', 'Ride Quality'],
     href: '/services/suspension',
+    isTyres: false,
   },
   {
     icon: Battery,
@@ -80,10 +98,13 @@ const allServices = [
     price: 'From £60',
     features: ['Battery Testing', 'Replacement', 'Terminal Cleaning', 'Warranty'],
     href: '/services/battery',
+    isTyres: false,
   },
 ]
 
 export default function ServicesPage() {
+  const [tyresExpanded, setTyresExpanded] = useState(false)
+
   return (
     <div className="min-h-screen">
       {/* Header Section with Background Image */}
@@ -128,7 +149,7 @@ export default function ServicesPage() {
             {allServices.map((service, idx) => {
               const Icon = service.icon
               return (
-                <motion.div key={idx} variants={fadeInUp}>
+                <motion.div key={idx} variants={fadeInUp} className={service.isTyres ? 'md:col-span-2 lg:col-span-3' : ''}>
                   <Card className="bg-navy-800 border-gold-500/20 hover:border-gold-500/50 transition p-8 h-full flex flex-col group hover:shadow-lg hover:shadow-gold-500/10">
                     <div className="mb-6">
                       <div className="w-16 h-16 bg-gold-500/10 rounded-lg flex items-center justify-center group-hover:bg-gold-500/20 transition">
@@ -137,7 +158,7 @@ export default function ServicesPage() {
                     </div>
 
                     <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
-                    <p className="text-gray-400 mb-4 flex-grow">{service.description}</p>
+                    <p className="text-gray-400 mb-4">{service.description}</p>
 
                     <div className="mb-6">
                       <p className="text-gold-500 font-bold text-lg mb-4">{service.price}</p>
@@ -150,15 +171,61 @@ export default function ServicesPage() {
                       </div>
                     </div>
 
-                    <Button
-                      asChild
-                      className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold group/btn"
-                    >
-                      <Link href={service.href} className="flex items-center justify-center gap-2">
-                        Learn More
-                        <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
-                      </Link>
-                    </Button>
+                    {service.isTyres ? (
+                      <>
+                        <Button
+                          onClick={() => setTyresExpanded(!tyresExpanded)}
+                          className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center justify-center gap-2 mb-4"
+                        >
+                          Learn More
+                          <ChevronDown size={18} className={`transition-transform duration-300 ${tyresExpanded ? 'rotate-180' : ''}`} />
+                        </Button>
+
+                        <AnimatePresence>
+                          {tyresExpanded && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="border-t border-gold-500/20 pt-6">
+                                <h4 className="text-xl font-bold text-white mb-4">Tyre Fitting Price Guide</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+                                  {tyrePricing.map((t) => (
+                                    <div key={t.size} className="bg-navy-700 border border-gold-500/20 rounded-lg p-4 text-center">
+                                      <p className="text-gold-500 font-bold text-xl mb-1">{t.size}</p>
+                                      <p className="text-white text-sm font-medium">£{t.from} – £{t.to}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4 space-y-1">
+                                  <p className="text-gold-400 text-sm font-medium">Most common sizes available same day.</p>
+                                  <p className="text-gold-400 text-sm font-medium">Premium brands also available on request.</p>
+                                </div>
+                                <Button
+                                  asChild
+                                  className="w-full mt-5 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+                                >
+                                  <Link href="/booking?service=tyres">Book Tyre Fitting</Link>
+                                </Button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    ) : (
+                      <Button
+                        asChild
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold group/btn mt-auto"
+                      >
+                        <Link href={service.href} className="flex items-center justify-center gap-2">
+                          Learn More
+                          <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
+                        </Link>
+                      </Button>
+                    )}
                   </Card>
                 </motion.div>
               )

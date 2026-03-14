@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
@@ -10,10 +11,19 @@ import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award } f
 const services = [
   { id: 'mot', name: 'MOT Testing', price: 45, icon: Gauge },
   { id: 'servicing', name: 'Car Servicing', price: 150, icon: Wrench },
-  { id: 'tyres', name: 'Tyres & Alignment', price: 60, icon: Zap },
+  { id: 'tyres', name: 'Tyres & Alignment', price: 35, icon: Zap },
   { id: 'brakes', name: 'Brake Service', price: 80, icon: Shield },
   { id: 'diagnostics', name: 'Engine Diagnostics', price: 50, icon: Clock },
   { id: 'aircon', name: 'Air Con Service', price: 75, icon: Award },
+]
+
+const tyreSizes = [
+  { label: '14" — from £35 to £45', value: '14"' },
+  { label: '15" — from £40 to £50', value: '15"' },
+  { label: '16" — from £60 to £70', value: '16"' },
+  { label: '17" — from £65 to £85', value: '17"' },
+  { label: '18" — from £70 to £90', value: '18"' },
+  { label: '19" — from £80 to £110', value: '19"' },
 ]
 
 const timeSlots = [
@@ -29,27 +39,31 @@ interface BookingFormData {
   email: string
   phone: string
   vehicle: string
+  tyreSize: string
   notes: string
 }
 
 export default function BookingPage() {
+  const searchParams = useSearchParams()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
   const [formData, setFormData] = useState<BookingFormData>({
-    service: '',
+    service: searchParams.get('service') || '',
     date: '',
     time: '',
     name: '',
     email: '',
     phone: '',
     vehicle: '',
+    tyreSize: '',
     notes: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const selectedService = services.find((s) => s.id === formData.service)
+  const isTyresSelected = formData.service === 'tyres'
   const isStepValid = {
-    service: formData.service !== '',
+    service: formData.service !== '' && (!isTyresSelected || formData.tyreSize !== ''),
     datetime: formData.date !== '' && formData.time !== '',
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
   }
@@ -83,10 +97,13 @@ export default function BookingPage() {
     setIsSubmitting(true)
     setError(null)
     try {
+      const notesWithTyre = isTyresSelected && formData.tyreSize
+        ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : formData.notes
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, notes: notesWithTyre }),
       })
       if (!response.ok) {
         const errorData = await response.json()
@@ -151,13 +168,13 @@ export default function BookingPage() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {services.map((service) => {
                   const Icon = service.icon
                   return (
                     <Card
                       key={service.id}
-                      onClick={() => setFormData({ ...formData, service: service.id })}
+                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '' })}
                       className={`p-6 cursor-pointer transition border-2 ${
                         formData.service === service.id
                           ? 'border-gold-500 bg-navy-800'
@@ -171,6 +188,37 @@ export default function BookingPage() {
                   )
                 })}
               </div>
+
+              {/* Tyre size dropdown - shown only when Tyres selected */}
+              {isTyresSelected && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="mb-8"
+                >
+                  <Card className="bg-navy-800 border-gold-500/30 p-6">
+                    <label className="block text-white font-bold mb-3">
+                      Select Tyre Size <span className="text-gold-500">*</span>
+                    </label>
+                    <select
+                      value={formData.tyreSize}
+                      onChange={(e) => setFormData({ ...formData, tyreSize: e.target.value })}
+                      className="w-full bg-navy-700 border border-gold-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold-500 text-base"
+                    >
+                      <option value="">-- Choose a tyre size --</option>
+                      {tyreSizes.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                    <div className="mt-3 bg-gold-500/10 border border-gold-500/20 rounded-lg p-3 space-y-1">
+                      <p className="text-gold-400 text-sm">Most common sizes available same day.</p>
+                      <p className="text-gold-400 text-sm">Premium brands also available on request.</p>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
+
               <Button
                 onClick={() => setStep('datetime')}
                 disabled={!isStepValid.service}
@@ -309,6 +357,7 @@ export default function BookingPage() {
                 <div className="space-y-4 mb-8">
                   {[
                     { label: 'Service', value: selectedService?.name },
+                    ...(isTyresSelected && formData.tyreSize ? [{ label: 'Tyre Size', value: formData.tyreSize }] : []),
                     { label: 'Date', value: formData.date },
                     { label: 'Time', value: formData.time },
                     { label: 'Name', value: formData.name },
