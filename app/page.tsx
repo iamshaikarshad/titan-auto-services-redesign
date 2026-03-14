@@ -66,26 +66,223 @@ const features = [
 
 const googleReviews = [
   {
-    author: 'David Thompson',
+    author: 'Peugeot 508 Owner',
     rating: 5,
-    text: 'Excellent service! The team at Titan Auto was professional, honest, and gave me great advice. Highly recommended!',
+    text: 'I went to Titan garages today because I had an engine management light come up and my car was only reaching a maximum speed of 65mph. The garage done a thorough check and they also cleaned every sensor in the engine regarding to an airflow problem. Nothing was too much and just a great garage, really friendly, very knowledgeable and I would recommend them to all my friends.',
+    date: '24 Feb 2026',
+    dateSort: 18,
+    service: 'Engine Diagnostics',
+    vehicle: 'Peugeot 508',
   },
   {
-    author: 'Sarah Mitchell',
+    author: 'VW Polo Owner',
     rating: 5,
-    text: 'Great experience. Fair prices and outstanding customer service. They explained everything clearly.',
+    text: 'Very helpful and great customer service. Would definitely recommend!',
+    date: '17 Feb 2026',
+    dateSort: 25,
+    service: 'Car Service',
+    vehicle: 'Volkswagen Polo',
   },
   {
-    author: 'James Peterson',
+    author: 'Ford Fiesta Owner',
     rating: 5,
-    text: 'Very reliable garage. Been a customer for years. Always deliver quality work on time.',
+    text: 'Good service, honest pricing and detailed explanation before service. I was happy with the service as they offered to fix my exhaust for much lower price than initially quoted at another garage. The issue was fixed and my car passed the MOT as well. Simple, quick and urgent works done at ease. Can depend on them for urgent works and service.',
+    date: '12 Feb 2026',
+    dateSort: 30,
+    service: 'MOT & Exhaust',
+    vehicle: 'Ford Fiesta',
   },
   {
-    author: 'Emma Collins',
+    author: 'James H.',
     rating: 5,
-    text: 'Professional mechanics. Got my MOT done quickly and they identified issues before they became expensive.',
+    text: 'Excellent garage! They were honest about what needed doing and what could wait. Fair prices and quality workmanship. Will definitely be back.',
+    date: '5 Feb 2026',
+    dateSort: 37,
+    service: 'Full Service',
+    vehicle: 'BMW 3 Series',
+  },
+  {
+    author: 'Sarah M.',
+    rating: 5,
+    text: 'Took my car in for new tyres and wheel alignment. Quick turnaround, competitive prices, and the staff were really friendly. Highly recommend!',
+    date: '28 Jan 2026',
+    dateSort: 45,
+    service: 'Tyres & Alignment',
+    vehicle: 'Audi A3',
+  },
+  {
+    author: 'David K.',
+    rating: 5,
+    text: 'Best garage in Maidstone! Been using them for over a year now and never been disappointed. Always honest and upfront about costs.',
+    date: '20 Jan 2026',
+    dateSort: 53,
+    service: 'MOT',
+    vehicle: 'Toyota Yaris',
+  },
+  {
+    author: 'Emma W.',
+    rating: 5,
+    text: 'Professional service from start to finish. They diagnosed the issue quickly and had my car back on the road the same day. Great communication throughout.',
+    date: '15 Jan 2026',
+    dateSort: 58,
+    service: 'Brake Repair',
+    vehicle: 'Honda Civic',
+  },
+  {
+    author: 'Michael T.',
+    rating: 5,
+    text: 'Brilliant service! Air con recharge was done quickly and at a fair price. The team really know their stuff. Would recommend to anyone.',
+    date: '8 Jan 2026',
+    dateSort: 65,
+    service: 'Air Con Service',
+    vehicle: 'Mercedes A-Class',
   },
 ]
+
+const reviewStats = {
+  totalReviews: 91,
+  averageRating: 4.9,
+}
+
+type ReviewFilter = 'relevant' | 'newest' | 'top'
+
+function ReviewsSection() {
+  const [filter, setFilter] = useState<ReviewFilter>('relevant')
+
+  const sortedReviews = [...googleReviews].sort((a, b) => {
+    if (filter === 'newest') return a.dateSort - b.dateSort
+    if (filter === 'top') return b.rating - a.rating || a.dateSort - b.dateSort
+    // 'relevant' - mix of rating and recency
+    return (b.rating * 10 - b.dateSort) - (a.rating * 10 - a.dateSort)
+  })
+
+  const filters: { key: ReviewFilter; label: string }[] = [
+    { key: 'relevant', label: 'Most Relevant' },
+    { key: 'newest', label: 'Newest' },
+    { key: 'top', label: 'Top Rated' },
+  ]
+
+  return (
+    <section className="py-20 bg-navy-900/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Trusted by Our Customers</h2>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-6 h-6 ${i < Math.floor(reviewStats.averageRating) ? 'text-gold-500 fill-gold-500' : 'text-gold-500/30 fill-gold-500/30'}`}
+                />
+              ))}
+            </div>
+            <span className="text-2xl text-white font-bold">{reviewStats.averageRating}</span>
+          </div>
+          <p className="text-gray-400">Based on {reviewStats.totalReviews} Google Reviews</p>
+        </motion.div>
+
+        {/* Filter tabs */}
+        <div className="flex justify-center gap-2 mb-10">
+          {filters.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${
+                filter === f.key
+                  ? 'bg-gold-500 text-navy-950'
+                  : 'bg-navy-800 text-gray-300 hover:bg-navy-700 border border-gold-500/20'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <motion.div
+          key={filter}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {sortedReviews.map((review, idx) => (
+            <motion.div
+              key={review.author}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: idx * 0.05 }}
+            >
+              <Card className="bg-navy-800 border-gold-500/20 p-6 h-full hover:border-gold-500/50 transition flex flex-col">
+                {/* Header with avatar and info */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-gold-500/20 rounded-full flex items-center justify-center text-gold-500 font-bold text-lg shrink-0">
+                    {review.author.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold truncate">{review.author}</p>
+                    <p className="text-gray-500 text-sm">{review.date}</p>
+                  </div>
+                </div>
+
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-3">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-gold-500 fill-gold-500" />
+                  ))}
+                </div>
+
+                {/* Review text */}
+                <p className="text-gray-300 text-sm leading-relaxed flex-grow">"{review.text}"</p>
+
+                {/* Service & vehicle tags */}
+                <div className="mt-4 pt-4 border-t border-gold-500/10 flex flex-wrap gap-2">
+                  <span className="text-xs bg-gold-500/10 text-gold-400 px-2 py-1 rounded-full">
+                    {review.service}
+                  </span>
+                  {review.vehicle && (
+                    <span className="text-xs bg-navy-700 text-gray-400 px-2 py-1 rounded-full">
+                      {review.vehicle}
+                    </span>
+                  )}
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Google badge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-10 text-center"
+        >
+          <a
+            href="https://www.google.com/search?q=Titan+Auto+Services+Reviews"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition text-sm"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            View all reviews on Google
+          </a>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
 
 function RegWidget() {
   const [reg, setReg] = useState('')
@@ -272,48 +469,7 @@ export default function HomePage() {
       </section>
 
       {/* Google Reviews Section */}
-      <section className="py-20 bg-navy-900/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Trusted by Our Customers</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto flex items-center justify-center gap-2">
-              <Star className="w-6 h-6 text-gold-500 fill-gold-500" />
-              5 Star Google Reviews
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {googleReviews.map((review, idx) => (
-              <motion.div key={idx} variants={fadeInUp}>
-                <Card className="bg-navy-800 border-gold-500/20 p-6 h-full hover:border-gold-500/50 transition">
-                  <div className="flex gap-1 mb-3">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-5 h-5 text-gold-500 fill-gold-500"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-gray-300 mb-4 text-base italic leading-relaxed">"{review.text}"</p>
-                  <p className="text-gold-500 font-semibold text-base">— {review.author}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      <ReviewsSection />
 
       {/* Why Choose Us Section */}
       <section className="py-20 bg-gradient-to-b from-navy-900/50 to-navy-950/50 border-y border-gold-500/20">

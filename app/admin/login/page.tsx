@@ -35,9 +35,9 @@ export default function AdminLoginPage() {
         return
       }
 
-      console.log('[v0] Login successful')
-      // Redirect to admin dashboard
-      router.push('/admin')
+      console.log('[v0] Login successful, redirecting...')
+      // Use window.location for full page navigation to ensure cookie is sent
+      window.location.href = '/admin'
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
       console.error('[v0] Login error:', err)

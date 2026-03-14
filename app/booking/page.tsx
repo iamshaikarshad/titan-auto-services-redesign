@@ -1,20 +1,23 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award, Loader2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award, Wind, Lightbulb, Battery, HelpCircle, Loader2 } from 'lucide-react'
 
 const services = [
-  { id: 'mot', name: 'MOT Testing', price: 45, icon: Gauge },
-  { id: 'servicing', name: 'Car Servicing', price: 150, icon: Wrench },
-  { id: 'tyres', name: 'Tyres & Alignment', price: 35, icon: Zap },
-  { id: 'brakes', name: 'Brake Service', price: 80, icon: Shield },
-  { id: 'diagnostics', name: 'Engine Diagnostics', price: 50, icon: Clock },
-  { id: 'aircon', name: 'Air Con Service', price: 75, icon: Award },
+  { id: 'mot',         name: 'MOT Testing',        price: 45,  icon: Gauge,       priceLabel: 'From £45' },
+  { id: 'servicing',   name: 'Car Servicing',       price: 105, icon: Wrench,      priceLabel: 'From £105' },
+  { id: 'tyres',       name: 'Tyres & Alignment',   price: 35,  icon: Zap,         priceLabel: 'From £35' },
+  { id: 'brakes',      name: 'Brake Service',       price: 80,  icon: Shield,      priceLabel: 'From £80' },
+  { id: 'diagnostics', name: 'Engine Diagnostics',  price: 50,  icon: Clock,       priceLabel: 'From £50' },
+  { id: 'aircon',      name: 'Air Con Service',     price: 75,  icon: Award,       priceLabel: 'From £75' },
+  { id: 'exhaust',     name: 'Exhaust Service',     price: 120, icon: Wind,        priceLabel: 'From £120' },
+  { id: 'suspension',  name: 'Suspension Service',  price: 150, icon: Lightbulb,   priceLabel: 'From £150' },
+  { id: 'battery',     name: 'Battery Service',     price: 60,  icon: Battery,     priceLabel: 'From £60' },
+  { id: 'other',       name: 'Other',               price: 0,   icon: HelpCircle,  priceLabel: 'Get a quote' },
 ]
 
 const tyreSizes = [
@@ -72,6 +75,7 @@ interface BookingFormData {
   tyreSize: string
   fuelType: string
   engineSize: string
+  otherDescription: string
   notes: string
 }
 
@@ -151,7 +155,9 @@ function RegWidget() {
 
 function BookingPageContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
+  const [bookingSuccess, setBookingSuccess] = useState(false)
   const [formData, setFormData] = useState<BookingFormData>({
     service: searchParams.get('service') || '',
     date: '',
@@ -163,6 +169,7 @@ function BookingPageContent() {
     tyreSize: '',
     fuelType: 'petrol',
     engineSize: '',
+    otherDescription: '',
     notes: '',
   })
   const [contactErrors, setContactErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({})
@@ -174,10 +181,12 @@ function BookingPageContent() {
   const selectedService = services.find((s) => s.id === formData.service)
   const isTyresSelected = formData.service === 'tyres'
   const isServicingSelected = formData.service === 'servicing'
+  const isOtherSelected = formData.service === 'other'
   const isStepValid = {
     service: formData.service !== ''
       && (!isTyresSelected || formData.tyreSize !== '')
-      && (!isServicingSelected || formData.engineSize !== ''),
+      && (!isServicingSelected || formData.engineSize !== '')
+      && (!isOtherSelected || formData.otherDescription.trim() !== ''),
     datetime: formData.date !== '' && formData.time !== '' && !isDateDisabled(formData.date),
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
   }
@@ -233,6 +242,8 @@ function BookingPageContent() {
         ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
         : isServicingSelected && formData.engineSize
         ? `Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isOtherSelected && formData.otherDescription
+        ? `Service Description: ${formData.otherDescription}${formData.notes ? ` | ${formData.notes}` : ''}`
         : formData.notes
       const response = await fetch('/api/bookings', {
         method: 'POST',
@@ -243,12 +254,51 @@ function BookingPageContent() {
         const errorData = await response.json()
         throw new Error(errorData.error || 'Booking failed')
       }
-      setStep('confirmation')
+      setBookingSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Booking failed')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Auto-redirect to home after successful booking
+  useEffect(() => {
+    if (bookingSuccess) {
+      const timer = setTimeout(() => {
+        router.push('/')
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [bookingSuccess, router])
+
+  // Show success screen after booking is confirmed
+  if (bookingSuccess) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full text-center"
+        >
+          <div className="w-20 h-20 bg-gold-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10 text-gold-500" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Booking Confirmed!</h1>
+          <p className="text-gray-300 text-lg mb-8">
+            Your request has been registered. We will get in touch with you shortly to confirm your appointment. Thank you for choosing Titan Auto Services!
+          </p>
+          <p className="text-gray-500 text-sm mb-6">Redirecting to home page in a few seconds...</p>
+          <Button
+            onClick={() => router.push('/')}
+            className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold px-8"
+          >
+            Go to Home
+          </Button>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -318,7 +368,7 @@ function BookingPageContent() {
                   return (
                     <Card
                       key={service.id}
-                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '', engineSize: '', fuelType: 'petrol' })}
+                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '', engineSize: '', fuelType: 'petrol', otherDescription: '' })}
                       className={`p-6 cursor-pointer transition border-2 ${
                         formData.service === service.id
                           ? 'border-gold-500 bg-navy-800'
@@ -327,7 +377,7 @@ function BookingPageContent() {
                     >
                       <Icon className="w-6 h-6 text-gold-500 mb-3" />
                       <h3 className="font-bold text-white mb-1">{service.name}</h3>
-                      <p className="text-gold-500 font-bold">From £{service.price}</p>
+                      <p className="text-gold-500 font-bold">{service.priceLabel}</p>
                     </Card>
                   )
                 })}
@@ -408,6 +458,29 @@ function BookingPageContent() {
                       <p className="text-gold-400 text-sm">Most common sizes available same day.</p>
                       <p className="text-gold-400 text-sm">Premium brands also available on request.</p>
                     </div>
+                  </Card>
+                </motion.div>
+              )}
+
+              {/* Other — free-text description */}
+              {isOtherSelected && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="mb-8"
+                >
+                  <Card className="bg-navy-800 border-gold-500/30 p-6">
+                    <label className="block text-white font-bold mb-3">
+                      Describe what you need <span className="text-gold-500">*</span>
+                    </label>
+                    <textarea
+                      value={formData.otherDescription}
+                      onChange={(e) => setFormData({ ...formData, otherDescription: e.target.value })}
+                      placeholder="Please describe the issue or service you require and we will get back to you with a quote..."
+                      rows={4}
+                      className="w-full bg-navy-700 border border-gold-500/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 text-base resize-none"
+                    />
                   </Card>
                 </motion.div>
               )}
@@ -596,6 +669,9 @@ function BookingPageContent() {
                     ...(isServicingSelected && formData.engineSize ? [
                       { label: 'Fuel Type', value: formData.fuelType === 'petrol' ? 'Petrol / Diesel' : 'Hybrid' },
                       { label: 'Engine Size', value: formData.engineSize },
+                    ] : []),
+                    ...(isOtherSelected && formData.otherDescription ? [
+                      { label: 'Description', value: formData.otherDescription },
                     ] : []),
                     { label: 'Date', value: new Date(formData.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) },
                     { label: 'Session', value: sessions.find(s => s.id === formData.time)?.label + ' (' + sessions.find(s => s.id === formData.time)?.time + ')' },

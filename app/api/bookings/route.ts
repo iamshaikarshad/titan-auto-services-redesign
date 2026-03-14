@@ -3,11 +3,44 @@ import { Pool } from '@neondatabase/serverless'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
+// Map frontend service IDs to display names (for notes/admin reference)
+const serviceNames: Record<string, string> = {
+  mot: 'MOT Testing',
+  servicing: 'Car Servicing',
+  tyres: 'Tyres & Alignment',
+  brakes: 'Brake Service',
+  diagnostics: 'Engine Diagnostics',
+  aircon: 'Air Con Service',
+  exhaust: 'Exhaust Service',
+  suspension: 'Suspension Service',
+  battery: 'Battery Service',
+  other: 'Other',
+}
+
+// Map session IDs to readable time slots
+const sessionTimes: Record<string, string> = {
+  morning: '09:00 – 12:00 (Morning Session)',
+  afternoon: '13:00 – 17:00 (Afternoon Session)',
+}
+
 export async function POST(request: NextRequest) {
   let client
   try {
     const body = await request.json()
-    const { service, date, time, name, email, phone, vehicle, notes } = body
+    const { 
+      service, 
+      date, 
+      time, 
+      name, 
+      email, 
+      phone, 
+      vehicle, 
+      notes,
+      tyreSize,
+      fuelType,
+      engineSize,
+      otherDescription
+    } = body
 
     console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle })
 
@@ -15,6 +48,14 @@ export async function POST(request: NextRequest) {
     if (!service || !date || !time || !name || !email || !phone || !vehicle) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate service type
+    if (!serviceNames[service]) {
+      return NextResponse.json(
+        { error: 'Invalid service type' },
         { status: 400 }
       )
     }
@@ -37,13 +78,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate date is in the future
+    // Validate date is in the future (at least 2 days ahead)
     const bookingDate = new Date(date)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    if (bookingDate < today) {
+    const minDate = new Date()
+    minDate.setDate(minDate.getDate() + 2)
+    minDate.setHours(0, 0, 0, 0)
+    if (bookingDate < minDate) {
       return NextResponse.json(
-        { error: 'Please select a future date' },
+        { error: 'Please select a date at least 2 days in advance' },
+        { status: 400 }
+      )
+    }
+
+    // Validate not a Sunday
+    if (bookingDate.getDay() === 0) {
+      return NextResponse.json(
+        { error: 'We are closed on Sundays. Please select another day.' },
         { status: 400 }
       )
     }
@@ -91,15 +141,39 @@ export async function POST(request: NextRequest) {
         console.log('[v0] New customer created:', customerId)
       }
 
+      // Build comprehensive notes with all service-specific details
+      const serviceName = serviceNames[service]
+      const sessionTime = sessionTimes[time] || time
+      
+      let fullNotes = `Service: ${serviceName}\nSession: ${sessionTime}`
+      
+      if (service === 'tyres' && tyreSize) {
+        fullNotes += `\nTyre Size: ${tyreSize}`
+      }
+      
+      if (service === 'servicing' && engineSize) {
+        fullNotes += `\nFuel Type: ${fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'}`
+        fullNotes += `\nEngine Size: ${engineSize}`
+      }
+      
+      if (service === 'other' && otherDescription) {
+        fullNotes += `\nDescription: ${otherDescription}`
+      }
+      
+      if (notes) {
+        fullNotes += `\nAdditional Notes: ${notes}`
+      }
+
       console.log('[v0] Creating booking for customer:', customerId, 'service:', service)
 
-      // Combine date and time into a timestamp
-      const bookingDateTime = new Date(`${date}T${time}`)
+      // Set booking time based on session (use start of session for sorting)
+      const sessionStartTime = time === 'morning' ? '09:00' : '13:00'
+      const bookingDateTime = new Date(`${date}T${sessionStartTime}:00`)
       
-      // Create booking
+      // Create booking (store service name string in notes since we don't have FK to services table by name)
       const bookingResult = await client.query(
-        'INSERT INTO bookings (customer_id, service_id, booking_date, booking_time, notes, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, booking_date',
-        [customerId, parseInt(service), bookingDateTime, time, notes || null, 'pending']
+        'INSERT INTO bookings (customer_id, booking_date, notes, status) VALUES ($1, $2, $3, $4) RETURNING id, booking_date',
+        [customerId, bookingDateTime, fullNotes, 'pending']
       )
 
       const booking = bookingResult.rows[0]
@@ -116,6 +190,8 @@ export async function POST(request: NextRequest) {
           booking: {
             id: booking.id,
             date: booking.booking_date,
+            service: serviceName,
+            session: sessionTime,
           },
         },
         { status: 201 }
