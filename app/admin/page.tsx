@@ -312,7 +312,12 @@ export default function AdminPage() {
                               minute: '2-digit',
                             })}
                           </p>
-                          {booking.notes && (
+                          {booking.notes?.startsWith('Tyre Size:') && (
+                            <span className="inline-block mt-2 text-xs bg-gold-500/20 text-gold-400 px-2 py-0.5 rounded-full font-medium">
+                              Tyre: {booking.notes.split('|')[0].replace('Tyre Size:', '').trim()}
+                            </span>
+                          )}
+                          {booking.notes && !booking.notes.startsWith('Tyre Size:') && (
                             <p className="text-xs text-gray-500 mt-2 italic">"{booking.notes}"</p>
                           )}
                         </div>
@@ -424,6 +429,15 @@ export default function AdminPage() {
                     <p className="text-sm text-gray-400">Service</p>
                     <p className="text-white font-medium">{selectedBooking.service_name || `Service #${selectedBooking.service_id}`}</p>
                   </div>
+                  {/* Tyre size - parsed from notes if present */}
+                  {selectedBooking.notes?.startsWith('Tyre Size:') && (
+                    <div>
+                      <p className="text-sm text-gray-400">Tyre Size</p>
+                      <p className="text-gold-500 font-bold text-lg">
+                        {selectedBooking.notes.split('|')[0].replace('Tyre Size:', '').trim()}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-sm text-gray-400">Price</p>
                     <p className="text-gold-500 font-bold">£{parseFloat(String(selectedBooking.total_price)).toFixed(2)}</p>
@@ -438,11 +452,17 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Notes */}
+              {/* Notes - show remaining notes after tyre size if present */}
               {selectedBooking.notes && (
                 <div>
                   <h3 className="text-lg font-bold text-gold-500 mb-3">Notes</h3>
-                  <p className="text-gray-300 bg-navy-800 p-3 rounded-lg">{selectedBooking.notes}</p>
+                  <p className="text-gray-300 bg-navy-800 p-3 rounded-lg">
+                    {selectedBooking.notes.includes('|')
+                      ? selectedBooking.notes.split('|').slice(1).join('|').trim()
+                      : selectedBooking.notes.startsWith('Tyre Size:')
+                      ? '—'
+                      : selectedBooking.notes}
+                  </p>
                 </div>
               )}
 

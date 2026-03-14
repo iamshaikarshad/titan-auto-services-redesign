@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { Wrench, Zap, Shield, Clock, Award, Gauge, Star, UserCheck, Package, ShieldCheck, BadgeDollarSign } from 'lucide-react'
+import { Wrench, Zap, Shield, Clock, Award, Gauge, Star, UserCheck, Package, ShieldCheck, BadgeDollarSign, Car, Coffee, Heart, MapPin } from 'lucide-react'
 import Image from 'next/image'
 
 const services = [
@@ -43,16 +43,16 @@ const services = [
 
 const features = [
   {
-    title: '25+ Years',
-    description: 'Family-run garage trusted by thousands of customers in Maidstone.',
+    title: 'Family-Run',
+    description: 'A reliable, family-run garage located in the heart of Maidstone since day one.',
   },
   {
-    title: 'Expert Mechanics',
-    description: 'ASE-certified technicians trained on latest automotive technology.',
+    title: 'Local Experts',
+    description: 'Professional technicians who know your community and your vehicles.',
   },
   {
-    title: 'Warranty',
-    description: 'Comprehensive warranty on all parts and labour for complete peace of mind.',
+    title: 'Honest Service',
+    description: 'Transparent pricing with no hidden fees - just quality work you can trust.',
   },
 ]
 
@@ -105,15 +105,15 @@ export default function HomePage() {
             className="max-w-3xl"
           >
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              Premium Car Servicing in
+              Your Local, Family-Run
               <br />
               <span className="bg-gradient-to-r from-[#D6C29C] to-[#BFA46F] bg-clip-text text-transparent inline-block">
-                Maidstone
+                Garage in Maidstone
               </span>
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl text-balance">
-              Expert mechanics. Genuine parts. Transparent pricing. Strength you can trust.
+              Titan Auto Services is a reliable, family-run garage located in the heart of Maidstone. We offer honest, professional service with transparent pricing.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
@@ -228,7 +228,7 @@ export default function HomePage() {
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose Titan Auto?</h2>
             <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              We combine expertise, quality, and genuine care for our customers to deliver exceptional automotive service.
+              We are committed to providing the Maidstone community with reliable, honest, and professional automotive services.
             </p>
           </motion.div>
 
@@ -237,28 +237,38 @@ export default function HomePage() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {[
               {
+                icon: Car,
+                title: 'Local Pickup & Drop-off',
+                description: 'We offer convenient local pickup and drop-off services within Maidstone to make your experience hassle-free.',
+              },
+              {
                 icon: UserCheck,
-                title: 'Expert Technicians',
-                description: 'ASE-certified mechanics with 25+ years of combined experience on all vehicle types.',
+                title: 'Professional Technicians',
+                description: 'Our skilled mechanics are trained to handle a wide range of vehicles with precision and care.',
               },
               {
-                icon: Package,
-                title: 'Genuine Parts',
-                description: 'We use only quality OEM and genuine replacement parts for durability.',
-              },
-              {
-                icon: ShieldCheck,
-                title: 'Warranty Protection',
-                description: 'Every service comes with comprehensive warranty coverage for peace of mind.',
+                icon: Coffee,
+                title: 'Comfortable Waiting Area',
+                description: 'Relax in our welcoming waiting area with complimentary refreshments while we service your vehicle.',
               },
               {
                 icon: BadgeDollarSign,
-                title: 'Transparent Pricing',
-                description: 'Honest, upfront quotes with no hidden fees or surprises.',
+                title: 'Honest & Transparent',
+                description: 'We believe in clear communication and fair pricing - no hidden fees, no unnecessary upsells.',
+              },
+              {
+                icon: Heart,
+                title: 'Family-Operated',
+                description: 'As a family-run business, we treat every customer like one of our own and take pride in building lasting relationships.',
+              },
+              {
+                icon: MapPin,
+                title: 'Community First',
+                description: 'We are proud to serve the Maidstone community and are dedicated to keeping local drivers safe on the road.',
               },
             ].map((item, idx) => {
               const Icon = item.icon
@@ -286,12 +296,27 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h2>
             <p className="text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Comprehensive automotive solutions for all your car maintenance and repair needs.
             </p>
+          </motion.div>
+
+          {/* Workshop image */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="mb-16 rounded-2xl overflow-hidden border border-gold-500/20 shadow-xl shadow-gold-500/5"
+          >
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/titin-workshop-0WU73m4UMiEfRIFQ2vB7CUhbK8Edfe.jpg"
+              alt="Titan Auto Services workshop - professional garage with hydraulic lifts and tyre storage"
+              className="w-full h-72 md:h-96 object-cover object-center"
+            />
           </motion.div>
 
           <motion.div

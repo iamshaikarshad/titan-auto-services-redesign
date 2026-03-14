@@ -1,12 +1,23 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
+import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, X, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
 import Image from 'next/image'
+
+const tyrePricing = [
+  { size: '14"', from: 35, to: 45 },
+  { size: '15"', from: 40, to: 50 },
+  { size: '16"', from: 60, to: 70 },
+  { size: '17"', from: 65, to: 85 },
+  { size: '18"', from: 70, to: 90 },
+  { size: '19"', from: 80, to: 110 },
+]
 
 const allServices = [
   {
@@ -16,6 +27,7 @@ const allServices = [
     price: 'From £45',
     features: ['DVSA Approved', 'Expert Inspection', '30-Min Test', 'Instant Results'],
     href: '/services/mot',
+    isTyres: false,
   },
   {
     icon: Wrench,
@@ -24,14 +36,16 @@ const allServices = [
     price: 'From £150',
     features: ['Oil & Filter', 'Fluid Checks', 'Parts Inspection', 'Warranty Included'],
     href: '/services/servicing',
+    isTyres: false,
   },
   {
     icon: Zap,
     title: 'Tyres & Wheel Alignment',
     description: 'Tyre fitting, balancing, rotation, and professional wheel alignment.',
-    price: 'From £60',
-    features: ['Quality Tyres', 'Balancing', 'Alignment', 'Free Rotation'],
+    price: 'From £35',
+    features: ['Quality Tyres', 'Balancing', 'Alignment', 'Same Day Available'],
     href: '/services/tyres',
+    isTyres: true,
   },
   {
     icon: Shield,
@@ -40,6 +54,7 @@ const allServices = [
     price: 'From £80',
     features: ['Pad Replacement', 'Rotor Service', 'Safety Check', 'Warranty'],
     href: '/services/brakes',
+    isTyres: false,
   },
   {
     icon: Clock,
@@ -48,6 +63,7 @@ const allServices = [
     price: 'From £50',
     features: ['Advanced Tech', 'Fast Results', 'Expert Advice', 'Transparent Pricing'],
     href: '/services/diagnostics',
+    isTyres: false,
   },
   {
     icon: Award,
@@ -56,6 +72,7 @@ const allServices = [
     price: 'From £75',
     features: ['A/C Recharge', 'System Check', 'Refrigerant', 'Leak Detection'],
     href: '/services/air-con',
+    isTyres: false,
   },
   {
     icon: Wind,
@@ -64,6 +81,7 @@ const allServices = [
     price: 'From £120',
     features: ['Repairs & Welding', 'Full Replacement', 'Emissions Check', 'Quality Parts'],
     href: '/services/exhaust',
+    isTyres: false,
   },
   {
     icon: Lightbulb,
@@ -72,6 +90,7 @@ const allServices = [
     price: 'From £150',
     features: ['Strut Replacement', 'Spring Service', 'Alignment', 'Ride Quality'],
     href: '/services/suspension',
+    isTyres: false,
   },
   {
     icon: Battery,
@@ -80,10 +99,13 @@ const allServices = [
     price: 'From £60',
     features: ['Battery Testing', 'Replacement', 'Terminal Cleaning', 'Warranty'],
     href: '/services/battery',
+    isTyres: false,
   },
 ]
 
 export default function ServicesPage() {
+  const [tyresModalOpen, setTyresModalOpen] = useState(false)
+
   return (
     <div className="min-h-screen">
       {/* Header Section with Background Image */}
@@ -137,7 +159,7 @@ export default function ServicesPage() {
                     </div>
 
                     <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
-                    <p className="text-gray-400 mb-4 flex-grow">{service.description}</p>
+                    <p className="text-gray-400 mb-4">{service.description}</p>
 
                     <div className="mb-6">
                       <p className="text-gold-500 font-bold text-lg mb-4">{service.price}</p>
@@ -150,15 +172,25 @@ export default function ServicesPage() {
                       </div>
                     </div>
 
-                    <Button
-                      asChild
-                      className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold group/btn"
-                    >
-                      <Link href={service.href} className="flex items-center justify-center gap-2">
+                    {service.isTyres ? (
+                      <Button
+                        onClick={() => setTyresModalOpen(true)}
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold mt-auto flex items-center justify-center gap-2 group/btn"
+                      >
                         Learn More
                         <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
-                      </Link>
-                    </Button>
+                      </Button>
+                    ) : (
+                      <Button
+                        asChild
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold group/btn mt-auto"
+                      >
+                        <Link href={service.href} className="flex items-center justify-center gap-2">
+                          Learn More
+                          <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
+                        </Link>
+                      </Button>
+                    )}
                   </Card>
                 </motion.div>
               )
@@ -214,6 +246,66 @@ export default function ServicesPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Tyres & Wheel Alignment Modal */}
+      <Dialog open={tyresModalOpen} onOpenChange={setTyresModalOpen}>
+        <DialogContent className="bg-navy-900 border border-gold-500/30 text-white max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                <Zap className="w-5 h-5 text-gold-500" />
+              </div>
+              Tyres &amp; Wheel Alignment
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-gray-300 mb-6">
+            Tyre fitting, balancing, rotation, and professional wheel alignment for all makes and models.
+          </p>
+
+          {/* Pricing table */}
+          <h3 className="text-lg font-bold text-gold-500 mb-4">Tyre Fitting Price Guide</h3>
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            {tyrePricing.map((t) => (
+              <div key={t.size} className="bg-navy-800 border border-gold-500/20 rounded-lg p-4 text-center">
+                <p className="text-gold-500 font-bold text-2xl mb-1">{t.size}</p>
+                <p className="text-white text-sm font-medium">£{t.from} – £{t.to}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Notes */}
+          <div className="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4 space-y-1 mb-6">
+            <p className="text-gold-400 text-sm font-medium">Most common sizes available same day.</p>
+            <p className="text-gold-400 text-sm font-medium">Premium brands also available on request.</p>
+          </div>
+
+          {/* Features */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {['Quality Tyres', 'Balancing', 'Alignment', 'Same Day Available'].map((f) => (
+              <span key={f} className="text-xs bg-gold-500/10 text-gold-400 px-3 py-1 rounded-full">{f}</span>
+            ))}
+          </div>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              asChild
+              className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+              onClick={() => setTyresModalOpen(false)}
+            >
+              <Link href="/booking?service=tyres">Book Tyre Fitting</Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 border-gold-500/40 text-gray-300 hover:bg-navy-800"
+              onClick={() => setTyresModalOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800">
