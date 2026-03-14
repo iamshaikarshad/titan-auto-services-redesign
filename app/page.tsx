@@ -1,7 +1,5 @@
 'use client'
 
-'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -14,7 +12,7 @@ import { IntroAnimation } from '@/components/intro-animation'
 
 const heroImages = [
   { src: '/hero-car-service.jpg', alt: 'Professional car servicing at Titan Auto' },
-  { src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/titin-workshop-0WU73m4UMiEfRIFQ2vB7CUhbK8Edfe.jpg', alt: 'Titan Auto Services workshop with hydraulic lifts and tyre storage' },
+  { src: '/images/titan-workshop.jpg', alt: 'Titan Auto Services workshop with hydraulic lifts and tyre storage' },
   { src: '/images/titan-workshop2.jpg', alt: 'BMW on hydraulic lift at Titan Auto Services workshop' },
 ]
 
