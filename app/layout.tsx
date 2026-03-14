@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import './globals.css'
-import { IntroAnimation } from '@/components/intro-animation'
 import { Header } from '@/components/premium-header'
 import { PremiumFooter } from '@/components/premium-footer'
 
@@ -44,7 +43,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" data-scroll-behavior="smooth">
       <body className="font-sans antialiased bg-navy-950 text-white">
-        <IntroAnimation />
         <Header />
         <main className="pt-20">
           {children}

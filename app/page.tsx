@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
 import { Wrench, Zap, Shield, Clock, Award, Gauge, Star, UserCheck, Package, ShieldCheck, BadgeDollarSign, Car, Coffee, Heart, MapPin } from 'lucide-react'
 import Image from 'next/image'
+import { IntroAnimation } from '@/components/intro-animation'
 
 const services = [
   {
@@ -81,7 +82,9 @@ const googleReviews = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
+    <>
+      <IntroAnimation />
+      <div className="min-h-screen">
       {/* Hero Section - Background Image */}
       <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center">
         {/* Background Image */}
@@ -396,6 +399,7 @@ export default function HomePage() {
           </div>
         </motion.div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }
