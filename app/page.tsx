@@ -104,9 +104,9 @@ function RegWidget() {
       className="mt-10 max-w-2xl"
     >
       <p className="text-white font-bold text-lg mb-1">Get an instant price for your MOT or service and book for free.</p>
-      <div className="flex items-stretch rounded-lg overflow-hidden shadow-lg shadow-black/30 border border-white/10 mt-3">
+      <div className="flex items-stretch gap-3 rounded-lg overflow-visible shadow-lg shadow-black/30 border border-white/10 mt-3">
         {/* UK flag badge */}
-        <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0">
+        <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0 rounded-l-lg">
           <span className="text-xl leading-none">🇬🇧</span>
           <span className="text-white text-[10px] font-bold leading-none tracking-widest">UK</span>
         </div>
@@ -125,7 +125,7 @@ function RegWidget() {
         {/* CTA button */}
         <button
           onClick={handleGetPrice}
-          className="bg-white hover:bg-gray-100 text-navy-950 font-bold text-base px-6 py-3 transition whitespace-nowrap shrink-0"
+          className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-base px-6 py-3 transition whitespace-nowrap shrink-0 rounded-r-lg"
         >
           Get a price now &rsaquo;
         </button>
