@@ -38,7 +38,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative">
-              <img src="/titan-icon.svg" alt="Titan Auto" className="w-10 h-10" />
+              <img src="/titan-icon2.svg" alt="Titan Auto" className="w-14 h-14" />
             </div>
             <img src="/titan-banner.svg" alt="Titan Auto" className="h-8 hidden sm:inline" />
           </Link>
