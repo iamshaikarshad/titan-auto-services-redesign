@@ -26,9 +26,39 @@ const tyreSizes = [
   { label: '19" — from £80 to £110', value: '19"' },
 ]
 
-const timeSlots = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'
+const servicingEngineSizes = {
+  petrol: [
+    { label: 'Up to 1000cc — Interim £105 / Full £205', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc — Interim £145 / Full £205', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc — Interim £155 / Full £205', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc — Interim £165 / Full £245', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc — Interim £175 / Full £250', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc — Interim £195 / Full £265', value: 'Up to 3500cc' },
+  ],
+  hybrid: [
+    { label: 'Up to 1000cc — Interim £140 / Full £225', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc — Interim £165 / Full £235', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc — Interim £175 / Full £245', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc — Interim £185 / Full £255', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc — Interim £195 / Full £265', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc — Interim £215 / Full £285', value: 'Up to 3500cc' },
+    { label: 'Up to 4500cc — Interim £235 / Full £305', value: 'Up to 4500cc' },
+  ],
+}
+
+const sessions = [
+  {
+    id: 'morning',
+    label: 'Morning Session',
+    time: '09:00 – 12:00',
+    description: 'Drop off between 9am and 12pm',
+  },
+  {
+    id: 'afternoon',
+    label: 'Afternoon Session',
+    time: '13:00 – 17:00',
+    description: 'Drop off between 1pm and 5pm',
+  },
 ]
 
 interface BookingFormData {
@@ -40,7 +70,42 @@ interface BookingFormData {
   phone: string
   vehicle: string
   tyreSize: string
+  fuelType: string
+  engineSize: string
   notes: string
+}
+
+// Returns the minimum bookable date: today + 2 days (skip 1 day buffer)
+function getMinBookingDate(): Date {
+  const d = new Date()
+  d.setDate(d.getDate() + 2)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+function toDateString(d: Date): string {
+  return d.toISOString().split('T')[0]
+}
+
+function isSunday(dateStr: string): boolean {
+  if (!dateStr) return false
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.getDay() === 0
+}
+
+function isDateDisabled(dateStr: string): boolean {
+  if (!dateStr) return false
+  const selected = new Date(dateStr + 'T00:00:00')
+  const min = getMinBookingDate()
+  return selected < min || selected.getDay() === 0
+}
+
+function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function validatePhone(phone: string): boolean {
+  return /^[\d\s\+\-\(\)]{7,}$/.test(phone.trim())
 }
 
 function BookingPageContent() {
@@ -55,17 +120,43 @@ function BookingPageContent() {
     phone: '',
     vehicle: '',
     tyreSize: '',
+    fuelType: 'petrol',
+    engineSize: '',
     notes: '',
   })
+  const [contactErrors, setContactErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const minDate = toDateString(getMinBookingDate())
+
   const selectedService = services.find((s) => s.id === formData.service)
   const isTyresSelected = formData.service === 'tyres'
+  const isServicingSelected = formData.service === 'servicing'
   const isStepValid = {
-    service: formData.service !== '' && (!isTyresSelected || formData.tyreSize !== ''),
-    datetime: formData.date !== '' && formData.time !== '',
+    service: formData.service !== ''
+      && (!isTyresSelected || formData.tyreSize !== '')
+      && (!isServicingSelected || formData.engineSize !== ''),
+    datetime: formData.date !== '' && formData.time !== '' && !isDateDisabled(formData.date),
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
+  }
+
+  const validateContactStep = (): boolean => {
+    const errors: Partial<Record<keyof BookingFormData, string>> = {}
+    if (!formData.name.trim()) errors.name = 'Full name is required.'
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required.'
+    } else if (!validateEmail(formData.email)) {
+      errors.email = 'Please enter a valid email address.'
+    }
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required.'
+    } else if (!validatePhone(formData.phone)) {
+      errors.phone = 'Please enter a valid phone number.'
+    }
+    if (!formData.vehicle.trim()) errors.vehicle = 'Vehicle details are required.'
+    setContactErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
   const handlePayment = async () => {
@@ -99,6 +190,8 @@ function BookingPageContent() {
     try {
       const notesWithTyre = isTyresSelected && formData.tyreSize
         ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isServicingSelected && formData.engineSize
+        ? `Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
         : formData.notes
       const response = await fetch('/api/bookings', {
         method: 'POST',
@@ -174,7 +267,7 @@ function BookingPageContent() {
                   return (
                     <Card
                       key={service.id}
-                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '' })}
+                      onClick={() => setFormData({ ...formData, service: service.id, tyreSize: '', engineSize: '', fuelType: 'petrol' })}
                       className={`p-6 cursor-pointer transition border-2 ${
                         formData.service === service.id
                           ? 'border-gold-500 bg-navy-800'
@@ -188,6 +281,55 @@ function BookingPageContent() {
                   )
                 })}
               </div>
+
+              {/* Servicing options - shown only when Car Servicing selected */}
+              {isServicingSelected && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="mb-6"
+                >
+                  <Card className="bg-navy-800 border-gold-500/30 p-6 space-y-5">
+                    <div>
+                      <label className="block text-white font-bold mb-3">
+                        Fuel Type <span className="text-gold-500">*</span>
+                      </label>
+                      <div className="flex gap-2 bg-navy-700 p-1 rounded-lg">
+                        {[{ label: 'Petrol / Diesel', value: 'petrol' }, { label: 'Hybrid', value: 'hybrid' }].map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, fuelType: opt.value, engineSize: '' })}
+                            className={`flex-1 py-2.5 rounded-md text-sm font-bold transition ${
+                              formData.fuelType === opt.value
+                                ? 'bg-gold-500 text-navy-950'
+                                : 'text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-white font-bold mb-3">
+                        Engine Size <span className="text-gold-500">*</span>
+                      </label>
+                      <select
+                        value={formData.engineSize}
+                        onChange={(e) => setFormData({ ...formData, engineSize: e.target.value })}
+                        className="w-full bg-navy-700 border border-gold-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold-500 text-base"
+                      >
+                        <option value="">-- Select engine size --</option>
+                        {servicingEngineSizes[formData.fuelType as 'petrol' | 'hybrid'].map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
 
               {/* Tyre size dropdown - shown only when Tyres selected */}
               {isTyresSelected && (
@@ -243,24 +385,49 @@ function BookingPageContent() {
                   <input
                     type="date"
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500"
+                    min={minDate}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value, time: '' })}
+                    className={`w-full bg-navy-700 border rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500 ${
+                      formData.date && isDateDisabled(formData.date)
+                        ? 'border-red-500/70'
+                        : 'border-gold-500/20'
+                    }`}
                   />
+                  {formData.date && isSunday(formData.date) && (
+                    <p className="mt-2 text-red-400 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      We are closed on Sundays. Please select another day.
+                    </p>
+                  )}
+                  {formData.date && !isSunday(formData.date) && isDateDisabled(formData.date) && (
+                    <p className="mt-2 text-red-400 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      Bookings must be made at least 2 days in advance.
+                    </p>
+                  )}
+                  {!formData.date && (
+                    <p className="mt-2 text-gray-500 text-sm">Earliest available: {new Date(minDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  )}
                 </div>
                 <div className="mb-8">
-                  <label className="block text-white font-bold mb-3">Preferred Time</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {timeSlots.map((time) => (
+                  <label className="block text-white font-bold mb-3">Preferred Session</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {sessions.map((session) => (
                       <button
-                        key={time}
-                        onClick={() => setFormData({ ...formData, time })}
-                        className={`py-2 rounded transition text-sm font-bold ${
-                          formData.time === time
-                            ? 'bg-gold-500 text-navy-950'
-                            : 'bg-navy-700 text-gray-300 hover:bg-gold-500/20'
+                        key={session.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, time: session.id })}
+                        className={`p-5 rounded-lg border-2 text-left transition ${
+                          formData.time === session.id
+                            ? 'border-gold-500 bg-gold-500/10'
+                            : 'border-gold-500/20 bg-navy-700 hover:border-gold-500/50'
                         }`}
                       >
-                        {time}
+                        <p className={`font-bold text-lg mb-1 ${formData.time === session.id ? 'text-gold-500' : 'text-white'}`}>
+                          {session.label}
+                        </p>
+                        <p className="text-gold-400 font-mono text-sm mb-1">{session.time}</p>
+                        <p className="text-gray-400 text-sm">{session.description}</p>
                       </button>
                     ))}
                   </div>
@@ -296,19 +463,35 @@ function BookingPageContent() {
               <Card className="bg-navy-800 border-gold-500/20 p-8 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   {[
-                    { label: 'Full Name', key: 'name', type: 'text' },
-                    { label: 'Email', key: 'email', type: 'email' },
-                    { label: 'Phone', key: 'phone', type: 'tel' },
-                    { label: 'Vehicle', key: 'vehicle', type: 'text' },
+                    { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
+                    { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
+                    { label: 'Phone', key: 'phone', type: 'tel', placeholder: '07700 900000' },
+                    { label: 'Vehicle (Make, Model & Reg)', key: 'vehicle', type: 'text', placeholder: 'Ford Focus AB12 CDE' },
                   ].map((field) => (
                     <div key={field.key}>
                       <label className="block text-white font-bold mb-2">{field.label}</label>
                       <input
                         type={field.type}
+                        placeholder={field.placeholder}
                         value={formData[field.key as keyof BookingFormData]}
-                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                        className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500"
+                        onChange={(e) => {
+                          setFormData({ ...formData, [field.key]: e.target.value })
+                          if (contactErrors[field.key as keyof BookingFormData]) {
+                            setContactErrors({ ...contactErrors, [field.key]: undefined })
+                          }
+                        }}
+                        className={`w-full bg-navy-700 border rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500 placeholder:text-gray-600 ${
+                          contactErrors[field.key as keyof BookingFormData]
+                            ? 'border-red-500/70'
+                            : 'border-gold-500/20'
+                        }`}
                       />
+                      {contactErrors[field.key as keyof BookingFormData] && (
+                        <p className="mt-1.5 text-red-400 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          {contactErrors[field.key as keyof BookingFormData]}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -330,9 +513,10 @@ function BookingPageContent() {
                   Back
                 </Button>
                 <Button
-                  onClick={() => setStep('confirmation')}
-                  disabled={!isStepValid.contact}
-                  className="flex-1 bg-gold-500 hover:bg-gold-600 disabled:opacity-50 text-navy-950 font-bold"
+                  onClick={() => {
+                    if (validateContactStep()) setStep('confirmation')
+                  }}
+                  className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
                 >
                   Review Booking
                 </Button>
@@ -358,8 +542,12 @@ function BookingPageContent() {
                   {[
                     { label: 'Service', value: selectedService?.name },
                     ...(isTyresSelected && formData.tyreSize ? [{ label: 'Tyre Size', value: formData.tyreSize }] : []),
-                    { label: 'Date', value: formData.date },
-                    { label: 'Time', value: formData.time },
+                    ...(isServicingSelected && formData.engineSize ? [
+                      { label: 'Fuel Type', value: formData.fuelType === 'petrol' ? 'Petrol / Diesel' : 'Hybrid' },
+                      { label: 'Engine Size', value: formData.engineSize },
+                    ] : []),
+                    { label: 'Date', value: new Date(formData.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) },
+                    { label: 'Session', value: sessions.find(s => s.id === formData.time)?.label + ' (' + sessions.find(s => s.id === formData.time)?.time + ')' },
                     { label: 'Name', value: formData.name },
                     { label: 'Email', value: formData.email },
                     { label: 'Phone', value: formData.phone },

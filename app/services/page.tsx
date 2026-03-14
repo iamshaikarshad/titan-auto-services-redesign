@@ -19,6 +19,26 @@ const tyrePricing = [
   { size: '19"', from: 80, to: 110 },
 ]
 
+const servicingPricing = {
+  petrol: [
+    { cc: 'Up to 1000cc', interim: 105, full: 205 },
+    { cc: 'Up to 1300cc', interim: 145, full: 205 },
+    { cc: 'Up to 1600cc', interim: 155, full: 205 },
+    { cc: 'Up to 2000cc', interim: 165, full: 245 },
+    { cc: 'Up to 2500cc', interim: 175, full: 250 },
+    { cc: 'Up to 3500cc', interim: 195, full: 265 },
+  ],
+  hybrid: [
+    { cc: 'Up to 1000cc', interim: 140, full: 225 },
+    { cc: 'Up to 1300cc', interim: 165, full: 235 },
+    { cc: 'Up to 1600cc', interim: 175, full: 245 },
+    { cc: 'Up to 2000cc', interim: 185, full: 255 },
+    { cc: 'Up to 2500cc', interim: 195, full: 265 },
+    { cc: 'Up to 3500cc', interim: 215, full: 285 },
+    { cc: 'Up to 4500cc', interim: 235, full: 305 },
+  ],
+}
+
 const allServices = [
   {
     icon: Gauge,
@@ -28,15 +48,17 @@ const allServices = [
     features: ['DVSA Approved', 'Expert Inspection', '30-Min Test', 'Instant Results'],
     href: '/services/mot',
     isTyres: false,
+    isServicing: false,
   },
   {
     icon: Wrench,
     title: 'Car Servicing',
     description: 'Full and interim servicing with genuine parts and comprehensive maintenance.',
-    price: 'From £150',
+    price: 'From £105',
     features: ['Oil & Filter', 'Fluid Checks', 'Parts Inspection', 'Warranty Included'],
     href: '/services/servicing',
     isTyres: false,
+    isServicing: true,
   },
   {
     icon: Zap,
@@ -46,6 +68,7 @@ const allServices = [
     features: ['Quality Tyres', 'Balancing', 'Alignment', 'Same Day Available'],
     href: '/services/tyres',
     isTyres: true,
+    isServicing: false,
   },
   {
     icon: Shield,
@@ -55,6 +78,7 @@ const allServices = [
     features: ['Pad Replacement', 'Rotor Service', 'Safety Check', 'Warranty'],
     href: '/services/brakes',
     isTyres: false,
+    isServicing: false,
   },
   {
     icon: Clock,
@@ -64,6 +88,7 @@ const allServices = [
     features: ['Advanced Tech', 'Fast Results', 'Expert Advice', 'Transparent Pricing'],
     href: '/services/diagnostics',
     isTyres: false,
+    isServicing: false,
   },
   {
     icon: Award,
@@ -73,6 +98,7 @@ const allServices = [
     features: ['A/C Recharge', 'System Check', 'Refrigerant', 'Leak Detection'],
     href: '/services/air-con',
     isTyres: false,
+    isServicing: false,
   },
   {
     icon: Wind,
@@ -82,6 +108,7 @@ const allServices = [
     features: ['Repairs & Welding', 'Full Replacement', 'Emissions Check', 'Quality Parts'],
     href: '/services/exhaust',
     isTyres: false,
+    isServicing: false,
   },
   {
     icon: Lightbulb,
@@ -91,6 +118,7 @@ const allServices = [
     features: ['Strut Replacement', 'Spring Service', 'Alignment', 'Ride Quality'],
     href: '/services/suspension',
     isTyres: false,
+    isServicing: false,
   },
   {
     icon: Battery,
@@ -100,11 +128,14 @@ const allServices = [
     features: ['Battery Testing', 'Replacement', 'Terminal Cleaning', 'Warranty'],
     href: '/services/battery',
     isTyres: false,
+    isServicing: false,
   },
 ]
 
 export default function ServicesPage() {
   const [tyresModalOpen, setTyresModalOpen] = useState(false)
+  const [servicingModalOpen, setServicingModalOpen] = useState(false)
+  const [fuelType, setFuelType] = useState<'petrol' | 'hybrid'>('petrol')
 
   return (
     <div className="min-h-screen">
@@ -180,6 +211,14 @@ export default function ServicesPage() {
                         Learn More
                         <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
                       </Button>
+                    ) : service.isServicing ? (
+                      <Button
+                        onClick={() => setServicingModalOpen(true)}
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold mt-auto flex items-center justify-center gap-2 group/btn"
+                      >
+                        Learn More
+                        <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition" />
+                      </Button>
                     ) : (
                       <Button
                         asChild
@@ -246,6 +285,94 @@ export default function ServicesPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Car Servicing Modal */}
+      <Dialog open={servicingModalOpen} onOpenChange={setServicingModalOpen}>
+        <DialogContent className="bg-navy-900 border border-gold-500/30 text-white max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                <Wrench className="w-5 h-5 text-gold-500" />
+              </div>
+              Car Servicing Price Guide
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-gray-300 mb-6">
+            Full and interim servicing with genuine parts. Prices vary by engine size and fuel type.
+          </p>
+
+          {/* Fuel type toggle */}
+          <div className="flex gap-2 mb-6 bg-navy-800 p-1 rounded-lg">
+            <button
+              onClick={() => setFuelType('petrol')}
+              className={`flex-1 py-2.5 rounded-md text-sm font-bold transition ${
+                fuelType === 'petrol'
+                  ? 'bg-gold-500 text-navy-950'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Petrol / Diesel
+            </button>
+            <button
+              onClick={() => setFuelType('hybrid')}
+              className={`flex-1 py-2.5 rounded-md text-sm font-bold transition ${
+                fuelType === 'hybrid'
+                  ? 'bg-gold-500 text-navy-950'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Hybrid
+            </button>
+          </div>
+
+          {/* Pricing table */}
+          <div className="rounded-lg overflow-hidden border border-gold-500/20 mb-6">
+            <div className="grid grid-cols-3 bg-navy-800 px-4 py-3 text-sm font-bold text-gold-500">
+              <span>Engine Size</span>
+              <span className="text-center">Interim Service</span>
+              <span className="text-center">Full Service</span>
+            </div>
+            {servicingPricing[fuelType].map((row, i) => (
+              <div
+                key={row.cc}
+                className={`grid grid-cols-3 px-4 py-3 text-sm border-t border-gold-500/10 ${
+                  i % 2 === 0 ? 'bg-navy-900' : 'bg-navy-850'
+                }`}
+              >
+                <span className="text-gray-300">{row.cc}</span>
+                <span className="text-center text-white font-medium">£{row.interim}</span>
+                <span className="text-center text-white font-medium">£{row.full}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Features */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {['Oil & Filter', 'Fluid Checks', 'Parts Inspection', 'Warranty Included'].map((f) => (
+              <span key={f} className="text-xs bg-gold-500/10 text-gold-400 px-3 py-1 rounded-full">{f}</span>
+            ))}
+          </div>
+
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              asChild
+              className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+              onClick={() => setServicingModalOpen(false)}
+            >
+              <Link href="/booking?service=servicing">Book Car Service</Link>
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 border-gold-500/40 text-gray-300 hover:bg-navy-800"
+              onClick={() => setServicingModalOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Tyres & Wheel Alignment Modal */}
       <Dialog open={tyresModalOpen} onOpenChange={setTyresModalOpen}>
