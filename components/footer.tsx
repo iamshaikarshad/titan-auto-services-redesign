@@ -13,7 +13,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/titan-icon.svg" alt="Titan Auto" className="w-10 h-10" />
+              <img src="/titan-icon2.svg" alt="Titan Auto" className="w-12 h-12" />
               <img src="/titan-banner.svg" alt="Titan Auto" className="h-8" />
             </div>
             <p className="text-slate-400 text-sm">
