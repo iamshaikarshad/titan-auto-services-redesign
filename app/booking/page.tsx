@@ -65,6 +65,39 @@ interface BookingFormData {
   notes: string
 }
 
+// Returns the minimum bookable date: today + 2 days (skip 1 day buffer)
+function getMinBookingDate(): Date {
+  const d = new Date()
+  d.setDate(d.getDate() + 2)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+function toDateString(d: Date): string {
+  return d.toISOString().split('T')[0]
+}
+
+function isSunday(dateStr: string): boolean {
+  if (!dateStr) return false
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.getDay() === 0
+}
+
+function isDateDisabled(dateStr: string): boolean {
+  if (!dateStr) return false
+  const selected = new Date(dateStr + 'T00:00:00')
+  const min = getMinBookingDate()
+  return selected < min || selected.getDay() === 0
+}
+
+function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function validatePhone(phone: string): boolean {
+  return /^[\d\s\+\-\(\)]{7,}$/.test(phone.trim())
+}
+
 function BookingPageContent() {
   const searchParams = useSearchParams()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
@@ -81,8 +114,11 @@ function BookingPageContent() {
     engineSize: '',
     notes: '',
   })
+  const [contactErrors, setContactErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const minDate = toDateString(getMinBookingDate())
 
   const selectedService = services.find((s) => s.id === formData.service)
   const isTyresSelected = formData.service === 'tyres'
@@ -91,8 +127,26 @@ function BookingPageContent() {
     service: formData.service !== ''
       && (!isTyresSelected || formData.tyreSize !== '')
       && (!isServicingSelected || formData.engineSize !== ''),
-    datetime: formData.date !== '' && formData.time !== '',
+    datetime: formData.date !== '' && formData.time !== '' && !isDateDisabled(formData.date),
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
+  }
+
+  const validateContactStep = (): boolean => {
+    const errors: Partial<Record<keyof BookingFormData, string>> = {}
+    if (!formData.name.trim()) errors.name = 'Full name is required.'
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required.'
+    } else if (!validateEmail(formData.email)) {
+      errors.email = 'Please enter a valid email address.'
+    }
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required.'
+    } else if (!validatePhone(formData.phone)) {
+      errors.phone = 'Please enter a valid phone number.'
+    }
+    if (!formData.vehicle.trim()) errors.vehicle = 'Vehicle details are required.'
+    setContactErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
   const handlePayment = async () => {
@@ -321,9 +375,29 @@ function BookingPageContent() {
                   <input
                     type="date"
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500"
+                    min={minDate}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value, time: '' })}
+                    className={`w-full bg-navy-700 border rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500 ${
+                      formData.date && isDateDisabled(formData.date)
+                        ? 'border-red-500/70'
+                        : 'border-gold-500/20'
+                    }`}
                   />
+                  {formData.date && isSunday(formData.date) && (
+                    <p className="mt-2 text-red-400 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      We are closed on Sundays. Please select another day.
+                    </p>
+                  )}
+                  {formData.date && !isSunday(formData.date) && isDateDisabled(formData.date) && (
+                    <p className="mt-2 text-red-400 text-sm flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      Bookings must be made at least 2 days in advance.
+                    </p>
+                  )}
+                  {!formData.date && (
+                    <p className="mt-2 text-gray-500 text-sm">Earliest available: {new Date(minDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  )}
                 </div>
                 <div className="mb-8">
                   <label className="block text-white font-bold mb-3">Preferred Time</label>
@@ -374,19 +448,35 @@ function BookingPageContent() {
               <Card className="bg-navy-800 border-gold-500/20 p-8 mb-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   {[
-                    { label: 'Full Name', key: 'name', type: 'text' },
-                    { label: 'Email', key: 'email', type: 'email' },
-                    { label: 'Phone', key: 'phone', type: 'tel' },
-                    { label: 'Vehicle', key: 'vehicle', type: 'text' },
+                    { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
+                    { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
+                    { label: 'Phone', key: 'phone', type: 'tel', placeholder: '07700 900000' },
+                    { label: 'Vehicle (Make, Model & Reg)', key: 'vehicle', type: 'text', placeholder: 'Ford Focus AB12 CDE' },
                   ].map((field) => (
                     <div key={field.key}>
                       <label className="block text-white font-bold mb-2">{field.label}</label>
                       <input
                         type={field.type}
+                        placeholder={field.placeholder}
                         value={formData[field.key as keyof BookingFormData]}
-                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                        className="w-full bg-navy-700 border border-gold-500/20 rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500"
+                        onChange={(e) => {
+                          setFormData({ ...formData, [field.key]: e.target.value })
+                          if (contactErrors[field.key as keyof BookingFormData]) {
+                            setContactErrors({ ...contactErrors, [field.key]: undefined })
+                          }
+                        }}
+                        className={`w-full bg-navy-700 border rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500 placeholder:text-gray-600 ${
+                          contactErrors[field.key as keyof BookingFormData]
+                            ? 'border-red-500/70'
+                            : 'border-gold-500/20'
+                        }`}
                       />
+                      {contactErrors[field.key as keyof BookingFormData] && (
+                        <p className="mt-1.5 text-red-400 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                          {contactErrors[field.key as keyof BookingFormData]}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -408,9 +498,10 @@ function BookingPageContent() {
                   Back
                 </Button>
                 <Button
-                  onClick={() => setStep('confirmation')}
-                  disabled={!isStepValid.contact}
-                  className="flex-1 bg-gold-500 hover:bg-gold-600 disabled:opacity-50 text-navy-950 font-bold"
+                  onClick={() => {
+                    if (validateContactStep()) setStep('confirmation')
+                  }}
+                  className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
                 >
                   Review Booking
                 </Button>
