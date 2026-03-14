@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
 import { Gauge, Wrench, Zap, Shield, Clock, Award, ChevronRight, Zap as Battery, Wind, Lightbulb } from 'lucide-react'
@@ -415,10 +415,11 @@ export default function ServicesPage() {
                     <detail.icon className="w-5 h-5 text-gold-500" />
                   </div>
                   {detail.title}
-                </DialogTitle>
-              </DialogHeader>
-
-              <p className="text-gray-300 mb-6">{detail.description}</p>
+</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              {detail.description}
+            </DialogDescription>
+          </DialogHeader>
 
               {/* ── Car Servicing: fuel toggle + engine table ── */}
               {activeModal === 'servicing' && (
