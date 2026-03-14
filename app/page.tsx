@@ -1,12 +1,20 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
 import { Wrench, Zap, Shield, Clock, Award, Gauge, Star, UserCheck, Package, ShieldCheck, BadgeDollarSign, Car, Coffee, Heart, MapPin } from 'lucide-react'
 import Image from 'next/image'
+import { IntroAnimation } from '@/components/intro-animation'
+
+const heroImages = [
+  { src: '/hero-car-service.jpg', alt: 'Professional car servicing at Titan Auto' },
+  { src: '/images/titan-workshop.jpg', alt: 'Titan Auto Services workshop with hydraulic lifts and tyre storage' },
+  { src: '/images/titan-workshop2.jpg', alt: 'BMW on hydraulic lift at Titan Auto Services workshop' },
+]
 
 const services = [
   {
@@ -79,22 +87,110 @@ const googleReviews = [
   },
 ]
 
-export default function HomePage() {
+function RegWidget() {
+  const [reg, setReg] = useState('')
+
+  const handleGetPrice = () => {
+    if (!reg.trim()) return
+    const url = `https://bookmygarage.com/garage-detail/titan-auto-services_bt/me157uh/book/?ref=www.titanautoservices.co.uk&vrm=${encodeURIComponent(reg.trim().toUpperCase())}&referrer=widget`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   return (
-    <div className="min-h-screen">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="mt-10 max-w-2xl"
+    >
+      <p className="text-white font-bold text-lg mb-3">Get an instant price for your MOT or service and book for free.</p>
+
+      <div className="flex items-stretch gap-3">
+        {/* Flag + input joined flush */}
+        <div className="flex flex-1 rounded-lg overflow-hidden shadow-lg shadow-black/40 min-w-0">
+          {/* UK flag badge */}
+          <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0">
+            <span className="text-xl leading-none">🇬🇧</span>
+            <span className="text-white text-[10px] font-bold leading-none tracking-widest">UK</span>
+          </div>
+          {/* Reg input */}
+          <input
+            type="text"
+            value={reg}
+            onChange={(e) => setReg(e.target.value.toUpperCase())}
+            onKeyDown={(e) => e.key === 'Enter' && handleGetPrice()}
+            placeholder="ENTER YOUR REG"
+            maxLength={8}
+            spellCheck={false}
+            className="font-plate flex-1 min-w-0 bg-[#F5C500] text-navy-950 placeholder-navy-950/50 text-xl px-4 py-3 focus:outline-none uppercase"
+            aria-label="Enter your car registration number"
+          />
+        </div>
+
+        {/* CTA button — separated by gap-3 */}
+        <button
+          onClick={handleGetPrice}
+          className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-base px-6 py-3 rounded-lg transition whitespace-nowrap shrink-0 shadow-lg shadow-black/30"
+        >
+          Get a price now &rsaquo;
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
+export default function HomePage() {
+  const [heroIndex, setHeroIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % heroImages.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <>
+      <IntroAnimation />
+      <div className="min-h-screen">
       {/* Hero Section - Background Image */}
       <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center">
-        {/* Background Image */}
+        {/* Background Image Slideshow */}
         <div className="absolute inset-0 -z-10">
-          <Image
-            src="/hero-car-service.jpg"
-            alt="Professional car servicing at Titan Auto"
-            fill
-            className="object-cover"
-            priority
-          />
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={heroIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={heroImages[heroIndex].src}
+                alt={heroImages[heroIndex].alt}
+                fill
+                className="object-cover"
+                priority={heroIndex === 0}
+              />
+            </motion.div>
+          </AnimatePresence>
           {/* Dark Overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/85 to-navy-900/70" />
+
+          {/* Dot indicators */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {heroImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setHeroIndex(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  i === heroIndex ? 'bg-gold-500 w-6' : 'bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -148,6 +244,9 @@ export default function HomePage() {
                 </Button>
               </motion.div>
             </div>
+
+            {/* Instant price widget */}
+            <RegWidget />
           </motion.div>
         </div>
       </section>
@@ -396,6 +495,7 @@ export default function HomePage() {
           </div>
         </motion.div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }

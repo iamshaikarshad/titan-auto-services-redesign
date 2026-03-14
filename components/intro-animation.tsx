@@ -8,17 +8,9 @@ export function IntroAnimation() {
   const [showIntro, setShowIntro] = useState(true)
 
   useEffect(() => {
-    // Check if user has seen the intro before
-    const hasSeenIntro = localStorage.getItem('titan-intro-shown')
-    if (hasSeenIntro) {
-      setShowIntro(false)
-      return
-    }
-
     // Show intro and hide after 3 seconds
     const timer = setTimeout(() => {
       setShowIntro(false)
-      localStorage.setItem('titan-intro-shown', 'true')
     }, 3000)
 
     return () => clearTimeout(timer)

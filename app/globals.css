@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* UK number plate style - fallback to system fonts with proper styling */
+.font-plate {
+  font-family: 'Arial Black', 'Arial Bold', sans-serif;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 * {
   margin: 0;
   padding: 0;
