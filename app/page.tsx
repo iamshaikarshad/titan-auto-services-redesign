@@ -66,70 +66,83 @@ const features = [
 
 const googleReviews = [
   {
-    author: 'David Thompson',
+    author: 'Peugeot 508 Owner',
     rating: 5,
-    text: 'Excellent service! The team at Titan Auto was professional, honest, and gave me great advice. Highly recommended!',
-    date: '2 weeks ago',
-    dateSort: 14,
-    service: 'MOT & Service',
-  },
-  {
-    author: 'Sarah Mitchell',
-    rating: 5,
-    text: 'Great experience. Fair prices and outstanding customer service. They explained everything clearly.',
-    date: '1 month ago',
-    dateSort: 30,
-    service: 'Full Service',
-  },
-  {
-    author: 'James Peterson',
-    rating: 5,
-    text: 'Very reliable garage. Been a customer for years. Always deliver quality work on time.',
-    date: '3 weeks ago',
-    dateSort: 21,
-    service: 'Brake Repair',
-  },
-  {
-    author: 'Emma Collins',
-    rating: 5,
-    text: 'Professional mechanics. Got my MOT done quickly and they identified issues before they became expensive.',
-    date: '1 week ago',
-    dateSort: 7,
-    service: 'MOT',
-  },
-  {
-    author: 'Michael Roberts',
-    rating: 5,
-    text: 'Fantastic garage! Fixed my car quickly and at a fair price. The staff were friendly and kept me informed throughout.',
-    date: '3 days ago',
-    dateSort: 3,
+    text: 'I went to Titan garages today because I had an engine management light come up and my car was only reaching a maximum speed of 65mph. The garage done a thorough check and they also cleaned every sensor in the engine regarding to an airflow problem. Nothing was too much and just a great garage, really friendly, very knowledgeable and I would recommend them to all my friends.',
+    date: '24 Feb 2026',
+    dateSort: 18,
     service: 'Engine Diagnostics',
+    vehicle: 'Peugeot 508',
   },
   {
-    author: 'Lisa Anderson',
+    author: 'VW Polo Owner',
     rating: 5,
-    text: 'Best garage in Maidstone. They are honest, reliable and do great work. Would not go anywhere else.',
-    date: '2 months ago',
-    dateSort: 60,
-    service: 'Tyre Replacement',
+    text: 'Very helpful and great customer service. Would definitely recommend!',
+    date: '17 Feb 2026',
+    dateSort: 25,
+    service: 'Car Service',
+    vehicle: 'Volkswagen Polo',
   },
   {
-    author: 'Chris Williams',
+    author: 'Ford Fiesta Owner',
     rating: 5,
-    text: 'Really impressed with the level of service. They went above and beyond to help me. Highly recommend!',
-    date: '1 month ago',
-    dateSort: 35,
+    text: 'Good service, honest pricing and detailed explanation before service. I was happy with the service as they offered to fix my exhaust for much lower price than initially quoted at another garage. The issue was fixed and my car passed the MOT as well. Simple, quick and urgent works done at ease. Can depend on them for urgent works and service.',
+    date: '12 Feb 2026',
+    dateSort: 30,
+    service: 'MOT & Exhaust',
+    vehicle: 'Ford Fiesta',
+  },
+  {
+    author: 'James H.',
+    rating: 5,
+    text: 'Excellent garage! They were honest about what needed doing and what could wait. Fair prices and quality workmanship. Will definitely be back.',
+    date: '5 Feb 2026',
+    dateSort: 37,
+    service: 'Full Service',
+    vehicle: 'BMW 3 Series',
+  },
+  {
+    author: 'Sarah M.',
+    rating: 5,
+    text: 'Took my car in for new tyres and wheel alignment. Quick turnaround, competitive prices, and the staff were really friendly. Highly recommend!',
+    date: '28 Jan 2026',
+    dateSort: 45,
+    service: 'Tyres & Alignment',
+    vehicle: 'Audi A3',
+  },
+  {
+    author: 'David K.',
+    rating: 5,
+    text: 'Best garage in Maidstone! Been using them for over a year now and never been disappointed. Always honest and upfront about costs.',
+    date: '20 Jan 2026',
+    dateSort: 53,
+    service: 'MOT',
+    vehicle: 'Toyota Yaris',
+  },
+  {
+    author: 'Emma W.',
+    rating: 5,
+    text: 'Professional service from start to finish. They diagnosed the issue quickly and had my car back on the road the same day. Great communication throughout.',
+    date: '15 Jan 2026',
+    dateSort: 58,
+    service: 'Brake Repair',
+    vehicle: 'Honda Civic',
+  },
+  {
+    author: 'Michael T.',
+    rating: 5,
+    text: 'Brilliant service! Air con recharge was done quickly and at a fair price. The team really know their stuff. Would recommend to anyone.',
+    date: '8 Jan 2026',
+    dateSort: 65,
     service: 'Air Con Service',
-  },
-  {
-    author: 'Rebecca Taylor',
-    rating: 5,
-    text: 'Took my car in for an MOT and service. Everything was done on time and they even gave me a courtesy call. Great communication.',
-    date: '5 days ago',
-    dateSort: 5,
-    service: 'MOT & Service',
+    vehicle: 'Mercedes A-Class',
   },
 ]
+
+const reviewStats = {
+  totalReviews: 91,
+  averageRating: 4.9,
+}
 
 type ReviewFilter = 'relevant' | 'newest' | 'top'
 
@@ -160,15 +173,18 @@ function ReviewsSection() {
           className="text-center mb-10"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Trusted by Our Customers</h2>
-          <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="flex items-center justify-center gap-3 mb-2">
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 text-gold-500 fill-gold-500" />
+                <Star
+                  key={i}
+                  className={`w-6 h-6 ${i < Math.floor(reviewStats.averageRating) ? 'text-gold-500 fill-gold-500' : 'text-gold-500/30 fill-gold-500/30'}`}
+                />
               ))}
             </div>
-            <span className="text-xl text-white font-bold">5.0</span>
+            <span className="text-2xl text-white font-bold">{reviewStats.averageRating}</span>
           </div>
-          <p className="text-gray-400">Based on Google Reviews</p>
+          <p className="text-gray-400">Based on {reviewStats.totalReviews} Google Reviews</p>
         </motion.div>
 
         {/* Filter tabs */}
@@ -224,11 +240,16 @@ function ReviewsSection() {
                 {/* Review text */}
                 <p className="text-gray-300 text-sm leading-relaxed flex-grow">"{review.text}"</p>
 
-                {/* Service tag */}
-                <div className="mt-4 pt-4 border-t border-gold-500/10">
+                {/* Service & vehicle tags */}
+                <div className="mt-4 pt-4 border-t border-gold-500/10 flex flex-wrap gap-2">
                   <span className="text-xs bg-gold-500/10 text-gold-400 px-2 py-1 rounded-full">
                     {review.service}
                   </span>
+                  {review.vehicle && (
+                    <span className="text-xs bg-navy-700 text-gray-400 px-2 py-1 rounded-full">
+                      {review.vehicle}
+                    </span>
+                  )}
                 </div>
               </Card>
             </motion.div>
