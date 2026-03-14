@@ -1,9 +1,9 @@
+/* Charles Wright - UK number plate font */
+@import url('https://fonts.cdnfonts.com/css/charles-wright');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Charles Wright - UK number plate font */
-@import url('https://fonts.cdnfonts.com/css/charles-wright');
 
 .font-plate {
   font-family: 'Charles Wright', 'Arial Black', sans-serif;
