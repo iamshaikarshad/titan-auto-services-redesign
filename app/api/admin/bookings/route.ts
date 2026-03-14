@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
         b.status,
         b.total_price,
         b.notes,
+        b.created_at,
+        b.updated_at,
         c.first_name,
         c.last_name,
         c.email,
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
         c.address,
         c.city,
         c.postal_code,
-        s.name as service_name,
+        COALESCE(s.name, 'See Notes') as service_name,
         s.base_price as service_price
       FROM bookings b
       JOIN customers c ON b.customer_id = c.id
