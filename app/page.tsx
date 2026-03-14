@@ -87,6 +87,53 @@ const googleReviews = [
   },
 ]
 
+function RegWidget() {
+  const [reg, setReg] = useState('')
+
+  const handleGetPrice = () => {
+    if (!reg.trim()) return
+    const url = `https://bookmygarage.com/garage-detail/titan-auto-services_bt/me157uh/book/?ref=www.titanautoservices.co.uk&vrm=${encodeURIComponent(reg.trim().toUpperCase())}&referrer=widget`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="mt-10 max-w-2xl"
+    >
+      <p className="text-white font-bold text-lg mb-1">Get an instant price for your MOT or service and book for free.</p>
+      <div className="flex items-stretch rounded-lg overflow-hidden shadow-lg shadow-black/30 border border-white/10 mt-3">
+        {/* UK flag badge */}
+        <div className="flex flex-col items-center justify-center bg-[#003087] px-3 py-2 gap-0.5 shrink-0">
+          <span className="text-xl leading-none">🇬🇧</span>
+          <span className="text-white text-[10px] font-bold leading-none tracking-widest">UK</span>
+        </div>
+        {/* Reg input */}
+        <input
+          type="text"
+          value={reg}
+          onChange={(e) => setReg(e.target.value.toUpperCase())}
+          onKeyDown={(e) => e.key === 'Enter' && handleGetPrice()}
+          placeholder="ENTER YOUR REG"
+          maxLength={8}
+          spellCheck={false}
+          className="flex-1 bg-[#F5C500] text-navy-950 placeholder-navy-950/60 font-black text-xl tracking-widest px-4 py-3 focus:outline-none uppercase"
+          aria-label="Enter your car registration number"
+        />
+        {/* CTA button */}
+        <button
+          onClick={handleGetPrice}
+          className="bg-white hover:bg-gray-100 text-navy-950 font-bold text-base px-6 py-3 transition whitespace-nowrap shrink-0"
+        >
+          Get a price now &rsaquo;
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function HomePage() {
   const [heroIndex, setHeroIndex] = useState(0)
 
@@ -192,6 +239,9 @@ export default function HomePage() {
                 </Button>
               </motion.div>
             </div>
+
+            {/* Instant price widget */}
+            <RegWidget />
           </motion.div>
         </div>
       </section>
