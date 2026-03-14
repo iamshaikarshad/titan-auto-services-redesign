@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       name, 
       email, 
       phone, 
-      vehicle, 
+      vehicle,
+      registrationNumber,
       notes,
       tyreSize,
       fuelType,
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       otherDescription
     } = body
 
-    console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle })
+    console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle, registrationNumber })
 
     // Validate required fields
     if (!service || !date || !time || !name || !email || !phone || !vehicle) {
@@ -126,16 +127,16 @@ export async function POST(request: NextRequest) {
         
         // Update existing customer
         await client.query(
-          'UPDATE customers SET first_name = $1, last_name = $2, phone = $3, car_make = $4, updated_at = NOW() WHERE id = $5',
-          [firstName, lastName, phone, vehicle, customerId]
+          'UPDATE customers SET first_name = $1, last_name = $2, phone = $3, car_make = $4, registration_number = $5, updated_at = NOW() WHERE id = $6',
+          [firstName, lastName, phone, vehicle, registrationNumber || null, customerId]
         )
       } else {
         console.log('[v0] Creating new customer')
         
         // Create new customer
         const newCustomer = await client.query(
-          'INSERT INTO customers (first_name, last_name, email, phone, car_make) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-          [firstName, lastName, email, phone, vehicle]
+          'INSERT INTO customers (first_name, last_name, email, phone, car_make, registration_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+          [firstName, lastName, email, phone, vehicle, registrationNumber || null]
         )
         customerId = newCustomer.rows[0].id
         console.log('[v0] New customer created:', customerId)
@@ -145,7 +146,21 @@ export async function POST(request: NextRequest) {
       const serviceName = serviceNames[service]
       const sessionTime = sessionTimes[time] || time
       
-      let fullNotes = `Service: ${serviceName}\nSession: ${sessionTime}`
+      // Look up service_id from services table
+      const serviceResult = await client.query(
+        'SELECT id FROM services WHERE name = $1',
+        [serviceName]
+      )
+      
+      let serviceId = null
+      if (serviceResult.rows.length > 0) {
+        serviceId = serviceResult.rows[0].id
+        console.log('[v0] Service found:', serviceName, 'id:', serviceId)
+      } else {
+        console.log('[v0] Service not found in database:', serviceName)
+      }
+      
+      let fullNotes = `Session: ${sessionTime}`
       
       if (service === 'tyres' && tyreSize) {
         fullNotes += `\nTyre Size: ${tyreSize}`
@@ -164,16 +179,16 @@ export async function POST(request: NextRequest) {
         fullNotes += `\nAdditional Notes: ${notes}`
       }
 
-      console.log('[v0] Creating booking for customer:', customerId, 'service:', service)
+      console.log('[v0] Creating booking for customer:', customerId, 'service:', service, 'service_id:', serviceId)
 
       // Set booking time based on session (use start of session for sorting)
       const sessionStartTime = time === 'morning' ? '09:00' : '13:00'
       const bookingDateTime = new Date(`${date}T${sessionStartTime}:00`)
       
-      // Create booking (store service name string in notes since we don't have FK to services table by name)
+      // Create booking with service_id
       const bookingResult = await client.query(
-        'INSERT INTO bookings (customer_id, booking_date, notes, status) VALUES ($1, $2, $3, $4) RETURNING id, booking_date',
-        [customerId, bookingDateTime, fullNotes, 'pending']
+        'INSERT INTO bookings (customer_id, service_id, booking_date, notes, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, booking_date',
+        [customerId, serviceId, bookingDateTime, fullNotes, 'pending']
       )
 
       const booking = bookingResult.rows[0]

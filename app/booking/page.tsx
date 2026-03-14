@@ -72,6 +72,7 @@ interface BookingFormData {
   email: string
   phone: string
   vehicle: string
+  registrationNumber: string
   tyreSize: string
   fuelType: string
   engineSize: string
@@ -166,6 +167,7 @@ function BookingPageContent() {
     email: '',
     phone: '',
     vehicle: '',
+    registrationNumber: '',
     tyreSize: '',
     fuelType: 'petrol',
     engineSize: '',
@@ -590,7 +592,8 @@ function BookingPageContent() {
                     { label: 'Full Name', key: 'name', type: 'text', placeholder: 'John Smith' },
                     { label: 'Email', key: 'email', type: 'email', placeholder: 'john@example.com' },
                     { label: 'Phone', key: 'phone', type: 'tel', placeholder: '07700 900000' },
-                    { label: 'Vehicle (Make, Model & Reg)', key: 'vehicle', type: 'text', placeholder: 'Ford Focus AB12 CDE' },
+                    { label: 'Vehicle (Make & Model)', key: 'vehicle', type: 'text', placeholder: 'Ford Focus' },
+                    { label: 'Registration Number', key: 'registrationNumber', type: 'text', placeholder: 'AB12 CDE' },
                   ].map((field) => (
                     <div key={field.key}>
                       <label className="block text-white font-bold mb-2">{field.label}</label>
