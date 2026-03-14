@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
-import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award, Loader2 } from 'lucide-react'
 
 const services = [
   { id: 'mot', name: 'MOT Testing', price: 45, icon: Gauge },
@@ -43,7 +43,7 @@ interface BookingFormData {
   notes: string
 }
 
-export default function BookingPage() {
+function BookingPageContent() {
   const searchParams = useSearchParams()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
   const [formData, setFormData] = useState<BookingFormData>({
@@ -407,5 +407,17 @@ export default function BookingPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-navy-950">
+        <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+      </div>
+    }>
+      <BookingPageContent />
+    </Suspense>
   )
 }
