@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { Wrench, Zap, Shield, Clock, Award, Gauge, Star } from 'lucide-react'
+import { Wrench, Zap, Shield, Clock, Award, Gauge, Star, UserCheck, Package, ShieldCheck, BadgeDollarSign } from 'lucide-react'
 import Image from 'next/image'
 
 const services = [
@@ -164,8 +164,8 @@ export default function HomePage() {
           >
             {features.map((feature, idx) => (
               <motion.div key={idx} variants={fadeInUp} className="text-center">
-                <h3 className="text-2xl font-bold text-gold-500 mb-2">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
+                <h3 className="text-3xl font-bold text-gold-500 mb-2">{feature.title}</h3>
+                <p className="text-gray-300 text-lg">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -207,8 +207,8 @@ export default function HomePage() {
                       />
                     ))}
                   </div>
-                  <p className="text-gray-300 mb-4 text-sm italic">"{review.text}"</p>
-                  <p className="text-gold-500 font-semibold text-sm">— {review.author}</p>
+                  <p className="text-gray-300 mb-4 text-base italic leading-relaxed">"{review.text}"</p>
+                  <p className="text-gold-500 font-semibold text-base">— {review.author}</p>
                 </Card>
               </motion.div>
             ))}
@@ -227,7 +227,7 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose Titan Auto?</h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
               We combine expertise, quality, and genuine care for our customers to deliver exceptional automotive service.
             </p>
           </motion.div>
@@ -241,30 +241,39 @@ export default function HomePage() {
           >
             {[
               {
+                icon: UserCheck,
                 title: 'Expert Technicians',
                 description: 'ASE-certified mechanics with 25+ years of combined experience on all vehicle types.',
               },
               {
+                icon: Package,
                 title: 'Genuine Parts',
                 description: 'We use only quality OEM and genuine replacement parts for durability.',
               },
               {
+                icon: ShieldCheck,
                 title: 'Warranty Protection',
                 description: 'Every service comes with comprehensive warranty coverage for peace of mind.',
               },
               {
+                icon: BadgeDollarSign,
                 title: 'Transparent Pricing',
                 description: 'Honest, upfront quotes with no hidden fees or surprises.',
               },
-            ].map((item, idx) => (
-              <motion.div key={idx} variants={fadeInUp}>
-                <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition h-full">
-                  <div className="w-12 h-12 bg-gold-500/20 rounded-lg mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                  <p className="text-gray-400">{item.description}</p>
-                </Card>
-              </motion.div>
-            ))}
+            ].map((item, idx) => {
+              const Icon = item.icon
+              return (
+                <motion.div key={idx} variants={fadeInUp}>
+                  <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition h-full group">
+                    <div className="w-14 h-14 bg-gold-500/20 rounded-lg mb-5 flex items-center justify-center group-hover:bg-gold-500/30 transition">
+                      <Icon className="w-7 h-7 text-gold-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-3">{item.title}</h3>
+                    <p className="text-gray-300 text-lg leading-relaxed">{item.description}</p>
+                  </Card>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
       </section>
@@ -280,7 +289,7 @@ export default function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Comprehensive automotive solutions for all your car maintenance and repair needs.
             </p>
           </motion.div>
@@ -302,8 +311,8 @@ export default function HomePage() {
                         <Icon className="w-8 h-8 text-gold-500" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
-                    <p className="text-gray-400">{service.description}</p>
+                    <h3 className="text-2xl font-bold text-white mb-3">{service.title}</h3>
+                    <p className="text-gray-300 text-lg leading-relaxed">{service.description}</p>
                   </Card>
                 </motion.div>
               )
@@ -338,7 +347,7 @@ export default function HomePage() {
           className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Book Your Service Today</h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-2xl text-gray-300 mb-8 leading-relaxed">
             Fast, reliable, and professional car servicing. Book online or give us a call.
           </p>
 

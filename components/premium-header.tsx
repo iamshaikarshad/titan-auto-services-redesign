@@ -38,11 +38,9 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative">
-              <TitanLogo className="w-10 h-10" />
+              <img src="/titan-icon4.svg" alt="Titan Auto" className="w-14 h-14" />
             </div>
-            <span className="hidden sm:inline font-bold text-xl text-white group-hover:text-gold-500 transition">
-              Titan Auto
-            </span>
+            <img src="/titan-banner.svg" alt="Titan Auto" className="h-8 hidden sm:inline" />
           </Link>
 
           {/* Desktop Navigation */}
