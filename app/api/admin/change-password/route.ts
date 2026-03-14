@@ -7,7 +7,8 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 export async function POST(request: NextRequest) {
   let client
   try {
-    const body = await request.json()
+    const body = await request.json() 
+    console.log('[v0] Change password request body:', body)
     const { currentPassword, newPassword } = body
 
     // Get email from cookie/auth

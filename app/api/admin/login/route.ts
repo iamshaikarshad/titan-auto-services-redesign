@@ -79,6 +79,8 @@ export async function POST(request: NextRequest) {
     let isPasswordValid = false
     
     try {
+      const hash = await bcrypt.hash('admin123', 10)
+      console.log(hash)
       isPasswordValid = await bcrypt.compare(password, user.password_hash)
       console.log('[v0] bcrypt.compare result:', isPasswordValid)
     } catch (bcryptError) {
