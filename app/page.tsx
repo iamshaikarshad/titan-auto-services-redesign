@@ -1,13 +1,22 @@
 'use client'
 
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
 import { Wrench, Zap, Shield, Clock, Award, Gauge, Star, UserCheck, Package, ShieldCheck, BadgeDollarSign, Car, Coffee, Heart, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import { IntroAnimation } from '@/components/intro-animation'
+
+const heroImages = [
+  { src: '/hero-car-service.jpg', alt: 'Professional car servicing at Titan Auto' },
+  { src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/titin-workshop-0WU73m4UMiEfRIFQ2vB7CUhbK8Edfe.jpg', alt: 'Titan Auto Services workshop with hydraulic lifts and tyre storage' },
+  { src: '/images/titan-workshop2.jpg', alt: 'BMW on hydraulic lift at Titan Auto Services workshop' },
+]
 
 const services = [
   {
@@ -81,23 +90,57 @@ const googleReviews = [
 ]
 
 export default function HomePage() {
+  const [heroIndex, setHeroIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % heroImages.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
   return (
     <>
       <IntroAnimation />
       <div className="min-h-screen">
       {/* Hero Section - Background Image */}
       <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center">
-        {/* Background Image */}
+        {/* Background Image Slideshow */}
         <div className="absolute inset-0 -z-10">
-          <Image
-            src="/hero-car-service.jpg"
-            alt="Professional car servicing at Titan Auto"
-            fill
-            className="object-cover"
-            priority
-          />
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={heroIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={heroImages[heroIndex].src}
+                alt={heroImages[heroIndex].alt}
+                fill
+                className="object-cover"
+                priority={heroIndex === 0}
+              />
+            </motion.div>
+          </AnimatePresence>
           {/* Dark Overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/85 to-navy-900/70" />
+
+          {/* Dot indicators */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {heroImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setHeroIndex(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  i === heroIndex ? 'bg-gold-500 w-6' : 'bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
