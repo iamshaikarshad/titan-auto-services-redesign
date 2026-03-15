@@ -181,32 +181,35 @@ export default function AdminPage() {
     <div className="min-h-screen bg-navy-950">
       {/* Header */}
       <div className="bg-navy-900 border-b border-gold-500/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-              <p className="text-gray-400 mt-1">Manage bookings and customers</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-gray-400 text-sm md:text-base mt-1">Manage bookings and customers</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
               <Button
                 onClick={() => setShowChangePasswordModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-2"
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4"
               >
-                <Lock className="w-4 h-4" />
-                Change Password
+                <Lock className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Change </span>Password
               </Button>
               <Button
                 onClick={fetchBookings}
-                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center gap-2"
+                size="sm"
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3 h-3 md:w-4 md:h-4" />
                 Refresh
               </Button>
               <Button
                 onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold flex items-center gap-2"
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white font-bold flex items-center gap-1 md:gap-2 text-xs md:text-sm px-2 md:px-4"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3 h-3 md:w-4 md:h-4" />
                 Logout
               </Button>
             </div>
