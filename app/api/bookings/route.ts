@@ -146,16 +146,18 @@ export async function POST(request: NextRequest) {
       const serviceName = serviceNames[service]
       const sessionTime = sessionTimes[time] || time
       
-      // Look up service_id from services table
+      // Look up service_id and base_price from services table
       const serviceResult = await client.query(
-        'SELECT id FROM services WHERE name = $1',
+        'SELECT id, base_price FROM services WHERE name = $1',
         [serviceName]
       )
       
       let serviceId = null
+      let servicePrice = null
       if (serviceResult.rows.length > 0) {
         serviceId = serviceResult.rows[0].id
-        console.log('[v0] Service found:', serviceName, 'id:', serviceId)
+        servicePrice = serviceResult.rows[0].base_price
+        console.log('[v0] Service found:', serviceName, 'id:', serviceId, 'price:', servicePrice)
       } else {
         console.log('[v0] Service not found in database:', serviceName)
       }
@@ -185,10 +187,10 @@ export async function POST(request: NextRequest) {
       const sessionStartTime = time === 'morning' ? '09:00' : '13:00'
       const bookingDateTime = new Date(`${date}T${sessionStartTime}:00`)
       
-      // Create booking with service_id
+      // Create booking with service_id and total_price
       const bookingResult = await client.query(
-        'INSERT INTO bookings (customer_id, service_id, booking_date, notes, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, booking_date',
-        [customerId, serviceId, bookingDateTime, fullNotes, 'pending']
+        'INSERT INTO bookings (customer_id, service_id, booking_date, notes, status, total_price) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, booking_date, total_price',
+        [customerId, serviceId, bookingDateTime, fullNotes, 'pending', servicePrice]
       )
 
       const booking = bookingResult.rows[0]

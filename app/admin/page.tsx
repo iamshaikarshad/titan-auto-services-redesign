@@ -43,6 +43,11 @@ export default function AdminPage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [updateError, setUpdateError] = useState<string | null>(null)
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
+  const [editingPrice, setEditingPrice] = useState(false)
+  const [priceInput, setPriceInput] = useState('')
+  const [additionalCharges, setAdditionalCharges] = useState<{description: string, amount: string}[]>([])
+  const [newChargeDesc, setNewChargeDesc] = useState('')
+  const [newChargeAmount, setNewChargeAmount] = useState('')
 
   useEffect(() => {
     fetchBookings()
@@ -115,6 +120,108 @@ export default function AdminPage() {
       setIsUpdating(false)
     }
   }
+
+  const updateBookingPrice = async (bookingId: number, newPrice: number, newNotes?: string) => {
+    setIsUpdating(true)
+    setUpdateError(null)
+    try {
+      const response = await fetch('/api/admin/bookings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          bookingId, 
+          totalPrice: newPrice,
+          ...(newNotes !== undefined && { notes: newNotes })
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to update price')
+
+      // Update local state
+      setBookings(bookings.map(b => 
+        b.id === bookingId ? { ...b, total_price: newPrice, ...(newNotes !== undefined && { notes: newNotes }) } : b
+      ))
+
+      // Update selected booking
+      if (selectedBooking && selectedBooking.id === bookingId) {
+        setSelectedBooking({ 
+          ...selectedBooking, 
+          total_price: newPrice,
+          ...(newNotes !== undefined && { notes: newNotes })
+        })
+      }
+
+      setEditingPrice(false)
+      console.log('[v0] Booking price updated:', bookingId, newPrice)
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : 'Failed to update price')
+      console.error('[v0] Error updating price:', err)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleAddCharge = () => {
+    if (!newChargeDesc.trim() || !newChargeAmount.trim()) return
+    setAdditionalCharges([...additionalCharges, { description: newChargeDesc, amount: newChargeAmount }])
+    setNewChargeDesc('')
+    setNewChargeAmount('')
+  }
+
+  const handleRemoveCharge = (index: number) => {
+    setAdditionalCharges(additionalCharges.filter((_, i) => i !== index))
+  }
+
+  const calculateTotalWithCharges = () => {
+    const basePrice = parseFloat(priceInput) || 0
+    const chargesTotal = additionalCharges.reduce((sum, charge) => sum + (parseFloat(charge.amount) || 0), 0)
+    return basePrice + chargesTotal
+  }
+
+  const handleSavePriceWithCharges = async () => {
+    if (!selectedBooking) return
+    
+    const totalPrice = calculateTotalWithCharges()
+    
+    // Build notes with charges breakdown
+    let chargesNote = ''
+    if (additionalCharges.length > 0) {
+      chargesNote = '\n\n--- Additional Charges ---\n'
+      chargesNote += additionalCharges.map(c => `${c.description}: £${parseFloat(c.amount).toFixed(2)}`).join('\n')
+      chargesNote += `\nBase Service: £${parseFloat(priceInput).toFixed(2)}`
+      chargesNote += `\nTotal: £${totalPrice.toFixed(2)}`
+    }
+    
+    // Append charges to existing notes
+    const existingNotes = selectedBooking.notes || ''
+    const notesWithoutOldCharges = existingNotes.split('\n\n--- Additional Charges ---')[0]
+    const newNotes = notesWithoutOldCharges + chargesNote
+    
+    await updateBookingPrice(selectedBooking.id, totalPrice, newNotes)
+    setAdditionalCharges([])
+  }
+
+  // Initialize price input and parse charges when selecting a booking
+  useEffect(() => {
+    if (selectedBooking) {
+      setPriceInput(String(selectedBooking.total_price || selectedBooking.service_price || 0))
+      setEditingPrice(false)
+      
+      // Parse existing charges from notes
+      const notes = selectedBooking.notes || ''
+      const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
+      if (chargesSection) {
+        const chargeLines = chargesSection.split('\n').filter(l => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
+        const parsedCharges = chargeLines.map(line => {
+          const [desc, amt] = line.split(': £')
+          return { description: desc.trim(), amount: amt?.trim() || '0' }
+        })
+        setAdditionalCharges(parsedCharges)
+      } else {
+        setAdditionalCharges([])
+      }
+    }
+  }, [selectedBooking])
 
   const filteredBookings = filterStatus === 'all' 
     ? bookings 
@@ -353,7 +460,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-navy-900 border border-gold-500/30 rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto"
+            className="bg-navy-900 border border-gold-500/30 rounded-lg max-w-2xl w-full max-h-[85vh] overflow-y-auto"
           >
             {/* Modal Header */}
             <div className="bg-navy-800 border-b border-gold-500/20 px-6 py-4 flex items-center justify-between sticky top-0">
@@ -442,10 +549,6 @@ export default function AdminPage() {
                     </div>
                   )}
                   <div>
-                    <p className="text-sm text-gray-400">Price</p>
-                    <p className="text-gold-500 font-bold">£{parseFloat(String(selectedBooking.total_price)).toFixed(2)}</p>
-                  </div>
-                  <div>
                     <p className="text-sm text-gray-400">Current Status</p>
                     <div className={`flex items-center gap-2 px-2 py-1 rounded-full border w-fit ${getStatusBadgeColor(selectedBooking.status)}`}>
                       {getStatusIcon(selectedBooking.status)}
@@ -455,16 +558,129 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Price & Charges Section */}
+              <div>
+                <h3 className="text-lg font-bold text-gold-500 mb-3">Pricing</h3>
+                <div className="bg-navy-800 rounded-lg p-4 space-y-4">
+                  {/* Base Price */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Base Service Price</span>
+                    {editingPrice ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-white">£</span>
+                        <input
+                          type="number"
+                          value={priceInput}
+                          onChange={(e) => setPriceInput(e.target.value)}
+                          className="w-24 bg-navy-700 border border-gold-500/30 rounded px-2 py-1 text-white text-right"
+                          step="0.01"
+                          min="0"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-white font-bold">£{parseFloat(priceInput || '0').toFixed(2)}</span>
+                    )}
+                  </div>
+
+                  {/* Additional Charges */}
+                  {additionalCharges.map((charge, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-gray-400">{charge.description}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-bold">£{parseFloat(charge.amount).toFixed(2)}</span>
+                        {editingPrice && (
+                          <button
+                            onClick={() => handleRemoveCharge(idx)}
+                            className="text-red-400 hover:text-red-300 text-sm"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add New Charge (when editing) */}
+                  {editingPrice && (
+                    <div className="border-t border-gold-500/20 pt-4 space-y-3">
+                      <p className="text-sm text-gray-400">Add Additional Charge</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Description (e.g. Labour, Parts)"
+                          value={newChargeDesc}
+                          onChange={(e) => setNewChargeDesc(e.target.value)}
+                          className="flex-1 bg-navy-700 border border-gold-500/30 rounded px-3 py-2 text-white text-sm placeholder-gray-500"
+                        />
+                        <div className="flex items-center gap-1">
+                          <span className="text-white">£</span>
+                          <input
+                            type="number"
+                            placeholder="0.00"
+                            value={newChargeAmount}
+                            onChange={(e) => setNewChargeAmount(e.target.value)}
+                            className="w-20 bg-navy-700 border border-gold-500/30 rounded px-2 py-2 text-white text-sm text-right"
+                            step="0.01"
+                            min="0"
+                          />
+                        </div>
+                        <Button
+                          onClick={handleAddCharge}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Total */}
+                  <div className="border-t border-gold-500/20 pt-3 flex items-center justify-between">
+                    <span className="text-gold-500 font-bold">Total</span>
+                    <span className="text-gold-500 font-bold text-xl">£{calculateTotalWithCharges().toFixed(2)}</span>
+                  </div>
+
+                  {/* Edit / Save buttons */}
+                  <div className="flex gap-2 pt-2">
+                    {editingPrice ? (
+                      <>
+                        <Button
+                          onClick={handleSavePriceWithCharges}
+                          disabled={isUpdating}
+                          className="flex-1 bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+                        >
+                          {isUpdating ? 'Saving...' : 'Save Price'}
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setEditingPrice(false)
+                            setPriceInput(String(selectedBooking.total_price || selectedBooking.service_price || 0))
+                            setAdditionalCharges([])
+                          }}
+                          className="bg-navy-700 hover:bg-navy-600 text-gray-300 border border-gold-500/20"
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => setEditingPrice(true)}
+                        className="bg-navy-700 hover:bg-navy-600 text-gray-300 border border-gold-500/20"
+                      >
+                        Edit Price / Add Charges
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Notes - show remaining notes after tyre size if present */}
               {selectedBooking.notes && (
                 <div>
                   <h3 className="text-lg font-bold text-gold-500 mb-3">Notes</h3>
-                  <p className="text-gray-300 bg-navy-800 p-3 rounded-lg">
-                    {selectedBooking.notes.includes('|')
-                      ? selectedBooking.notes.split('|').slice(1).join('|').trim()
-                      : selectedBooking.notes.startsWith('Tyre Size:')
-                      ? '—'
-                      : selectedBooking.notes}
+                  <p className="text-gray-300 bg-navy-800 p-3 rounded-lg whitespace-pre-wrap">
+                    {selectedBooking.notes.split('\n\n--- Additional Charges ---')[0]}
                   </p>
                 </div>
               )}
