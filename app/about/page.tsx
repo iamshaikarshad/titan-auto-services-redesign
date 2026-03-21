@@ -158,45 +158,46 @@ export default function AboutPage() {
       </section>
 
       {/* Contact Info Section */}
-      <section className="py-16 bg-navy-950 border-y border-gold-500/20">
+      <section className="py-10 md:py-16 bg-navy-950 border-y border-gold-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Mobile: horizontal scrollable row */}
           <motion.div
             variants={staggerContainer}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="flex overflow-x-auto gap-4 pb-2 md:pb-0 md:grid md:grid-cols-3 md:gap-8 md:overflow-visible scrollbar-hide"
           >
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="w-14 h-14 bg-gold-500/20 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <MapPin className="w-7 h-7 text-gold-500" />
+            <motion.div variants={fadeInUp} className="flex-shrink-0 w-[140px] md:w-auto text-center">
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-gold-500/20 rounded-lg mx-auto mb-2 md:mb-4 flex items-center justify-center">
+                <MapPin className="w-5 h-5 md:w-7 md:h-7 text-gold-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Our Location</h3>
-              <p className="text-gray-300">
-                11 Waterloo Street<br />
-                Maidstone, ME15 7UH
+              <h3 className="text-sm md:text-xl font-bold text-white mb-1 md:mb-2">Location</h3>
+              <p className="text-gray-300 text-xs md:text-base">
+                11 Waterloo St<br />
+                ME15 7UH
               </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="w-14 h-14 bg-gold-500/20 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <Phone className="w-7 h-7 text-gold-500" />
+            <motion.div variants={fadeInUp} className="flex-shrink-0 w-[140px] md:w-auto text-center">
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-gold-500/20 rounded-lg mx-auto mb-2 md:mb-4 flex items-center justify-center">
+                <Phone className="w-5 h-5 md:w-7 md:h-7 text-gold-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Contact Us</h3>
-              <p className="text-gray-300">
+              <h3 className="text-sm md:text-xl font-bold text-white mb-1 md:mb-2">Call Us</h3>
+              <p className="text-gray-300 text-xs md:text-base">
                 <a href="tel:01622438114" className="hover:text-gold-500 transition">01622 438114</a><br />
                 <a href="tel:07305509999" className="hover:text-gold-500 transition">07305 509999</a>
               </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="w-14 h-14 bg-gold-500/20 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <Clock className="w-7 h-7 text-gold-500" />
+            <motion.div variants={fadeInUp} className="flex-shrink-0 w-[140px] md:w-auto text-center">
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-gold-500/20 rounded-lg mx-auto mb-2 md:mb-4 flex items-center justify-center">
+                <Clock className="w-5 h-5 md:w-7 md:h-7 text-gold-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Opening Hours</h3>
-              <p className="text-gray-300">
-                Mon - Fri: 8:00am - 6:00pm<br />
-                Saturday: 9:00am - 2:00pm
+              <h3 className="text-sm md:text-xl font-bold text-white mb-1 md:mb-2">Hours</h3>
+              <p className="text-gray-300 text-xs md:text-base">
+                Mon-Fri: 8am-6pm<br />
+                Sat: 9am-2pm
               </p>
             </motion.div>
           </motion.div>

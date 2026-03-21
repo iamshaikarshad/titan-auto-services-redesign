@@ -30,17 +30,22 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'glass-effect' : 'bg-transparent'
+        isScrolled ? 'glass-effect' : 'bg-navy-950/95 md:bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          {/* Logo - Icon only on mobile, full on desktop */}
+          <Link href="/" className="flex items-center gap-2 group md:flex-none">
             <div className="relative">
-              <img src="/titan-icon4.svg" alt="Titan Auto" className="w-14 h-14" />
+              <img src="/titan-icon4.svg" alt="Titan Auto" className="w-10 h-10 md:w-14 md:h-14" />
             </div>
-            <img src="/titan-banner.svg" alt="Titan Auto" className="h-8 hidden sm:inline" />
+            <img src="/titan-banner.svg" alt="Titan Auto" className="h-8 hidden md:inline" />
+          </Link>
+
+          {/* Mobile centered banner */}
+          <Link href="/" className="md:hidden absolute left-1/2 -translate-x-1/2">
+            <img src="/titan-banner.svg" alt="Titan Auto" className="h-6" />
           </Link>
 
           {/* Desktop Navigation */}

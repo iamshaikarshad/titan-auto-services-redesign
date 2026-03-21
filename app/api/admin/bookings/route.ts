@@ -68,27 +68,56 @@ export async function PUT(request: NextRequest) {
   let client
   try {
     const body = await request.json()
-    const { bookingId, status } = body
+    const { bookingId, status, totalPrice, notes } = body
 
-    if (!bookingId || !status) {
+    if (!bookingId) {
       return NextResponse.json(
-        { error: 'Missing bookingId or status' },
+        { error: 'Missing bookingId' },
         { status: 400 }
       )
     }
 
-    const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled']
-    if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status' },
-        { status: 400 }
-      )
+    // Validate status if provided
+    if (status) {
+      const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled']
+      if (!validStatuses.includes(status)) {
+        return NextResponse.json(
+          { error: 'Invalid status' },
+          { status: 400 }
+        )
+      }
     }
 
     client = await pool.connect()
 
-    const query = 'UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *'
-    const result = await client.query(query, [status, bookingId])
+    // Build dynamic update query based on provided fields
+    const updates: string[] = []
+    const values: (string | number | null)[] = []
+    let paramIndex = 1
+
+    if (status) {
+      updates.push(`status = $${paramIndex}`)
+      values.push(status)
+      paramIndex++
+    }
+
+    if (totalPrice !== undefined) {
+      updates.push(`total_price = $${paramIndex}`)
+      values.push(totalPrice)
+      paramIndex++
+    }
+
+    if (notes !== undefined) {
+      updates.push(`notes = $${paramIndex}`)
+      values.push(notes)
+      paramIndex++
+    }
+
+    updates.push('updated_at = NOW()')
+    values.push(bookingId)
+
+    const query = `UPDATE bookings SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`
+    const result = await client.query(query, values)
 
     if (result.rows.length === 0) {
       return NextResponse.json(
@@ -97,12 +126,12 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    console.log('[v0] Booking status updated:', bookingId, 'to', status)
+    console.log('[v0] Booking updated:', bookingId, { status, totalPrice, notes: notes ? 'updated' : 'unchanged' })
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Booking status updated successfully',
+        message: 'Booking updated successfully',
         booking: result.rows[0],
       },
       { status: 200 }
