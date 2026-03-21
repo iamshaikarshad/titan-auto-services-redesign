@@ -5,9 +5,10 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangePasswordModal } from '@/components/change-password-modal'
+import { BillPrintView } from '@/components/bill-print-view'
 
 interface Booking {
   id: number
@@ -48,6 +49,7 @@ export default function AdminPage() {
   const [additionalCharges, setAdditionalCharges] = useState<{description: string, amount: string}[]>([])
   const [newChargeDesc, setNewChargeDesc] = useState('')
   const [newChargeAmount, setNewChargeAmount] = useState('')
+  const [showBill, setShowBill] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -642,7 +644,7 @@ export default function AdminPage() {
                   </div>
 
                   {/* Edit / Save buttons */}
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-2 pt-2 flex-wrap">
                     {editingPrice ? (
                       <>
                         <Button
@@ -669,6 +671,15 @@ export default function AdminPage() {
                         className="bg-navy-700 hover:bg-navy-600 text-gray-300 border border-gold-500/20"
                       >
                         Edit Price / Add Charges
+                      </Button>
+                    )}
+                    {!editingPrice && (
+                      <Button
+                        onClick={() => setShowBill(true)}
+                        className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold flex items-center gap-2"
+                      >
+                        <Printer className="w-4 h-4" />
+                        Print / Download Bill
                       </Button>
                     )}
                   </div>
@@ -729,9 +740,19 @@ export default function AdminPage() {
         onClose={() => setShowChangePasswordModal(false)}
         onSuccess={() => {
           setShowChangePasswordModal(false)
-          // Optionally show success message or refresh
         }}
       />
+
+      {/* Bill / Invoice print overlay */}
+      {showBill && selectedBooking && (
+        <BillPrintView
+          booking={selectedBooking}
+          basePrice={parseFloat(priceInput) || 0}
+          additionalCharges={additionalCharges}
+          total={calculateTotalWithCharges()}
+          onClose={() => setShowBill(false)}
+        />
+      )}
     </div>
   )
 }
