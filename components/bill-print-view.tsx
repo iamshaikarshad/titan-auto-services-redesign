@@ -60,27 +60,36 @@ export function BillPrintView({ booking, basePrice, additionalCharges, total, on
       style.id = styleId
       style.innerHTML = `
         @media print {
-          body * {
-            visibility: hidden !important;
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
           }
-          #invoice-print-area,
-          #invoice-print-area * {
-            visibility: visible !important;
+          body > * {
+            display: none !important;
           }
           #invoice-print-area {
-            position: absolute !important;
+            display: block !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
+            height: auto !important;
             background: white !important;
-            padding: 20mm !important;
+            padding: 15mm !important;
             margin: 0 !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+            page-break-inside: avoid !important;
           }
-          .no-print {
-            display: none !important;
+          #invoice-print-area * {
+            display: revert !important;
+            visibility: visible !important;
           }
           @page {
-            margin: 10mm;
+            margin: 0;
             size: A4;
           }
         }
@@ -124,12 +133,8 @@ export function BillPrintView({ booking, basePrice, additionalCharges, total, on
             <div className="flex items-start justify-between mb-10">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  {/* Black logo for print */}
-                  <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="48" stroke="#111" strokeWidth="4"/>
-                    <path d="M30 35H70V40H53V70H47V40H30V35Z" fill="#111"/>
-                    <path d="M35 50H65L62 55H38L35 50Z" fill="#111"/>
-                  </svg>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/titan-logo2.svg" alt="Titan Auto" className="h-10 w-auto" style={{ filter: 'grayscale(100%) brightness(0)' }} />
                   <div>
                     <p className="font-black text-xl text-gray-900 leading-tight">Titan Auto Services</p>
                     <p className="text-xs text-gray-500">Professional Vehicle Care</p>
