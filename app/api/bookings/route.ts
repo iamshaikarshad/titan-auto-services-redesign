@@ -3,18 +3,18 @@ import { Pool } from '@neondatabase/serverless'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
-// Map frontend service IDs to display names (for notes/admin reference)
+// Map frontend service IDs to display names (must match database exactly)
 const serviceNames: Record<string, string> = {
   mot: 'MOT Testing',
-  servicing: 'Car Servicing',
-  tyres: 'Tyres & Alignment',
-  brakes: 'Brake Service',
+  servicing: 'Full Car Servicing',
+  tyres: 'Tyre & Wheel Alignment',
+  brakes: 'Brake Service & Repairs',
   diagnostics: 'Engine Diagnostics',
-  aircon: 'Air Con Service',
-  exhaust: 'Exhaust Service',
+  aircon: 'Air Conditioning Service',
+  exhaust: 'Exhaust System Service',
   suspension: 'Suspension Service',
   battery: 'Battery Service',
-  other: 'Other',
+  other: 'Other Service',
 }
 
 // Map session IDs to readable time slots
