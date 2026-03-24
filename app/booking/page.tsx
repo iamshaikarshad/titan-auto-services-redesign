@@ -31,22 +31,51 @@ const tyreSizes = [
 
 const servicingEngineSizes = {
   petrol: [
-    { label: 'Up to 1000cc — Interim £105 / Full £205', value: 'Up to 1000cc' },
-    { label: 'Up to 1300cc — Interim £145 / Full £205', value: 'Up to 1300cc' },
-    { label: 'Up to 1600cc — Interim £155 / Full £205', value: 'Up to 1600cc' },
-    { label: 'Up to 2000cc — Interim £165 / Full £245', value: 'Up to 2000cc' },
-    { label: 'Up to 2500cc — Interim £175 / Full £250', value: 'Up to 2500cc' },
-    { label: 'Up to 3500cc — Interim £195 / Full £265', value: 'Up to 3500cc' },
+    { label: 'Up to 1000cc', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc', value: 'Up to 3500cc' },
   ],
   hybrid: [
-    { label: 'Up to 1000cc — Interim £140 / Full £225', value: 'Up to 1000cc' },
-    { label: 'Up to 1300cc — Interim £165 / Full £235', value: 'Up to 1300cc' },
-    { label: 'Up to 1600cc — Interim £175 / Full £245', value: 'Up to 1600cc' },
-    { label: 'Up to 2000cc — Interim £185 / Full £255', value: 'Up to 2000cc' },
-    { label: 'Up to 2500cc — Interim £195 / Full £265', value: 'Up to 2500cc' },
-    { label: 'Up to 3500cc — Interim £215 / Full £285', value: 'Up to 3500cc' },
-    { label: 'Up to 4500cc — Interim £235 / Full £305', value: 'Up to 4500cc' },
+    { label: 'Up to 1000cc', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc', value: 'Up to 3500cc' },
+    { label: 'Up to 4500cc', value: 'Up to 4500cc' },
   ],
+}
+
+// Price lookup: [fuelType][engineSize][serviceType]
+const servicingPrices: Record<string, Record<string, { interim: number; full: number }>> = {
+  petrol: {
+    'Up to 1000cc': { interim: 105, full: 205 },
+    'Up to 1300cc': { interim: 145, full: 205 },
+    'Up to 1600cc': { interim: 155, full: 205 },
+    'Up to 2000cc': { interim: 165, full: 245 },
+    'Up to 2500cc': { interim: 175, full: 250 },
+    'Up to 3500cc': { interim: 195, full: 265 },
+  },
+  hybrid: {
+    'Up to 1000cc': { interim: 140, full: 225 },
+    'Up to 1300cc': { interim: 165, full: 235 },
+    'Up to 1600cc': { interim: 175, full: 245 },
+    'Up to 2000cc': { interim: 185, full: 255 },
+    'Up to 2500cc': { interim: 195, full: 265 },
+    'Up to 3500cc': { interim: 215, full: 285 },
+    'Up to 4500cc': { interim: 235, full: 305 },
+  },
+}
+
+function getServicingPrice(fuelType: string, engineSize: string, serviceType: 'interim' | 'full'): number | null {
+  const fuel = servicingPrices[fuelType]
+  if (!fuel) return null
+  const engine = fuel[engineSize]
+  if (!engine) return null
+  return engine[serviceType]
 }
 
 const sessions = [
