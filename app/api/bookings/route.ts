@@ -14,7 +14,7 @@ const serviceNames: Record<string, string> = {
   exhaust: 'Exhaust System Service',
   suspension: 'Suspension Service',
   battery: 'Battery Service',
-  other: 'Other Service',
+  other: null as any, // "other" doesn't have a predefined service in DB, will be stored in notes only
 }
 
 // Map session IDs to readable time slots
@@ -147,19 +147,25 @@ export async function POST(request: NextRequest) {
       const sessionTime = sessionTimes[time] || time
       
       // Look up service_id and base_price from services table
-      const serviceResult = await client.query(
-        'SELECT id, base_price FROM services WHERE name = $1',
-        [serviceName]
-      )
-      
       let serviceId = null
       let servicePrice = null
-      if (serviceResult.rows.length > 0) {
-        serviceId = serviceResult.rows[0].id
-        servicePrice = serviceResult.rows[0].base_price
-        console.log('[v0] Service found:', serviceName, 'id:', serviceId, 'price:', servicePrice)
+      
+      if (serviceName) {
+        const serviceResult = await client.query(
+          'SELECT id, base_price FROM services WHERE name = $1',
+          [serviceName]
+        )
+        
+        if (serviceResult.rows.length > 0) {
+          serviceId = serviceResult.rows[0].id
+          servicePrice = serviceResult.rows[0].base_price
+          console.log('[v0] Service found:', serviceName, 'id:', serviceId, 'price:', servicePrice)
+        } else {
+          console.log('[v0] Service not found in database:', serviceName)
+        }
       } else {
-        console.log('[v0] Service not found in database:', serviceName)
+        // For "other" service type, we don't have a predefined service
+        console.log('[v0] Service type is "other" - no predefined service_id')
       }
       
       let fullNotes = `Session: ${sessionTime}`
