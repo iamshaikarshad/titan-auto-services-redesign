@@ -188,6 +188,7 @@ function BookingPageContent() {
   const router = useRouter()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
   const [bookingSuccess, setBookingSuccess] = useState(false)
+  const [serviceType, setServiceType] = useState<'full' | 'interim' | null>(null)
   const [formData, setFormData] = useState<BookingFormData>({
     service: searchParams.get('service') || '',
     date: '',
@@ -216,7 +217,7 @@ function BookingPageContent() {
   const isStepValid = {
     service: formData.service !== ''
       && (!isTyresSelected || formData.tyreSize !== '')
-      && (!isServicingSelected || formData.engineSize !== '')
+      && (!isServicingSelected || (formData.engineSize !== '' && serviceType !== null))
       && (!isOtherSelected || formData.otherDescription.trim() !== ''),
     datetime: formData.date !== '' && formData.time !== '' && !isDateDisabled(formData.date),
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
@@ -271,15 +272,26 @@ function BookingPageContent() {
     try {
       const notesWithTyre = isTyresSelected && formData.tyreSize
         ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
-        : isServicingSelected && formData.engineSize
-        ? `Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isServicingSelected && formData.engineSize && serviceType
+        ? `Service Type: ${serviceType === 'full' ? 'Full Service' : 'Interim Service'} | Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
         : isOtherSelected && formData.otherDescription
         ? `Service Description: ${formData.otherDescription}${formData.notes ? ` | ${formData.notes}` : ''}`
         : formData.notes
+      
+      // Determine which service to book (servicing maps to full or interim based on selection)
+      const bookingService = isServicingSelected && serviceType 
+        ? (serviceType === 'full' ? 'full-servicing' : 'interim-servicing')
+        : formData.service
+      
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, notes: notesWithTyre }),
+        body: JSON.stringify({ 
+          ...formData, 
+          service: bookingService,
+          notes: notesWithTyre,
+          serviceType: isServicingSelected ? serviceType : undefined,
+        }),
       })
       if (!response.ok) {
         const errorData = await response.json()
@@ -459,6 +471,39 @@ function BookingPageContent() {
                         ))}
                       </select>
                     </div>
+
+                    {/* Service Type Selection - Full vs Interim */}
+                    {formData.engineSize && (
+                      <div>
+                        <label className="block text-white font-bold mb-3">
+                          Service Type <span className="text-gold-500">*</span>
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { type: 'interim' as const, label: 'Interim Service', desc: 'Oil and filter change with basic checks' },
+                            { type: 'full' as const, label: 'Full Service', desc: 'Comprehensive maintenance and checks' }
+                          ].map((opt) => {
+                            const price = getServicingPrice(formData.fuelType, formData.engineSize, opt.type)
+                            return (
+                              <button
+                                key={opt.type}
+                                type="button"
+                                onClick={() => setServiceType(opt.type)}
+                                className={`p-4 rounded-lg border-2 transition text-left ${
+                                  serviceType === opt.type
+                                    ? 'border-gold-500 bg-navy-700'
+                                    : 'border-gold-500/20 bg-navy-800 hover:border-gold-500/50'
+                                }`}
+                              >
+                                <p className="font-bold text-white">{opt.label}</p>
+                                <p className="text-sm text-gray-400 mt-1">{opt.desc}</p>
+                                {price && <p className="text-gold-500 font-bold mt-2">£{price.toFixed(2)}</p>}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </Card>
                 </motion.div>
               )}
