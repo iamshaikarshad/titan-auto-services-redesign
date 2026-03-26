@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       otherDescription
     } = body
 
-    console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle, registrationNumber })
+    console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle, registrationNumber, fuelType, engineSize, serviceType })
 
     // Validate required fields
     if (!service || !date || !time || !name || !email || !phone || !vehicle) {
@@ -192,19 +192,22 @@ export async function POST(request: NextRequest) {
           serviceId = serviceResult.rows[0].id
           // Use dynamic pricing for servicing based on fuel type, engine size, and service type
           const isServicing = service === 'full-servicing' || service === 'interim-servicing' || service === 'servicing'
+          console.log('[v0] Price calculation check:', { isServicing, fuelType, engineSize, serviceType })
           if (isServicing && fuelType && engineSize && serviceType) {
             const dynamicPrice = getServicingPrice(fuelType, engineSize, serviceType as 'interim' | 'full')
+            console.log('[v0] Dynamic price lookup result:', dynamicPrice)
             if (dynamicPrice !== null) {
               servicePrice = dynamicPrice
               console.log('[v0] Dynamic servicing price calculated:', servicePrice, 'for', fuelType, engineSize, serviceType)
             } else {
               // Fallback to database price if dynamic lookup fails
               servicePrice = serviceResult.rows[0].base_price
-              console.log('[v0] Fallback to DB price:', servicePrice)
+              console.log('[v0] Fallback to DB price (dynamic lookup returned null):', servicePrice)
             }
           } else {
             // Use database price for non-servicing services
             servicePrice = serviceResult.rows[0].base_price
+            console.log('[v0] Using DB base price (not servicing or missing params):', servicePrice)
           }
           console.log('[v0] Service found:', serviceName, 'id:', serviceId, 'price:', servicePrice)
         } else {
