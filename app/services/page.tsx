@@ -154,7 +154,7 @@ const serviceDetails: Record<ServiceKey, ServiceDetail> = {
     notes: ['Contact us for a free estimate on your repair needs.'],
   },
   exhaust: {
-    title: 'Exhaust System Service',
+    title: 'Exhaust System',
     icon: Wind,
     description: 'Exhaust repair, welding, and full replacement for all vehicles. We stock a wide range of systems for fast turnaround.',
     bookingHref: '/booking?service=exhaust',
@@ -170,7 +170,7 @@ const serviceDetails: Record<ServiceKey, ServiceDetail> = {
     notes: ['Prices vary by vehicle make and model — call for a quote.'],
   },
   suspension: {
-    title: 'Suspension Service',
+    title: 'Suspension',
     icon: Lightbulb,
     description: 'Shock absorber and strut replacement, spring service, ARB bushes, and four-wheel alignment to restore ride quality and handling.',
     bookingHref: '/booking?service=suspension',
@@ -186,7 +186,7 @@ const serviceDetails: Record<ServiceKey, ServiceDetail> = {
     notes: ['All suspension work includes a free visual safety check.'],
   },
   battery: {
-    title: 'Battery Service',
+    title: 'Battery',
     icon: Battery,
     description: 'Battery health testing, supply and fit, terminal cleaning, and charging system checks for all vehicle types including stop-start.',
     bookingHref: '/booking?service=battery',
@@ -254,7 +254,7 @@ const allServices: { icon: React.ElementType; title: string; description: string
   },
   {
     icon: Wind,
-    title: 'Exhaust System Service',
+    title: 'Exhaust System',
     description: 'Exhaust repair, replacement, and maintenance. Professional welding and installation.',
     price: 'From £50',
     features: ['Repairs & Welding', 'Full Replacement', 'Emissions Check', 'Quality Parts'],
@@ -262,7 +262,7 @@ const allServices: { icon: React.ElementType; title: string; description: string
   },
   {
     icon: Lightbulb,
-    title: 'Suspension Service',
+    title: 'Suspension',
     description: 'Suspension repair, strut replacement, and wheel alignment services.',
     price: 'From £60',
     features: ['Strut Replacement', 'Spring Service', 'Alignment', 'Ride Quality'],
@@ -270,7 +270,7 @@ const allServices: { icon: React.ElementType; title: string; description: string
   },
   {
     icon: Battery,
-    title: 'Battery Service',
+    title: 'Battery',
     description: 'Battery testing, replacement, terminal cleaning, and charging services.',
     price: 'From £80',
     features: ['Battery Testing', 'Replacement', 'Terminal Cleaning', 'Warranty'],

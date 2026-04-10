@@ -13,9 +13,9 @@ const serviceNames: Record<string, string> = {
   brakes: 'Brake Service & Repairs',
   diagnostics: 'Engine Diagnostics',
   aircon: 'General Repairs',
-  exhaust: 'Exhaust System Service',
-  suspension: 'Suspension Service',
-  battery: 'Battery Service',
+  exhaust: 'Exhaust System',
+  suspension: 'Suspension',
+  battery: 'Battery',
   other: null as any, // "other" doesn't have a predefined service in DB, will be stored in notes only
 }
 

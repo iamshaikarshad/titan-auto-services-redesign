@@ -14,9 +14,9 @@ const services = [
   { id: 'brakes',      name: 'Brake Service',       price: 80,  icon: Shield,      priceLabel: 'From £80' },
   { id: 'diagnostics', name: 'Engine Diagnostics',  price: 50,  icon: Clock,       priceLabel: 'From £50' },
   { id: 'aircon',      name: 'General Repairs',     price: 40,  icon: Award,       priceLabel: 'From £40' },
-  { id: 'exhaust',     name: 'Exhaust Service',     price: 120, icon: Wind,        priceLabel: 'From £120' },
-  { id: 'suspension',  name: 'Suspension Service',  price: 150, icon: Lightbulb,   priceLabel: 'From £150' },
-  { id: 'battery',     name: 'Battery Service',     price: 60,  icon: Battery,     priceLabel: 'From £60' },
+  { id: 'exhaust',     name: 'Exhaust System',      price: 120, icon: Wind,        priceLabel: 'From £120' },
+  { id: 'suspension',  name: 'Suspension',          price: 150, icon: Lightbulb,   priceLabel: 'From £150' },
+  { id: 'battery',     name: 'Battery',             price: 60,  icon: Battery,     priceLabel: 'From £60' },
   { id: 'other',       name: 'Other',               price: 0,   icon: HelpCircle,  priceLabel: 'Get a quote' },
 ]
 
