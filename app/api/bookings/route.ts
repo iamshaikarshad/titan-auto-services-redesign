@@ -3,24 +3,55 @@ import { Pool } from '@neondatabase/serverless'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
-// Map frontend service IDs to display names (for notes/admin reference)
+// Map frontend service IDs to exact database service names
 const serviceNames: Record<string, string> = {
   mot: 'MOT Testing',
-  servicing: 'Car Servicing',
-  tyres: 'Tyres & Alignment',
-  brakes: 'Brake Service',
+  servicing: 'Full Car Servicing',
+  'full-servicing': 'Full Car Servicing',
+  'interim-servicing': 'Interim Servicing',
+  tyres: 'Tyre & Wheel Alignment',
+  brakes: 'Brake Service & Repairs',
   diagnostics: 'Engine Diagnostics',
-  aircon: 'Air Con Service',
-  exhaust: 'Exhaust Service',
-  suspension: 'Suspension Service',
-  battery: 'Battery Service',
-  other: 'Other',
+  aircon: 'General Repairs',
+  exhaust: 'Exhaust System',
+  suspension: 'Suspension',
+  battery: 'Battery',
+  other: null as any, // "other" doesn't have a predefined service in DB, will be stored in notes only
 }
 
 // Map session IDs to readable time slots
 const sessionTimes: Record<string, string> = {
   morning: '09:00 – 12:00 (Morning Session)',
   afternoon: '13:00 – 17:00 (Afternoon Session)',
+}
+
+// Dynamic pricing for servicing based on fuel type, engine size, and service type
+const servicingPrices: Record<string, Record<string, { interim: number; full: number }>> = {
+  petrol: {
+    'Up to 1000cc': { interim: 105, full: 205 },
+    'Up to 1300cc': { interim: 145, full: 205 },
+    'Up to 1600cc': { interim: 155, full: 205 },
+    'Up to 2000cc': { interim: 165, full: 245 },
+    'Up to 2500cc': { interim: 175, full: 250 },
+    'Up to 3500cc': { interim: 195, full: 265 },
+  },
+  hybrid: {
+    'Up to 1000cc': { interim: 140, full: 225 },
+    'Up to 1300cc': { interim: 165, full: 235 },
+    'Up to 1600cc': { interim: 175, full: 245 },
+    'Up to 2000cc': { interim: 185, full: 255 },
+    'Up to 2500cc': { interim: 195, full: 265 },
+    'Up to 3500cc': { interim: 215, full: 285 },
+    'Up to 4500cc': { interim: 235, full: 305 },
+  },
+}
+
+function getServicingPrice(fuelType: string, engineSize: string, serviceType: 'interim' | 'full'): number | null {
+  const fuel = servicingPrices[fuelType]
+  if (!fuel) return null
+  const engine = fuel[engineSize]
+  if (!engine) return null
+  return engine[serviceType]
 }
 
 export async function POST(request: NextRequest) {
@@ -40,10 +71,11 @@ export async function POST(request: NextRequest) {
       tyreSize,
       fuelType,
       engineSize,
+      serviceType,
       otherDescription
     } = body
 
-    console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle, registrationNumber })
+    console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle, registrationNumber, fuelType, engineSize, serviceType })
 
     // Validate required fields
     if (!service || !date || !time || !name || !email || !phone || !vehicle) {
@@ -146,20 +178,44 @@ export async function POST(request: NextRequest) {
       const serviceName = serviceNames[service]
       const sessionTime = sessionTimes[time] || time
       
-      // Look up service_id and base_price from services table
-      const serviceResult = await client.query(
-        'SELECT id, base_price FROM services WHERE name = $1',
-        [serviceName]
-      )
-      
+      // Look up service_id from services table
       let serviceId = null
       let servicePrice = null
-      if (serviceResult.rows.length > 0) {
-        serviceId = serviceResult.rows[0].id
-        servicePrice = serviceResult.rows[0].base_price
-        console.log('[v0] Service found:', serviceName, 'id:', serviceId, 'price:', servicePrice)
+      
+      if (serviceName) {
+        const serviceResult = await client.query(
+          'SELECT id, base_price FROM services WHERE name = $1',
+          [serviceName]
+        )
+        
+        if (serviceResult.rows.length > 0) {
+          serviceId = serviceResult.rows[0].id
+          // Use dynamic pricing for servicing based on fuel type, engine size, and service type
+          const isServicing = service === 'full-servicing' || service === 'interim-servicing' || service === 'servicing'
+          console.log('[v0] Price calculation check:', { isServicing, fuelType, engineSize, serviceType })
+          if (isServicing && fuelType && engineSize && serviceType) {
+            const dynamicPrice = getServicingPrice(fuelType, engineSize, serviceType as 'interim' | 'full')
+            console.log('[v0] Dynamic price lookup result:', dynamicPrice)
+            if (dynamicPrice !== null) {
+              servicePrice = dynamicPrice
+              console.log('[v0] Dynamic servicing price calculated:', servicePrice, 'for', fuelType, engineSize, serviceType)
+            } else {
+              // Fallback to database price if dynamic lookup fails
+              servicePrice = serviceResult.rows[0].base_price
+              console.log('[v0] Fallback to DB price (dynamic lookup returned null):', servicePrice)
+            }
+          } else {
+            // Use database price for non-servicing services
+            servicePrice = serviceResult.rows[0].base_price
+            console.log('[v0] Using DB base price (not servicing or missing params):', servicePrice)
+          }
+          console.log('[v0] Service found:', serviceName, 'id:', serviceId, 'price:', servicePrice)
+        } else {
+          console.log('[v0] Service not found in database:', serviceName)
+        }
       } else {
-        console.log('[v0] Service not found in database:', serviceName)
+        // For "other" service type, we don't have a predefined service
+        console.log('[v0] Service type is "other" - no predefined service_id')
       }
       
       let fullNotes = `Session: ${sessionTime}`
@@ -168,7 +224,9 @@ export async function POST(request: NextRequest) {
         fullNotes += `\nTyre Size: ${tyreSize}`
       }
       
-      if (service === 'servicing' && engineSize) {
+      const isServicing = service === 'full-servicing' || service === 'interim-servicing' || service === 'servicing'
+      if (isServicing && engineSize) {
+        fullNotes += `\nService Type: ${serviceType === 'full' ? 'Full Service' : 'Interim Service'}`
         fullNotes += `\nFuel Type: ${fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'}`
         fullNotes += `\nEngine Size: ${engineSize}`
       }

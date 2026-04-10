@@ -13,10 +13,10 @@ const services = [
   { id: 'tyres',       name: 'Tyres & Alignment',   price: 35,  icon: Zap,         priceLabel: 'From £35' },
   { id: 'brakes',      name: 'Brake Service',       price: 80,  icon: Shield,      priceLabel: 'From £80' },
   { id: 'diagnostics', name: 'Engine Diagnostics',  price: 50,  icon: Clock,       priceLabel: 'From £50' },
-  { id: 'aircon',      name: 'Air Con Service',     price: 75,  icon: Award,       priceLabel: 'From £75' },
-  { id: 'exhaust',     name: 'Exhaust Service',     price: 120, icon: Wind,        priceLabel: 'From £120' },
-  { id: 'suspension',  name: 'Suspension Service',  price: 150, icon: Lightbulb,   priceLabel: 'From £150' },
-  { id: 'battery',     name: 'Battery Service',     price: 60,  icon: Battery,     priceLabel: 'From £60' },
+  { id: 'aircon',      name: 'General Repairs',     price: 40,  icon: Award,       priceLabel: 'From £40' },
+  { id: 'exhaust',     name: 'Exhaust System',      price: 120, icon: Wind,        priceLabel: 'From £120' },
+  { id: 'suspension',  name: 'Suspension',          price: 150, icon: Lightbulb,   priceLabel: 'From £150' },
+  { id: 'battery',     name: 'Battery',             price: 60,  icon: Battery,     priceLabel: 'From £60' },
   { id: 'other',       name: 'Other',               price: 0,   icon: HelpCircle,  priceLabel: 'Get a quote' },
 ]
 
@@ -31,22 +31,51 @@ const tyreSizes = [
 
 const servicingEngineSizes = {
   petrol: [
-    { label: 'Up to 1000cc — Interim £105 / Full £205', value: 'Up to 1000cc' },
-    { label: 'Up to 1300cc — Interim £145 / Full £205', value: 'Up to 1300cc' },
-    { label: 'Up to 1600cc — Interim £155 / Full £205', value: 'Up to 1600cc' },
-    { label: 'Up to 2000cc — Interim £165 / Full £245', value: 'Up to 2000cc' },
-    { label: 'Up to 2500cc — Interim £175 / Full £250', value: 'Up to 2500cc' },
-    { label: 'Up to 3500cc — Interim £195 / Full £265', value: 'Up to 3500cc' },
+    { label: 'Up to 1000cc', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc', value: 'Up to 3500cc' },
   ],
   hybrid: [
-    { label: 'Up to 1000cc — Interim £140 / Full £225', value: 'Up to 1000cc' },
-    { label: 'Up to 1300cc — Interim £165 / Full £235', value: 'Up to 1300cc' },
-    { label: 'Up to 1600cc — Interim £175 / Full £245', value: 'Up to 1600cc' },
-    { label: 'Up to 2000cc — Interim £185 / Full £255', value: 'Up to 2000cc' },
-    { label: 'Up to 2500cc — Interim £195 / Full £265', value: 'Up to 2500cc' },
-    { label: 'Up to 3500cc — Interim £215 / Full £285', value: 'Up to 3500cc' },
-    { label: 'Up to 4500cc — Interim £235 / Full £305', value: 'Up to 4500cc' },
+    { label: 'Up to 1000cc', value: 'Up to 1000cc' },
+    { label: 'Up to 1300cc', value: 'Up to 1300cc' },
+    { label: 'Up to 1600cc', value: 'Up to 1600cc' },
+    { label: 'Up to 2000cc', value: 'Up to 2000cc' },
+    { label: 'Up to 2500cc', value: 'Up to 2500cc' },
+    { label: 'Up to 3500cc', value: 'Up to 3500cc' },
+    { label: 'Up to 4500cc', value: 'Up to 4500cc' },
   ],
+}
+
+// Price lookup: [fuelType][engineSize][serviceType]
+const servicingPrices: Record<string, Record<string, { interim: number; full: number }>> = {
+  petrol: {
+    'Up to 1000cc': { interim: 105, full: 205 },
+    'Up to 1300cc': { interim: 145, full: 205 },
+    'Up to 1600cc': { interim: 155, full: 205 },
+    'Up to 2000cc': { interim: 165, full: 245 },
+    'Up to 2500cc': { interim: 175, full: 250 },
+    'Up to 3500cc': { interim: 195, full: 265 },
+  },
+  hybrid: {
+    'Up to 1000cc': { interim: 140, full: 225 },
+    'Up to 1300cc': { interim: 165, full: 235 },
+    'Up to 1600cc': { interim: 175, full: 245 },
+    'Up to 2000cc': { interim: 185, full: 255 },
+    'Up to 2500cc': { interim: 195, full: 265 },
+    'Up to 3500cc': { interim: 215, full: 285 },
+    'Up to 4500cc': { interim: 235, full: 305 },
+  },
+}
+
+function getServicingPrice(fuelType: string, engineSize: string, serviceType: 'interim' | 'full'): number | null {
+  const fuel = servicingPrices[fuelType]
+  if (!fuel) return null
+  const engine = fuel[engineSize]
+  if (!engine) return null
+  return engine[serviceType]
 }
 
 const sessions = [
@@ -159,6 +188,7 @@ function BookingPageContent() {
   const router = useRouter()
   const [step, setStep] = useState<'service' | 'datetime' | 'contact' | 'confirmation'>('service')
   const [bookingSuccess, setBookingSuccess] = useState(false)
+  const [serviceType, setServiceType] = useState<'full' | 'interim' | null>(null)
   const [formData, setFormData] = useState<BookingFormData>({
     service: searchParams.get('service') || '',
     date: '',
@@ -187,7 +217,7 @@ function BookingPageContent() {
   const isStepValid = {
     service: formData.service !== ''
       && (!isTyresSelected || formData.tyreSize !== '')
-      && (!isServicingSelected || formData.engineSize !== '')
+      && (!isServicingSelected || (formData.engineSize !== '' && serviceType !== null))
       && (!isOtherSelected || formData.otherDescription.trim() !== ''),
     datetime: formData.date !== '' && formData.time !== '' && !isDateDisabled(formData.date),
     contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
@@ -242,15 +272,26 @@ function BookingPageContent() {
     try {
       const notesWithTyre = isTyresSelected && formData.tyreSize
         ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
-        : isServicingSelected && formData.engineSize
-        ? `Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isServicingSelected && formData.engineSize && serviceType
+        ? `Service Type: ${serviceType === 'full' ? 'Full Service' : 'Interim Service'} | Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
         : isOtherSelected && formData.otherDescription
         ? `Service Description: ${formData.otherDescription}${formData.notes ? ` | ${formData.notes}` : ''}`
         : formData.notes
+      
+      // Determine which service to book (servicing maps to full or interim based on selection)
+      const bookingService = isServicingSelected && serviceType 
+        ? (serviceType === 'full' ? 'full-servicing' : 'interim-servicing')
+        : formData.service
+      
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, notes: notesWithTyre }),
+        body: JSON.stringify({ 
+          ...formData, 
+          service: bookingService,
+          notes: notesWithTyre,
+          serviceType: isServicingSelected ? serviceType : undefined,
+        }),
       })
       if (!response.ok) {
         const errorData = await response.json()
@@ -430,6 +471,39 @@ function BookingPageContent() {
                         ))}
                       </select>
                     </div>
+
+                    {/* Service Type Selection - Full vs Interim */}
+                    {formData.engineSize && (
+                      <div>
+                        <label className="block text-white font-bold mb-3">
+                          Service Type <span className="text-gold-500">*</span>
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { type: 'interim' as const, label: 'Interim Service', desc: 'Oil and filter change with basic checks' },
+                            { type: 'full' as const, label: 'Full Service', desc: 'Comprehensive maintenance and checks' }
+                          ].map((opt) => {
+                            const price = getServicingPrice(formData.fuelType, formData.engineSize, opt.type)
+                            return (
+                              <button
+                                key={opt.type}
+                                type="button"
+                                onClick={() => setServiceType(opt.type)}
+                                className={`p-4 rounded-lg border-2 transition text-left ${
+                                  serviceType === opt.type
+                                    ? 'border-gold-500 bg-navy-700'
+                                    : 'border-gold-500/20 bg-navy-800 hover:border-gold-500/50'
+                                }`}
+                              >
+                                <p className="font-bold text-white">{opt.label}</p>
+                                <p className="text-sm text-gray-400 mt-1">{opt.desc}</p>
+                                {price && <p className="text-gold-500 font-bold mt-2">£{price.toFixed(2)}</p>}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </Card>
                 </motion.div>
               )}
