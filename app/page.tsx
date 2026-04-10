@@ -44,8 +44,8 @@ const services = [
   },
   {
     icon: Award,
-    title: 'Air Con Service',
-    description: 'Professional air conditioning maintenance and recharge services.',
+    title: 'General Repairs',
+    description: 'Professional general repairs for all makes and models.',
   },
 ]
 

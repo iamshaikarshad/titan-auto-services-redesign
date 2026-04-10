@@ -12,7 +12,7 @@ const serviceNames: Record<string, string> = {
   tyres: 'Tyre & Wheel Alignment',
   brakes: 'Brake Service & Repairs',
   diagnostics: 'Engine Diagnostics',
-  aircon: 'Air Conditioning Service',
+  aircon: 'General Repairs',
   exhaust: 'Exhaust System Service',
   suspension: 'Suspension Service',
   battery: 'Battery Service',
