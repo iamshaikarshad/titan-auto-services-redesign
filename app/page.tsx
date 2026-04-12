@@ -468,9 +468,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Google Reviews Section */}
-      <ReviewsSection />
-
       {/* Why Choose Us Section */}
       <section className="py-20 bg-gradient-to-b from-navy-900/50 to-navy-950/50 border-y border-gold-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -616,6 +613,9 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+      
+      {/* Google Reviews Section */}
+      <ReviewsSection />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-navy-900 to-navy-800 border-y border-gold-500/20">
