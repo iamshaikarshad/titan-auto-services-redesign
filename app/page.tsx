@@ -441,9 +441,6 @@ export default function HomePage() {
                 </Button>
               </motion.div>
             </div>
-
-            {/* Instant price widget */}
-            <RegWidget />
           </motion.div>
         </div>
       </section>
@@ -648,6 +645,11 @@ export default function HomePage() {
             >
               <a href="tel:01622438114">Call: 01622 438114</a>
             </Button>
+          </div>
+
+          {/* Instant price widget */}
+          <div className="mt-12">
+            <RegWidget />
           </div>
         </motion.div>
       </section>
