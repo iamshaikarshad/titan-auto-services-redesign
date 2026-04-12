@@ -5,7 +5,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 // Map frontend service IDs to exact database service names
 const serviceNames: Record<string, string> = {
-  mot: 'MOT Testing',
+  mot: 'PreMOT',
   servicing: 'Full Car Servicing',
   'full-servicing': 'Full Car Servicing',
   'interim-servicing': 'Interim Servicing',

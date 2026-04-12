@@ -8,7 +8,7 @@ import { motion } from 'framer-motion'
 import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award, Wind, Lightbulb, Battery, HelpCircle, Loader2 } from 'lucide-react'
 
 const services = [
-  { id: 'mot',         name: 'MOT Testing',        price: 45,  icon: Gauge,       priceLabel: 'From £45' },
+  { id: 'mot',         name: 'PreMOT',              price: 45,  icon: Gauge,       priceLabel: 'From £45' },
   { id: 'servicing',   name: 'Car Servicing',       price: 105, icon: Wrench,      priceLabel: 'From £105' },
   { id: 'tyres',       name: 'Tyres & Alignment',   price: 35,  icon: Zap,         priceLabel: 'From £35' },
   { id: 'brakes',      name: 'Brake Service',       price: 80,  icon: Shield,      priceLabel: 'From £80' },
