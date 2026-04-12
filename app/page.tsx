@@ -19,8 +19,8 @@ const heroImages = [
 const services = [
   {
     icon: Gauge,
-    title: 'MOT Testing',
-    description: 'Professional MOT testing with DVSA approval. Expert inspection and diagnostics.',
+    title: 'PreMOT',
+    description: 'Professional pre-MOT vehicle inspection with expert guidance.',
   },
   {
     icon: Wrench,
@@ -300,7 +300,7 @@ function RegWidget() {
       transition={{ duration: 0.6, delay: 0.5 }}
       className="mt-10 max-w-2xl"
     >
-      <p className="text-white font-bold text-lg mb-3">Get an instant price for your MOT or service and book for free.</p>
+      <p className="text-white font-bold text-lg mb-3">Get an instant price for your PreMOT or service and book for free.</p>
 
       <div className="flex items-stretch gap-3">
         {/* Flag + input joined flush */}
@@ -416,7 +416,7 @@ export default function HomePage() {
                   size="lg"
                   className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
                 >
-                  <Link href="/booking">Book MOT</Link>
+                  <Link href="/booking">Book PreMOT</Link>
                 </Button>
               </motion.div>
 

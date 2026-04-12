@@ -65,20 +65,20 @@ interface ServiceDetail {
 
 const serviceDetails: Record<ServiceKey, ServiceDetail> = {
   mot: {
-    title: 'MOT Testing',
+    title: 'PreMOT',
     icon: Gauge,
-    description: 'DVSA-approved MOT testing for all vehicle classes. Full inspection with instant results and transparent pass/fail reporting.',
+    description: 'Pre-MOT vehicle inspection and testing to identify potential issues before your official MOT test. Get a comprehensive check with professional guidance.',
     bookingHref: '/booking?service=mot',
-    bookingLabel: 'Book MOT',
-    features: ['DVSA Approved', 'Expert Inspection', '30-Min Test', 'Instant Results'],
+    bookingLabel: 'Book PreMOT',
+    features: ['Full Inspection', 'Expert Guidance', 'Pre-Test Check', 'Detailed Report'],
     rows: [
       { label: 'Class 4 (cars up to 8 seats)', value: 'From £45' },
       { label: 'Class 7 (commercial, up to 3,500kg)', value: 'From £55' },
-      { label: 'Re-test (within 10 working days)', value: 'Free' },
+      { label: 'Pre-MOT + repair quote', value: 'From £65' },
     ],
     notes: [
-      'Soonest available slots often same or next day.',
-      'Free advisory report on all tested vehicles.',
+      'Identify issues before your official MOT test.',
+      'Free advisory report included with all PreMOT checks.',
     ],
   },
   servicing: {
@@ -206,10 +206,10 @@ const serviceDetails: Record<ServiceKey, ServiceDetail> = {
 const allServices: { icon: React.ElementType; title: string; description: string; price: string; features: string[]; serviceKey: ServiceKey }[] = [
   {
     icon: Gauge,
-    title: 'MOT Testing Maidstone',
-    description: 'Professional MOT testing with DVSA approval. Complete vehicle inspection and diagnostics.',
+    title: 'PreMOT',
+    description: 'Professional pre-MOT vehicle inspection. Identify issues before your official test.',
     price: 'From £45',
-    features: ['DVSA Approved', 'Expert Inspection', '30-Min Test', 'Instant Results'],
+    features: ['Full Inspection', 'Expert Guidance', 'Detailed Report', 'Soonest Slots'],
     serviceKey: 'mot',
   },
   {
