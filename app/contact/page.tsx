@@ -31,7 +31,7 @@ export default function ContactPage() {
     {
       icon: Clock,
       title: 'Hours',
-      details: 'Mon - Fri: 8:00 AM - 5:00 PM',
+      details: 'Mon - Fri: 8:00 AM - 6:00 PM',
       link: '#',
     },
   ]
