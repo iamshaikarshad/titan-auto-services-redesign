@@ -465,78 +465,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-20 bg-gradient-to-b from-navy-900/50 to-navy-950/50 border-y border-gold-500/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose Titan Auto?</h2>
-            <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              We are committed to providing the Maidstone community with reliable, honest, and professional automotive services.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: Car,
-                title: 'Local Pickup & Drop-off',
-                description: 'We offer convenient local pickup and drop-off services within Maidstone to make your experience hassle-free.',
-              },
-              {
-                icon: UserCheck,
-                title: 'Professional Technicians',
-                description: 'Our skilled mechanics are trained to handle a wide range of vehicles with precision and care.',
-              },
-              {
-                icon: Coffee,
-                title: 'Comfortable Waiting Area',
-                description: 'Relax in our welcoming waiting area with complimentary refreshments while we service your vehicle.',
-              },
-              {
-                icon: BadgeDollarSign,
-                title: 'Honest & Transparent',
-                description: 'We believe in clear communication and fair pricing - no hidden fees, no unnecessary upsells.',
-              },
-              {
-                icon: Heart,
-                title: 'Family-Operated',
-                description: 'As a family-run business, we treat every customer like one of our own and take pride in building lasting relationships.',
-              },
-              {
-                icon: MapPin,
-                title: 'Community First',
-                description: 'We are proud to serve the Maidstone community and are dedicated to keeping local drivers safe on the road.',
-              },
-            ].map((item, idx) => {
-              const Icon = item.icon
-              return (
-                <motion.div key={idx} variants={fadeInUp}>
-                  <Card className="bg-navy-800 border-gold-500/20 p-8 hover:border-gold-500/50 transition h-full group">
-                    <div className="w-14 h-14 bg-gold-500/20 rounded-lg mb-5 flex items-center justify-center group-hover:bg-gold-500/30 transition">
-                      <Icon className="w-7 h-7 text-gold-500" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-3">{item.title}</h3>
-                    <p className="text-gray-300 text-lg leading-relaxed">{item.description}</p>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </motion.div>
-        </div>
-      </section>
-
       {/* Services Overview */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -607,6 +535,80 @@ export default function HomePage() {
             >
               <Link href="/services">Explore All Services</Link>
             </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section - moved after Our Services */}
+      <section className="py-20 bg-gradient-to-b from-navy-900/50 to-navy-950/50 border-y border-gold-500/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Choose Titan Auto?</h2>
+            <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              We are committed to providing the Maidstone community with reliable, honest, and professional automotive services.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {[
+              {
+                icon: Car,
+                title: 'Local Pickup & Drop-off',
+                description: 'We offer convenient local pickup and drop-off services within Maidstone to make your experience hassle-free.',
+              },
+              {
+                icon: UserCheck,
+                title: 'Professional Technicians',
+                description: 'Our skilled mechanics are trained to handle a wide range of vehicles with precision and care.',
+              },
+              {
+                icon: Coffee,
+                title: 'Comfortable Waiting Area',
+                description: 'Relax in our welcoming waiting area with complimentary refreshments while we service your vehicle.',
+              },
+              {
+                icon: Package,
+                title: 'Quality Parts',
+                description: 'We use only genuine and OEM-quality parts to ensure the best performance and longevity for your vehicle.',
+              },
+              {
+                icon: ShieldCheck,
+                title: 'Warranty on Repairs',
+                description: 'All our repairs come with a comprehensive warranty for your peace of mind.',
+              },
+              {
+                icon: BadgeDollarSign,
+                title: 'Transparent Pricing',
+                description: 'No hidden fees or surprises. We provide clear, upfront quotes before any work begins.',
+              },
+            ].map((feature, idx) => {
+              const Icon = feature.icon
+              return (
+                <motion.div key={idx} variants={fadeInUp}>
+                  <Card className="bg-navy-800 border-gold-500/20 hover:border-gold-500/50 transition p-8 h-full">
+                    <div className="mb-6">
+                      <div className="w-14 h-14 bg-gold-500/10 rounded-lg flex items-center justify-center">
+                        <Icon className="w-7 h-7 text-gold-500" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                    <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+                  </Card>
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
       </section>

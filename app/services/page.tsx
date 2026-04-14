@@ -172,16 +172,15 @@ const serviceDetails: Record<ServiceKey, ServiceDetail> = {
   suspension: {
     title: 'Suspension',
     icon: Lightbulb,
-    description: 'Shock absorber and strut replacement, spring service, ARB bushes, and four-wheel alignment to restore ride quality and handling.',
+    description: 'Shock absorber and strut replacement, spring service, and ARB bushes to restore ride quality and handling.',
     bookingHref: '/booking?service=suspension',
     bookingLabel: 'Book Suspension Service',
-    features: ['Shock Absorbers', 'Spring Service', 'ARB Bushes', '4-Wheel Alignment'],
+    features: ['Shock Absorbers', 'Spring Service', 'ARB Bushes', 'Drop Links'],
     rows: [
       { label: 'Shock absorber replacement (each)', value: 'From £80' },
       { label: 'Strut replacement (each)', value: 'From £120' },
       { label: 'Coil spring replacement (each)', value: 'From £90' },
       { label: 'ARB drop links (pair)', value: 'From £60' },
-      { label: '4-wheel laser alignment', value: 'From £60' },
     ],
     notes: ['All suspension work includes a free visual safety check.'],
   },
