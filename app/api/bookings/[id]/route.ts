@@ -7,7 +7,8 @@ export async function GET(
 ) {
   let client
   try {
-    const bookingId = params.id
+    const awaitedParams = await params
+    const bookingId = awaitedParams.id
 
     if (!bookingId) {
       return NextResponse.json(
@@ -20,29 +21,28 @@ export async function GET(
     const pool = new Pool({ connectionString: process.env.DATABASE_URL })
     client = await pool.connect()
 
-    // Fetch booking details from database
+    // Fetch booking details with customer and service info
     const result = await client.query(
       `SELECT 
-        id, 
-        customer_id, 
-        service_id, 
-        service_name, 
-        total_price, 
-        booking_date, 
-        booking_time, 
-        status, 
-        customer_name, 
-        customer_email, 
-        customer_phone, 
-        vehicle, 
-        registration_number, 
-        notes, 
-        created_at,
-        payment_status,
-        payment_amount,
-        stripe_session_id
-      FROM bookings 
-      WHERE id = $1`,
+        b.id, 
+        b.customer_id, 
+        b.service_id, 
+        s.name as service_name, 
+        b.total_price, 
+        b.booking_date, 
+        b.notes as booking_time,
+        b.status, 
+        CONCAT(c.first_name, ' ', c.last_name) as customer_name, 
+        c.email as customer_email, 
+        c.phone as customer_phone, 
+        c.car_make as vehicle, 
+        c.registration_number, 
+        b.notes, 
+        b.created_at
+      FROM bookings b
+      LEFT JOIN customers c ON b.customer_id = c.id
+      LEFT JOIN services s ON b.service_id = s.id
+      WHERE b.id = $1`,
       [bookingId]
     )
 
