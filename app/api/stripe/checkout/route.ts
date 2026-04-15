@@ -1,25 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
 
 /**
  * POST /api/stripe/checkout
  * 
  * Creates a Stripe Checkout session for service payment
- * 
- * Request body:
- * {
- *   serviceId: string,
- *   serviceName: string,
- *   price: number,
- *   bookingId: string,
- *   customerEmail?: string,
- *   customerName?: string
- * }
- * 
- * Setup Instructions:
- * 1. Install Stripe: npm install stripe
- * 2. Add STRIPE_SECRET_KEY to .env.local
- * 3. Uncomment the Stripe code below
- * 4. Set up webhooks at https://dashboard.stripe.com/webhooks
  */
 
 export async function POST(request: NextRequest) {
@@ -51,16 +36,6 @@ export async function POST(request: NextRequest) {
       customerEmail,
     })
 
-    // TODO: Uncomment once Stripe is configured
-    // To enable this, follow these steps:
-    // 1. npm install stripe
-    // 2. Add STRIPE_SECRET_KEY to .env.local
-    // 3. Add NEXT_PUBLIC_BASE_URL to .env.local (e.g., https://yourdomain.com)
-    // 4. Uncomment the code below
-
-    /*
-    import Stripe from 'stripe'
-
     // Check if Stripe is configured
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error('[v0] STRIPE_SECRET_KEY not configured')
@@ -82,15 +57,15 @@ export async function POST(request: NextRequest) {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: 'gbp',
             product_data: {
               name: serviceName,
-              description: `SleekSpec Auto Service: ${serviceName}`,
+              description: `Titan Auto Services: ${serviceName}`,
               metadata: {
                 serviceId,
               },
             },
-            unit_amount: Math.round(price * 100), // Convert dollars to cents
+            unit_amount: Math.round(price * 100), // Convert pounds to pence
           },
           quantity: 1,
         },
@@ -98,8 +73,8 @@ export async function POST(request: NextRequest) {
       mode: 'payment',
       customer_email: customerEmail,
       client_reference_id: bookingId,
-      success_url: `${baseUrl}/booking?success=true&bookingId=${bookingId}`,
-      cancel_url: `${baseUrl}/booking?canceled=true&bookingId=${bookingId}`,
+      success_url: `${baseUrl}/booking/payment-success?bookingId=${bookingId}&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/booking/payment-cancel?bookingId=${bookingId}`,
       metadata: {
         serviceId,
         serviceName,
@@ -108,24 +83,14 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    console.log('[v0] Stripe checkout session created:', session.id)
+
     // Return checkout session
     return NextResponse.json(
       {
         success: true,
         sessionId: session.id,
         url: session.url,
-      },
-      { status: 200 }
-    )
-    */
-
-    // Temporary response while Stripe is not configured
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Stripe is not yet configured. Please add STRIPE_SECRET_KEY to enable payments.',
-        bookingId,
-        amount: price,
       },
       { status: 200 }
     )
