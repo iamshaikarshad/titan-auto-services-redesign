@@ -244,27 +244,63 @@ function BookingPageContent() {
   const handlePayment = async () => {
     if (!selectedService) return
     try {
-      const response = await fetch('/api/stripe/checkout', {
+      // First, create the booking in the database
+      const notesWithTyre = isTyresSelected && formData.tyreSize
+        ? `Tyre Size: ${formData.tyreSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isServicingSelected && formData.engineSize && serviceType
+        ? `Service Type: ${serviceType === 'full' ? 'Full Service' : 'Interim Service'} | Fuel Type: ${formData.fuelType === 'petrol' ? 'Petrol/Diesel' : 'Hybrid'} | Engine: ${formData.engineSize}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : isOtherSelected && formData.otherDescription
+        ? `Service Description: ${formData.otherDescription}${formData.notes ? ` | ${formData.notes}` : ''}`
+        : formData.notes
+      
+      const bookingService = isServicingSelected && serviceType 
+        ? (serviceType === 'full' ? 'full-servicing' : 'interim-servicing')
+        : formData.service
+
+      const bookingResponse = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ...formData, 
+          service: bookingService,
+          notes: notesWithTyre,
+          serviceType: isServicingSelected ? serviceType : undefined,
+          paymentStatus: 'pending', // Mark as pending payment
+        }),
+      })
+      
+      if (!bookingResponse.ok) {
+        const errorData = await bookingResponse.json()
+        throw new Error(errorData.error || 'Failed to create booking')
+      }
+      
+      const bookingData = await bookingResponse.json()
+      const bookingId = bookingData.id || bookingData.bookingId
+      
+      // Now create Stripe checkout session with the real booking ID
+      const stripeResponse = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceId: formData.service,
           serviceName: selectedService.name,
-          price: selectedService.price * 0.25,
-          bookingId: `BK${Date.now()}`,
+          price: bookingData.totalPrice || selectedService.price * 0.25,
+          bookingId: bookingId,
           customerEmail: formData.email,
           customerName: formData.name,
         }),
       })
-      if (!response.ok) throw new Error('Payment failed')
-      const data = await response.json()
-      if (data.url) {
-        window.location.href = data.url
+      
+      if (!stripeResponse.ok) throw new Error('Payment initialization failed')
+      const stripeData = await stripeResponse.json()
+      
+      if (stripeData.url) {
+        window.location.href = stripeData.url
       } else {
         alert('Payment processing pending. Please pay in person.')
       }
-    } catch {
-      alert('Error processing payment')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error processing payment')
     }
   }
 
