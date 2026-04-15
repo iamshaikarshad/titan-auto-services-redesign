@@ -22,7 +22,6 @@ function PaymentSuccessContent() {
           return res.json()
         })
         .then((data) => {
-          console.log('[v0] Booking details fetched:', data)
           setBookingDetails(data)
           setLoading(false)
         })
@@ -31,6 +30,9 @@ function PaymentSuccessContent() {
           setError(err.message)
           setLoading(false)
         })
+    } else {
+      // No booking ID provided
+      setLoading(false)
     }
   }, [bookingId])
 
