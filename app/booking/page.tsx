@@ -252,12 +252,14 @@ function BookingPageContent() {
           serviceName: selectedService.name,
           price: selectedService.price * 0.25,
           bookingId: `BK${Date.now()}`,
+          customerEmail: formData.email,
+          customerName: formData.name,
         }),
       })
       if (!response.ok) throw new Error('Payment failed')
       const data = await response.json()
-      if (data.sessionId) {
-        window.location.href = `https://checkout.stripe.com/pay/${data.sessionId}`
+      if (data.url) {
+        window.location.href = data.url
       } else {
         alert('Payment processing pending. Please pay in person.')
       }
