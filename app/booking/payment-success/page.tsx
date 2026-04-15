@@ -9,21 +9,26 @@ import { CheckCircle, Loader } from 'lucide-react'
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const bookingId = searchParams.get('bookingId')
-  const sessionId = searchParams.get('sessionId')
   const [loading, setLoading] = useState(true)
   const [bookingDetails, setBookingDetails] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (bookingId) {
       // Fetch booking details
       fetch(`/api/bookings/${bookingId}`)
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`)
+          return res.json()
+        })
         .then((data) => {
+          console.log('[v0] Booking details fetched:', data)
           setBookingDetails(data)
           setLoading(false)
         })
-        .catch((error) => {
-          console.error('Failed to fetch booking:', error)
+        .catch((err) => {
+          console.error('[v0] Failed to fetch booking:', err)
+          setError(err.message)
           setLoading(false)
         })
     }
@@ -33,6 +38,21 @@ function PaymentSuccessContent() {
     return (
       <div className="min-h-screen bg-navy-950 flex items-center justify-center">
         <Loader className="w-8 h-8 text-gold-500 animate-spin" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-navy-950 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-navy-800 border border-gold-500/20 rounded-2xl p-8 text-center">
+            <p className="text-red-400 mb-6">Error loading booking details: {error}</p>
+            <Button asChild>
+              <Link href="/booking">Return to Booking</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -58,23 +78,43 @@ function PaymentSuccessContent() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Service:</span>
-                  <span className="text-white">{bookingDetails.service_name}</span>
+                  <span className="text-white">{bookingDetails.service_name || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Amount Paid:</span>
-                  <span className="text-gold-500 font-bold">£{bookingDetails.total_price?.toFixed(2)}</span>
+                  <span className="text-gold-500 font-bold">
+                    £{bookingDetails.payment_amount 
+                      ? parseFloat(bookingDetails.payment_amount).toFixed(2)
+                      : bookingDetails.total_price
+                      ? parseFloat(bookingDetails.total_price).toFixed(2)
+                      : '0.00'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Booking Date:</span>
                   <span className="text-white">
-                    {new Date(bookingDetails.booking_date).toLocaleDateString('en-GB', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {bookingDetails.booking_date
+                      ? new Date(bookingDetails.booking_date).toLocaleDateString('en-GB', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      : 'N/A'}
                   </span>
                 </div>
+                {bookingDetails.booking_time && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Booking Time:</span>
+                    <span className="text-white">{bookingDetails.booking_time}</span>
+                  </div>
+                )}
+                {bookingDetails.customer_email && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Email:</span>
+                    <span className="text-white">{bookingDetails.customer_email}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
