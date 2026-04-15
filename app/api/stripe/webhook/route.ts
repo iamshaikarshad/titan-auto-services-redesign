@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { createClient } from '@supabase/supabase-js'
+import { Pool } from '@neondatabase/serverless'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
 })
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -33,7 +28,11 @@ export async function POST(request: NextRequest) {
 
   console.log('[v0] Stripe webhook event received:', event.type)
 
+  let client
   try {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+    client = await pool.connect()
+
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session
       const bookingId = session.client_reference_id
@@ -43,24 +42,22 @@ export async function POST(request: NextRequest) {
       console.log('[v0] Payment successful for booking:', bookingId, 'Amount:', amount)
 
       if (bookingId) {
-        // Update booking status to 'paid' in database
-        const { error } = await supabase
-          .from('bookings')
-          .update({
-            payment_status: 'paid',
-            payment_amount: amount,
-            stripe_session_id: session.id,
-            status: 'confirmed', // Auto-confirm booking after payment
-          })
-          .eq('id', bookingId)
+        // Update booking status to 'confirmed' and payment info in database
+        await client.query(
+          `UPDATE bookings 
+           SET payment_status = $1, 
+               payment_amount = $2, 
+               stripe_session_id = $3, 
+               status = $4,
+               updated_at = NOW()
+           WHERE id = $5`,
+          ['paid', amount, session.id, 'confirmed', bookingId]
+        )
 
-        if (error) {
-          console.error('[v0] Failed to update booking:', error)
-        } else {
-          console.log('[v0] Booking updated successfully:', bookingId)
-        }
+        console.log('[v0] Booking updated successfully:', bookingId)
       }
 
+      client.release()
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
@@ -72,20 +69,24 @@ export async function POST(request: NextRequest) {
 
       if (bookingId) {
         // Update booking status to 'payment_failed'
-        await supabase
-          .from('bookings')
-          .update({
-            payment_status: 'failed',
-            stripe_session_id: charge.id,
-          })
-          .eq('id', bookingId)
+        await client.query(
+          `UPDATE bookings 
+           SET payment_status = $1, 
+               stripe_session_id = $2,
+               updated_at = NOW()
+           WHERE id = $3`,
+          ['failed', charge.id, bookingId]
+        )
       }
 
+      client.release()
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
+    client.release()
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (error) {
+    if (client) client.release()
     console.error('[v0] Webhook processing error:', error)
     return NextResponse.json(
       { error: 'Webhook processing failed' },
