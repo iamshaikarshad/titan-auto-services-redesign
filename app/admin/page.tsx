@@ -32,6 +32,9 @@ interface Booking {
   postal_code?: string
   service_name?: string
   service_price?: number
+  payment_status?: 'pending' | 'paid' | 'failed' | null
+  payment_amount?: number | null
+  stripe_session_id?: string | null
 }
 
 export default function AdminPage() {
@@ -642,6 +645,43 @@ export default function AdminPage() {
                     <span className="text-gold-500 font-bold">Total</span>
                     <span className="text-gold-500 font-bold text-xl">£{calculateTotalWithCharges().toFixed(2)}</span>
                   </div>
+
+                  {/* Payment Received via Stripe */}
+                  {selectedBooking.payment_status === 'paid' && selectedBooking.payment_amount && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-green-400 flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          Deposit Paid (Stripe)
+                        </span>
+                        <span className="text-green-400 font-bold">-£{parseFloat(String(selectedBooking.payment_amount)).toFixed(2)}</span>
+                      </div>
+                      <div className="border-t border-gold-500/20 pt-3 flex items-center justify-between">
+                        <span className="text-white font-bold">Remaining Balance</span>
+                        <span className="text-white font-bold text-xl">
+                          £{Math.max(0, calculateTotalWithCharges() - parseFloat(String(selectedBooking.payment_amount))).toFixed(2)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Payment Status Badge */}
+                  {selectedBooking.payment_status && (
+                    <div className="pt-2">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                        selectedBooking.payment_status === 'paid' 
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          : selectedBooking.payment_status === 'failed'
+                          ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                      }`}>
+                        {selectedBooking.payment_status === 'paid' && <CheckCircle className="w-3 h-3" />}
+                        {selectedBooking.payment_status === 'failed' && <AlertCircle className="w-3 h-3" />}
+                        {selectedBooking.payment_status === 'pending' && <Clock className="w-3 h-3" />}
+                        Payment: {selectedBooking.payment_status.charAt(0).toUpperCase() + selectedBooking.payment_status.slice(1)}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Edit / Save buttons */}
                   <div className="flex gap-2 pt-2 flex-wrap">
