@@ -9,14 +9,24 @@ import { CheckCircle, Loader } from 'lucide-react'
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const bookingId = searchParams.get('bookingId')
+  const sessionId = searchParams.get('sessionId')
   const [loading, setLoading] = useState(true)
   const [bookingDetails, setBookingDetails] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (bookingId) {
-      // Fetch booking details
-      fetch(`/api/bookings/${bookingId}`)
+      // First, confirm the payment (in case webhook didn't fire)
+      fetch(`/api/bookings/${bookingId}/confirm-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      })
+        .then((res) => res.json())
+        .then((confirmData) => {
+          // Now fetch the updated booking details
+          return fetch(`/api/bookings/${bookingId}`)
+        })
         .then((res) => {
           if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`)
           return res.json()
@@ -34,7 +44,7 @@ function PaymentSuccessContent() {
       // No booking ID provided
       setLoading(false)
     }
-  }, [bookingId])
+  }, [bookingId, sessionId])
 
   if (loading) {
     return (
