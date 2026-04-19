@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer, Search, Car, History } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer, Search, Car, History, ChevronDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangePasswordModal } from '@/components/change-password-modal'
 import { BillPrintView } from '@/components/bill-print-view'
@@ -43,6 +43,10 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [filterTimeline, setFilterTimeline] = useState<string>('this_week')
+  const [customDateFrom, setCustomDateFrom] = useState<string>('')
+  const [customDateTo, setCustomDateTo] = useState<string>('')
+  const [showTimelineDropdown, setShowTimelineDropdown] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [updateError, setUpdateError] = useState<string | null>(null)
@@ -179,6 +183,17 @@ export default function AdminPage() {
     setNewChargeAmount('')
   }
 
+  // Close timeline dropdown on outside click
+  useEffect(() => {
+    if (!showTimelineDropdown) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-timeline-dropdown]')) setShowTimelineDropdown(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showTimelineDropdown])
+
   const searchServiceHistory = async () => {
     if (!regSearchQuery.trim() || regSearchQuery.trim().length < 2) return
     
@@ -253,9 +268,63 @@ export default function AdminPage() {
     }
   }, [selectedBooking])
 
-  const filteredBookings = filterStatus === 'all' 
-    ? bookings 
-    : bookings.filter(b => b.status === filterStatus)
+  const getTimelineRange = (): { from: Date; to: Date } | null => {
+    const now = new Date()
+    const dayOfWeek = now.getDay() // 0=Sun, 1=Mon...6=Sat
+
+    if (filterTimeline === 'this_week') {
+      const monday = new Date(now)
+      monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+      monday.setHours(0, 0, 0, 0)
+      const saturday = new Date(monday)
+      saturday.setDate(monday.getDate() + 5)
+      saturday.setHours(23, 59, 59, 999)
+      return { from: monday, to: saturday }
+    }
+    if (filterTimeline === 'last_week') {
+      const monday = new Date(now)
+      monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) - 7)
+      monday.setHours(0, 0, 0, 0)
+      const saturday = new Date(monday)
+      saturday.setDate(monday.getDate() + 5)
+      saturday.setHours(23, 59, 59, 999)
+      return { from: monday, to: saturday }
+    }
+    if (filterTimeline === 'this_month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+      const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+      return { from, to }
+    }
+    if (filterTimeline === 'last_month') {
+      const from = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0)
+      const to = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
+      return { from, to }
+    }
+    if (filterTimeline === 'last_6_months') {
+      const from = new Date(now)
+      from.setMonth(from.getMonth() - 6)
+      from.setHours(0, 0, 0, 0)
+      return { from, to: new Date(now.setHours(23, 59, 59, 999)) }
+    }
+    if (filterTimeline === 'custom' && customDateFrom && customDateTo) {
+      const from = new Date(customDateFrom)
+      from.setHours(0, 0, 0, 0)
+      const to = new Date(customDateTo)
+      to.setHours(23, 59, 59, 999)
+      return { from, to }
+    }
+    return null
+  }
+
+  const timelineRange = getTimelineRange()
+
+  const filteredBookings = bookings
+    .filter(b => filterStatus === 'all' || b.status === filterStatus)
+    .filter(b => {
+      if (!timelineRange) return true
+      const bookingDate = new Date(b.booking_date)
+      return bookingDate >= timelineRange.from && bookingDate <= timelineRange.to
+    })
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -409,20 +478,101 @@ export default function AdminPage() {
 
         {/* Filters */}
         <div className="mb-8">
-          <div className="flex gap-3 flex-wrap">
-            {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* Status filters */}
+            <div className="flex gap-3 flex-wrap">
+              {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status)}
+                  className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
+                    filterStatus === status
+                      ? 'bg-gold-500 text-navy-950'
+                      : 'bg-navy-800 text-gray-300 hover:bg-navy-700 border border-gold-500/20'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+
+            {/* Timeline dropdown */}
+            <div className="relative" data-timeline-dropdown>
               <button
-                key={status}
-                onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
-                  filterStatus === status
-                    ? 'bg-gold-500 text-navy-950'
-                    : 'bg-navy-800 text-gray-300 hover:bg-navy-700 border border-gold-500/20'
-                }`}
+                onClick={() => setShowTimelineDropdown(!showTimelineDropdown)}
+                className="flex items-center gap-2 px-4 py-2 bg-navy-800 border border-gold-500/30 rounded-lg text-gray-300 hover:border-gold-500 hover:text-white transition min-w-[190px] justify-between"
               >
-                {status}
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gold-500" />
+                  <span className="text-sm font-medium">
+                    {filterTimeline === 'this_week' && 'This Week'}
+                    {filterTimeline === 'last_week' && 'Last Week'}
+                    {filterTimeline === 'this_month' && 'This Month'}
+                    {filterTimeline === 'last_month' && 'Last Month'}
+                    {filterTimeline === 'last_6_months' && 'Last 6 Months'}
+                    {filterTimeline === 'custom' && 'Custom Range'}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gold-500 transition-transform ${showTimelineDropdown ? 'rotate-180' : ''}`} />
               </button>
-            ))}
+
+              {showTimelineDropdown && (
+                <div className="absolute right-0 top-full mt-1 w-64 bg-navy-800 border border-gold-500/30 rounded-lg shadow-xl z-50 overflow-hidden">
+                  {[
+                    { value: 'this_week', label: 'This Week', sub: 'Mon – Sat' },
+                    { value: 'last_week', label: 'Last Week', sub: 'Previous Mon – Sat' },
+                    { value: 'this_month', label: 'This Month', sub: new Date().toLocaleString('en-GB', { month: 'long', year: 'numeric' }) },
+                    { value: 'last_month', label: 'Last Month', sub: new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-GB', { month: 'long', year: 'numeric' }) },
+                    { value: 'last_6_months', label: 'Last 6 Months', sub: 'Past 6 months' },
+                    { value: 'custom', label: 'Custom Range', sub: 'Pick your own dates' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setFilterTimeline(option.value)
+                        if (option.value !== 'custom') setShowTimelineDropdown(false)
+                      }}
+                      className={`w-full flex flex-col px-4 py-3 text-left hover:bg-navy-700 transition border-b border-gold-500/10 last:border-b-0 ${
+                        filterTimeline === option.value ? 'bg-gold-500/10 text-gold-500' : 'text-gray-300'
+                      }`}
+                    >
+                      <span className="font-medium text-sm">{option.label}</span>
+                      <span className="text-xs text-gray-500">{option.sub}</span>
+                    </button>
+                  ))}
+
+                  {/* Custom date pickers */}
+                  {filterTimeline === 'custom' && (
+                    <div className="px-4 py-3 bg-navy-900 border-t border-gold-500/20 space-y-3">
+                      <div>
+                        <label className="text-xs text-gray-400 block mb-1">From</label>
+                        <input
+                          type="date"
+                          value={customDateFrom}
+                          onChange={(e) => setCustomDateFrom(e.target.value)}
+                          className="w-full bg-navy-800 border border-gold-500/30 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 block mb-1">To</label>
+                        <input
+                          type="date"
+                          value={customDateTo}
+                          onChange={(e) => setCustomDateTo(e.target.value)}
+                          className="w-full bg-navy-800 border border-gold-500/30 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => setShowTimelineDropdown(false)}
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-sm py-2"
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
