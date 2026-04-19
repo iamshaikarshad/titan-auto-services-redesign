@@ -1129,7 +1129,7 @@ export default function AdminPage() {
                                 </div>
                                 <div className="text-right">
                                   <p className="text-gold-500 font-bold text-lg">
-                                    £{parseFloat(service.total_price || 0).toFixed(2)}
+                                    £{parseFloat(service.total_price || service.service_price || 0).toFixed(2)}
                                   </p>
                                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeColor(service.status)}`}>
                                     {getStatusIcon(service.status)}
