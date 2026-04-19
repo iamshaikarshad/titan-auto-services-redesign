@@ -356,28 +356,44 @@ export default function AdminPage() {
     }
   }
 
+  // KPIs always reflect the timeline filter (ignoring status filter so all statuses are counted)
+  const timelineFilteredBookings = bookings.filter(b => {
+    if (!timelineRange) return true
+    const bookingDate = new Date(b.booking_date)
+    return bookingDate >= timelineRange.from && bookingDate <= timelineRange.to
+  })
+
+  const timelineLabel: Record<string, string> = {
+    this_week: 'This Week',
+    last_week: 'Last Week',
+    this_month: 'This Month',
+    last_month: 'Last Month',
+    last_6_months: 'Last 6 Months',
+    custom: customDateFrom && customDateTo ? `${customDateFrom} – ${customDateTo}` : 'Custom Range',
+  }
+
   const stats = [
     {
       label: 'Total Bookings',
-      value: bookings.length,
+      value: timelineFilteredBookings.length,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/20',
     },
     {
       label: 'Pending',
-      value: bookings.filter(b => b.status === 'pending').length,
+      value: timelineFilteredBookings.filter(b => b.status === 'pending').length,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-500/20',
     },
     {
       label: 'Confirmed',
-      value: bookings.filter(b => b.status === 'confirmed').length,
+      value: timelineFilteredBookings.filter(b => b.status === 'confirmed').length,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/20',
     },
     {
       label: 'Completed',
-      value: bookings.filter(b => b.status === 'completed').length,
+      value: timelineFilteredBookings.filter(b => b.status === 'completed').length,
       color: 'text-green-500',
       bgColor: 'bg-green-500/20',
     },
@@ -436,6 +452,7 @@ export default function AdminPage() {
               <Card className={`${stat.bgColor} border-gold-500/20 p-6`}>
                 <p className="text-gray-400 text-sm mb-2">{stat.label}</p>
                 <p className={`${stat.color} text-4xl font-bold`}>{stat.value}</p>
+                <p className="text-gray-500 text-xs mt-2">{timelineLabel[filterTimeline]}</p>
               </Card>
             </motion.div>
           ))}
