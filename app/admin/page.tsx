@@ -1137,9 +1137,47 @@ export default function AdminPage() {
                                   </span>
                                 </div>
                               </div>
+                              {/* Price breakdown */}
+                              <div className="mt-3 p-3 bg-navy-900 rounded-lg space-y-2">
+                                <p className="text-xs text-gray-400 uppercase font-bold">Price Breakdown</p>
+                                {service.notes && service.notes.includes('--- Additional Charges ---') ? (
+                                  <>
+                                    {/* Parse base service and charges from notes */}
+                                    {(() => {
+                                      const [baseNotes, chargesSection] = service.notes.split('\n\n--- Additional Charges ---')
+                                      const chargesLines = chargesSection?.split('\n').filter((l: string) => l.trim() && !l.startsWith('Base Service') && !l.startsWith('Total')) || []
+                                      return (
+                                        <>
+                                          {chargesLines.map((charge: string, idx: number) => {
+                                            const parts = charge.split(':')
+                                            const desc = parts[0]?.trim()
+                                            const amt = parts[1]?.trim().replace('£', '')
+                                            return desc && amt ? (
+                                              <div key={idx} className="flex justify-between text-sm">
+                                                <span className="text-gray-400">{desc}</span>
+                                                <span className="text-gray-300">£{parseFloat(amt).toFixed(2)}</span>
+                                              </div>
+                                            ) : null
+                                          })}
+                                        </>
+                                      )
+                                    })()}
+                                    <div className="border-t border-gold-500/20 pt-2 flex justify-between text-sm font-bold">
+                                      <span className="text-gold-500">Total Quoted</span>
+                                      <span className="text-gold-500">£{parseFloat(service.total_price || 0).toFixed(2)}</span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="flex justify-between text-sm">
+                                    <span className="text-gray-400">Base Price</span>
+                                    <span className="text-gold-500 font-bold">£{parseFloat(service.total_price || service.service_price || 0).toFixed(2)}</span>
+                                  </div>
+                                )}
+                              </div>
+                              {/* Notes */}
                               {service.notes && (
                                 <div className="mt-3 p-3 bg-navy-900 rounded-lg">
-                                  <p className="text-xs text-gray-400 uppercase mb-1">Notes</p>
+                                  <p className="text-xs text-gray-400 uppercase mb-1">Service Notes</p>
                                   <p className="text-sm text-gray-300">{service.notes.split('\n\n--- Additional Charges ---')[0]}</p>
                                 </div>
                               )}
