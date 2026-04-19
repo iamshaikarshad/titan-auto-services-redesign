@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer, Search, Car, History } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangePasswordModal } from '@/components/change-password-modal'
 import { BillPrintView } from '@/components/bill-print-view'
@@ -53,6 +53,12 @@ export default function AdminPage() {
   const [newChargeDesc, setNewChargeDesc] = useState('')
   const [newChargeAmount, setNewChargeAmount] = useState('')
   const [showBill, setShowBill] = useState(false)
+  
+  // Service History Search
+  const [regSearchQuery, setRegSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchResults, setSearchResults] = useState<any>(null)
+  const [showServiceHistory, setShowServiceHistory] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -171,6 +177,25 @@ export default function AdminPage() {
     setAdditionalCharges([...additionalCharges, { description: newChargeDesc, amount: newChargeAmount }])
     setNewChargeDesc('')
     setNewChargeAmount('')
+  }
+
+  const searchServiceHistory = async () => {
+    if (!regSearchQuery.trim() || regSearchQuery.trim().length < 2) return
+    
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/admin/service-history?reg=${encodeURIComponent(regSearchQuery.trim())}`)
+      if (!response.ok) throw new Error('Search failed')
+      const data = await response.json()
+      setSearchResults(data)
+      setShowServiceHistory(true)
+    } catch (err) {
+      console.error('[v0] Service history search error:', err)
+      setSearchResults({ error: 'Failed to search service history' })
+      setShowServiceHistory(true)
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   const handleRemoveCharge = (index: number) => {
@@ -346,6 +371,41 @@ export default function AdminPage() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Service History Search */}
+        <Card className="bg-navy-800 border-gold-500/20 p-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                <History className="w-5 h-5 text-gold-500" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Service History Search</h3>
+                <p className="text-sm text-gray-400">Search past services by vehicle registration</p>
+              </div>
+            </div>
+            <div className="flex-1 flex gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Enter registration number (e.g. AB12 CDE)"
+                  value={regSearchQuery}
+                  onChange={(e) => setRegSearchQuery(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === 'Enter' && searchServiceHistory()}
+                  className="w-full pl-10 pr-4 py-3 bg-navy-900 border border-gold-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 uppercase"
+                />
+              </div>
+              <Button
+                onClick={searchServiceHistory}
+                disabled={isSearching || regSearchQuery.trim().length < 2}
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold px-6"
+              >
+                {isSearching ? 'Searching...' : 'Search'}
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         {/* Filters */}
         <div className="mb-8">
@@ -792,6 +852,164 @@ export default function AdminPage() {
           total={calculateTotalWithCharges()}
           onClose={() => setShowBill(false)}
         />
+      )}
+
+      {/* Service History Modal */}
+      {showServiceHistory && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-navy-900 border border-gold-500/30 rounded-lg max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+          >
+            {/* Modal Header */}
+            <div className="bg-navy-800 border-b border-gold-500/20 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                  <Car className="w-5 h-5 text-gold-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Service History</h2>
+                  {searchResults?.vehicle && (
+                    <p className="text-sm text-gray-400">
+                      {searchResults.vehicle.registration_number} - {searchResults.vehicle.car_make} {searchResults.vehicle.car_model}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowServiceHistory(false)
+                  setSearchResults(null)
+                }}
+                className="text-gray-400 hover:text-white transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {searchResults?.error ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  <p className="text-red-400">{searchResults.error}</p>
+                </div>
+              ) : searchResults?.serviceHistory?.length === 0 ? (
+                <div className="text-center py-12">
+                  <Car className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No service history found for this registration number</p>
+                </div>
+              ) : searchResults?.serviceHistory ? (
+                <div className="space-y-6">
+                  {/* Vehicle Info Card */}
+                  {searchResults.vehicle && (
+                    <Card className="bg-navy-800 border-gold-500/20 p-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Registration</p>
+                          <p className="text-white font-bold text-lg">{searchResults.vehicle.registration_number}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Vehicle</p>
+                          <p className="text-white font-medium">
+                            {searchResults.vehicle.car_make} {searchResults.vehicle.car_model} {searchResults.vehicle.car_year || ''}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Owner</p>
+                          <p className="text-white font-medium">{searchResults.vehicle.owner_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Total Services</p>
+                          <p className="text-gold-500 font-bold text-lg">{searchResults.totalServices}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Service History Timeline */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gold-500 mb-4">Service Timeline</h3>
+                    <div className="space-y-4">
+                      {searchResults.serviceHistory.map((service: any, idx: number) => (
+                        <Card 
+                          key={service.id} 
+                          className="bg-navy-800 border-gold-500/20 p-4 relative"
+                        >
+                          {/* Timeline connector */}
+                          {idx < searchResults.serviceHistory.length - 1 && (
+                            <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-gold-500/20" style={{ height: 'calc(100% + 1rem)' }} />
+                          )}
+                          
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-gold-500/20 rounded-full flex items-center justify-center flex-shrink-0 relative z-10">
+                              <Calendar className="w-5 h-5 text-gold-500" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-4 flex-wrap">
+                                <div>
+                                  <p className="text-white font-bold">{service.service_name}</p>
+                                  <p className="text-sm text-gray-400">
+                                    {new Date(service.booking_date).toLocaleDateString('en-GB', {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-gold-500 font-bold text-lg">
+                                    £{parseFloat(service.total_price || 0).toFixed(2)}
+                                  </p>
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeColor(service.status)}`}>
+                                    {getStatusIcon(service.status)}
+                                    <span className="capitalize">{service.status}</span>
+                                  </span>
+                                </div>
+                              </div>
+                              {service.notes && (
+                                <div className="mt-3 p-3 bg-navy-900 rounded-lg">
+                                  <p className="text-xs text-gray-400 uppercase mb-1">Notes</p>
+                                  <p className="text-sm text-gray-300">{service.notes.split('\n\n--- Additional Charges ---')[0]}</p>
+                                </div>
+                              )}
+                              {service.payment_status === 'paid' && (
+                                <div className="mt-2 flex items-center gap-2 text-green-400 text-sm">
+                                  <CheckCircle className="w-4 h-4" />
+                                  <span>Payment received: £{parseFloat(service.payment_amount || 0).toFixed(2)}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">Loading...</p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-navy-800 border-t border-gold-500/20 px-6 py-4 flex justify-end">
+              <Button
+                onClick={() => {
+                  setShowServiceHistory(false)
+                  setSearchResults(null)
+                }}
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+              >
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   )
