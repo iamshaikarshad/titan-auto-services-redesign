@@ -248,26 +248,40 @@ export default function AdminPage() {
 
   // Initialize price input and parse charges when selecting a booking
   useEffect(() => {
-    if (selectedBooking) {
-      // Always use service_price (base price from services table), NOT total_price
-      // total_price already includes charges, so using it would double-count
-      setPriceInput(String(selectedBooking.service_price || 0))
-      setEditingPrice(false)
-      
-      // Parse existing charges from notes
-      const notes = selectedBooking.notes || ''
-      const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
-      if (chargesSection) {
-        const chargeLines = chargesSection.split('\n').filter(l => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
-        const parsedCharges = chargeLines.map(line => {
-          const [desc, amt] = line.split(': £')
-          return { description: desc.trim(), amount: amt?.trim() || '0' }
-        })
-        setAdditionalCharges(parsedCharges)
-      } else {
-        setAdditionalCharges([])
-      }
+    if (!selectedBooking) return
+    
+    setEditingPrice(false)
+    
+    // Parse existing charges from notes
+    let parsedCharges: Array<{ description: string; amount: string }> = []
+    const notes = selectedBooking.notes || ''
+    const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
+    if (chargesSection) {
+      const chargeLines = chargesSection.split('\n').filter(l => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
+      parsedCharges = chargeLines.map(line => {
+        const [desc, amt] = line.split(': £')
+        return { description: desc.trim(), amount: amt?.trim() || '0' }
+      })
     }
+    setAdditionalCharges(parsedCharges)
+
+    // Calculate base price as: total_price - sum of charges
+    // This ensures the base price is always correct regardless of how total_price was derived
+    const chargesSum = parsedCharges.reduce((sum, charge) => sum + (parseFloat(charge.amount) || 0), 0)
+    const totalPrice = parseFloat(String(selectedBooking.total_price)) || 0
+    
+    // If there are charges, calculate base = total - charges
+    // Otherwise use service_price or fallback to total_price
+    let basePrice = 0
+    if (chargesSum > 0 && totalPrice > 0) {
+      basePrice = Math.max(0, totalPrice - chargesSum)
+    } else if (selectedBooking.service_price) {
+      basePrice = selectedBooking.service_price
+    } else {
+      basePrice = totalPrice
+    }
+    
+    setPriceInput(String(basePrice))
   }, [selectedBooking])
 
   const getTimelineRange = (): { from: Date; to: Date } | null => {
