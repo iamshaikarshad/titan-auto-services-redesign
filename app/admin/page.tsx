@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/animations'
-import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, Calendar, RefreshCw, X, LogOut, Lock, Printer, Search, Car, History, ChevronDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangePasswordModal } from '@/components/change-password-modal'
 import { BillPrintView } from '@/components/bill-print-view'
@@ -43,6 +43,10 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [filterTimeline, setFilterTimeline] = useState<string>('this_week')
+  const [customDateFrom, setCustomDateFrom] = useState<string>('')
+  const [customDateTo, setCustomDateTo] = useState<string>('')
+  const [showTimelineDropdown, setShowTimelineDropdown] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [updateError, setUpdateError] = useState<string | null>(null)
@@ -53,6 +57,12 @@ export default function AdminPage() {
   const [newChargeDesc, setNewChargeDesc] = useState('')
   const [newChargeAmount, setNewChargeAmount] = useState('')
   const [showBill, setShowBill] = useState(false)
+  
+  // Service History Search
+  const [regSearchQuery, setRegSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchResults, setSearchResults] = useState<any>(null)
+  const [showServiceHistory, setShowServiceHistory] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -173,6 +183,36 @@ export default function AdminPage() {
     setNewChargeAmount('')
   }
 
+  // Close timeline dropdown on outside click
+  useEffect(() => {
+    if (!showTimelineDropdown) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-timeline-dropdown]')) setShowTimelineDropdown(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showTimelineDropdown])
+
+  const searchServiceHistory = async () => {
+    if (!regSearchQuery.trim() || regSearchQuery.trim().length < 2) return
+    
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/admin/service-history?reg=${encodeURIComponent(regSearchQuery.trim())}`)
+      if (!response.ok) throw new Error('Search failed')
+      const data = await response.json()
+      setSearchResults(data)
+      setShowServiceHistory(true)
+    } catch (err) {
+      console.error('[v0] Service history search error:', err)
+      setSearchResults({ error: 'Failed to search service history' })
+      setShowServiceHistory(true)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
   const handleRemoveCharge = (index: number) => {
     setAdditionalCharges(additionalCharges.filter((_, i) => i !== index))
   }
@@ -208,29 +248,99 @@ export default function AdminPage() {
 
   // Initialize price input and parse charges when selecting a booking
   useEffect(() => {
-    if (selectedBooking) {
-      setPriceInput(String(selectedBooking.total_price || selectedBooking.service_price || 0))
-      setEditingPrice(false)
-      
-      // Parse existing charges from notes
-      const notes = selectedBooking.notes || ''
-      const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
-      if (chargesSection) {
-        const chargeLines = chargesSection.split('\n').filter(l => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
-        const parsedCharges = chargeLines.map(line => {
-          const [desc, amt] = line.split(': £')
-          return { description: desc.trim(), amount: amt?.trim() || '0' }
-        })
-        setAdditionalCharges(parsedCharges)
-      } else {
-        setAdditionalCharges([])
-      }
+    if (!selectedBooking) return
+    
+    setEditingPrice(false)
+    
+    // Parse existing charges from notes
+    let parsedCharges: Array<{ description: string; amount: string }> = []
+    const notes = selectedBooking.notes || ''
+    const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
+    if (chargesSection) {
+      const chargeLines = chargesSection.split('\n').filter(l => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
+      parsedCharges = chargeLines.map(line => {
+        const [desc, amt] = line.split(': £')
+        return { description: desc.trim(), amount: amt?.trim() || '0' }
+      })
     }
+    setAdditionalCharges(parsedCharges)
+
+    // Calculate base price as: total_price - sum of charges
+    // This ensures the base price is always correct regardless of how total_price was derived
+    const chargesSum = parsedCharges.reduce((sum, charge) => sum + (parseFloat(charge.amount) || 0), 0)
+    const totalPrice = parseFloat(String(selectedBooking.total_price)) || 0
+    
+    // If there are charges, calculate base = total - charges
+    // Otherwise use service_price or fallback to total_price
+    let basePrice = 0
+    if (chargesSum > 0 && totalPrice > 0) {
+      basePrice = Math.max(0, totalPrice - chargesSum)
+    } else if (selectedBooking.service_price) {
+      basePrice = selectedBooking.service_price
+    } else {
+      basePrice = totalPrice
+    }
+    
+    setPriceInput(String(basePrice))
   }, [selectedBooking])
 
-  const filteredBookings = filterStatus === 'all' 
-    ? bookings 
-    : bookings.filter(b => b.status === filterStatus)
+  const getTimelineRange = (): { from: Date; to: Date } | null => {
+    const now = new Date()
+    const dayOfWeek = now.getDay() // 0=Sun, 1=Mon...6=Sat
+
+    if (filterTimeline === 'this_week') {
+      const monday = new Date(now)
+      monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+      monday.setHours(0, 0, 0, 0)
+      const saturday = new Date(monday)
+      saturday.setDate(monday.getDate() + 5)
+      saturday.setHours(23, 59, 59, 999)
+      return { from: monday, to: saturday }
+    }
+    if (filterTimeline === 'last_week') {
+      const monday = new Date(now)
+      monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) - 7)
+      monday.setHours(0, 0, 0, 0)
+      const saturday = new Date(monday)
+      saturday.setDate(monday.getDate() + 5)
+      saturday.setHours(23, 59, 59, 999)
+      return { from: monday, to: saturday }
+    }
+    if (filterTimeline === 'this_month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+      const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+      return { from, to }
+    }
+    if (filterTimeline === 'last_month') {
+      const from = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0)
+      const to = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
+      return { from, to }
+    }
+    if (filterTimeline === 'last_6_months') {
+      const from = new Date(now)
+      from.setMonth(from.getMonth() - 6)
+      from.setHours(0, 0, 0, 0)
+      return { from, to: new Date(now.setHours(23, 59, 59, 999)) }
+    }
+    if (filterTimeline === 'custom' && customDateFrom && customDateTo) {
+      const from = new Date(customDateFrom)
+      from.setHours(0, 0, 0, 0)
+      const to = new Date(customDateTo)
+      to.setHours(23, 59, 59, 999)
+      return { from, to }
+    }
+    return null
+  }
+
+  const timelineRange = getTimelineRange()
+
+  const filteredBookings = bookings
+    .filter(b => filterStatus === 'all' || b.status === filterStatus)
+    .filter(b => {
+      if (!timelineRange) return true
+      const bookingDate = new Date(b.booking_date)
+      return bookingDate >= timelineRange.from && bookingDate <= timelineRange.to
+    })
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -262,28 +372,44 @@ export default function AdminPage() {
     }
   }
 
+  // KPIs always reflect the timeline filter (ignoring status filter so all statuses are counted)
+  const timelineFilteredBookings = bookings.filter(b => {
+    if (!timelineRange) return true
+    const bookingDate = new Date(b.booking_date)
+    return bookingDate >= timelineRange.from && bookingDate <= timelineRange.to
+  })
+
+  const timelineLabel: Record<string, string> = {
+    this_week: 'This Week',
+    last_week: 'Last Week',
+    this_month: 'This Month',
+    last_month: 'Last Month',
+    last_6_months: 'Last 6 Months',
+    custom: customDateFrom && customDateTo ? `${customDateFrom} – ${customDateTo}` : 'Custom Range',
+  }
+
   const stats = [
     {
       label: 'Total Bookings',
-      value: bookings.length,
+      value: timelineFilteredBookings.length,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/20',
     },
     {
       label: 'Pending',
-      value: bookings.filter(b => b.status === 'pending').length,
+      value: timelineFilteredBookings.filter(b => b.status === 'pending').length,
       color: 'text-yellow-500',
       bgColor: 'bg-yellow-500/20',
     },
     {
       label: 'Confirmed',
-      value: bookings.filter(b => b.status === 'confirmed').length,
+      value: timelineFilteredBookings.filter(b => b.status === 'confirmed').length,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/20',
     },
     {
       label: 'Completed',
-      value: bookings.filter(b => b.status === 'completed').length,
+      value: timelineFilteredBookings.filter(b => b.status === 'completed').length,
       color: 'text-green-500',
       bgColor: 'bg-green-500/20',
     },
@@ -342,27 +468,144 @@ export default function AdminPage() {
               <Card className={`${stat.bgColor} border-gold-500/20 p-6`}>
                 <p className="text-gray-400 text-sm mb-2">{stat.label}</p>
                 <p className={`${stat.color} text-4xl font-bold`}>{stat.value}</p>
+                <p className="text-gray-500 text-xs mt-2">{timelineLabel[filterTimeline]}</p>
               </Card>
             </motion.div>
           ))}
         </motion.div>
 
+        {/* Service History Search */}
+        <Card className="bg-navy-800 border-gold-500/20 p-6 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                <History className="w-5 h-5 text-gold-500" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Service History Search</h3>
+                <p className="text-sm text-gray-400">Search past services by vehicle registration</p>
+              </div>
+            </div>
+            <div className="flex-1 flex gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Enter registration number (e.g. AB12 CDE)"
+                  value={regSearchQuery}
+                  onChange={(e) => setRegSearchQuery(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === 'Enter' && searchServiceHistory()}
+                  className="w-full pl-10 pr-4 py-3 bg-navy-900 border border-gold-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 uppercase"
+                />
+              </div>
+              <Button
+                onClick={searchServiceHistory}
+                disabled={isSearching || regSearchQuery.trim().length < 2}
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold px-6"
+              >
+                {isSearching ? 'Searching...' : 'Search'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+
         {/* Filters */}
         <div className="mb-8">
-          <div className="flex gap-3 flex-wrap">
-            {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* Status filters */}
+            <div className="flex gap-3 flex-wrap">
+              {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status)}
+                  className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
+                    filterStatus === status
+                      ? 'bg-gold-500 text-navy-950'
+                      : 'bg-navy-800 text-gray-300 hover:bg-navy-700 border border-gold-500/20'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+
+            {/* Timeline dropdown */}
+            <div className="relative" data-timeline-dropdown>
               <button
-                key={status}
-                onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition capitalize ${
-                  filterStatus === status
-                    ? 'bg-gold-500 text-navy-950'
-                    : 'bg-navy-800 text-gray-300 hover:bg-navy-700 border border-gold-500/20'
-                }`}
+                onClick={() => setShowTimelineDropdown(!showTimelineDropdown)}
+                className="flex items-center gap-2 px-4 py-2 bg-navy-800 border border-gold-500/30 rounded-lg text-gray-300 hover:border-gold-500 hover:text-white transition min-w-[190px] justify-between"
               >
-                {status}
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gold-500" />
+                  <span className="text-sm font-medium">
+                    {filterTimeline === 'this_week' && 'This Week'}
+                    {filterTimeline === 'last_week' && 'Last Week'}
+                    {filterTimeline === 'this_month' && 'This Month'}
+                    {filterTimeline === 'last_month' && 'Last Month'}
+                    {filterTimeline === 'last_6_months' && 'Last 6 Months'}
+                    {filterTimeline === 'custom' && 'Custom Range'}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gold-500 transition-transform ${showTimelineDropdown ? 'rotate-180' : ''}`} />
               </button>
-            ))}
+
+              {showTimelineDropdown && (
+                <div className="absolute right-0 top-full mt-1 w-64 bg-navy-800 border border-gold-500/30 rounded-lg shadow-xl z-50 overflow-hidden">
+                  {[
+                    { value: 'this_week', label: 'This Week', sub: 'Mon – Sat' },
+                    { value: 'last_week', label: 'Last Week', sub: 'Previous Mon – Sat' },
+                    { value: 'this_month', label: 'This Month', sub: new Date().toLocaleString('en-GB', { month: 'long', year: 'numeric' }) },
+                    { value: 'last_month', label: 'Last Month', sub: new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('en-GB', { month: 'long', year: 'numeric' }) },
+                    { value: 'last_6_months', label: 'Last 6 Months', sub: 'Past 6 months' },
+                    { value: 'custom', label: 'Custom Range', sub: 'Pick your own dates' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setFilterTimeline(option.value)
+                        if (option.value !== 'custom') setShowTimelineDropdown(false)
+                      }}
+                      className={`w-full flex flex-col px-4 py-3 text-left hover:bg-navy-700 transition border-b border-gold-500/10 last:border-b-0 ${
+                        filterTimeline === option.value ? 'bg-gold-500/10 text-gold-500' : 'text-gray-300'
+                      }`}
+                    >
+                      <span className="font-medium text-sm">{option.label}</span>
+                      <span className="text-xs text-gray-500">{option.sub}</span>
+                    </button>
+                  ))}
+
+                  {/* Custom date pickers */}
+                  {filterTimeline === 'custom' && (
+                    <div className="px-4 py-3 bg-navy-900 border-t border-gold-500/20 space-y-3">
+                      <div>
+                        <label className="text-xs text-gray-400 block mb-1">From</label>
+                        <input
+                          type="date"
+                          value={customDateFrom}
+                          onChange={(e) => setCustomDateFrom(e.target.value)}
+                          className="w-full bg-navy-800 border border-gold-500/30 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 block mb-1">To</label>
+                        <input
+                          type="date"
+                          value={customDateTo}
+                          onChange={(e) => setCustomDateTo(e.target.value)}
+                          className="w-full bg-navy-800 border border-gold-500/30 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-gold-500"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => setShowTimelineDropdown(false)}
+                        className="w-full bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold text-sm py-2"
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -697,8 +940,20 @@ export default function AdminPage() {
                         <Button
                           onClick={() => {
                             setEditingPrice(false)
-                            setPriceInput(String(selectedBooking.total_price || selectedBooking.service_price || 0))
-                            setAdditionalCharges([])
+                            setPriceInput(String(selectedBooking.service_price || 0))
+                            // Re-parse charges from notes instead of clearing
+                            const notes = selectedBooking.notes || ''
+                            const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
+                            if (chargesSection) {
+                              const chargeLines = chargesSection.split('\n').filter((l: string) => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
+                              const parsedCharges = chargeLines.map((line: string) => {
+                                const [desc, amt] = line.split(': £')
+                                return { description: desc.trim(), amount: amt?.trim() || '0' }
+                              })
+                              setAdditionalCharges(parsedCharges)
+                            } else {
+                              setAdditionalCharges([])
+                            }
                           }}
                           className="bg-navy-700 hover:bg-navy-600 text-gray-300 border border-gold-500/20"
                         >
@@ -792,6 +1047,226 @@ export default function AdminPage() {
           total={calculateTotalWithCharges()}
           onClose={() => setShowBill(false)}
         />
+      )}
+
+      {/* Service History Modal */}
+      {showServiceHistory && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-navy-900 border border-gold-500/30 rounded-lg max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+          >
+            {/* Modal Header */}
+            <div className="bg-navy-800 border-b border-gold-500/20 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gold-500/20 rounded-lg flex items-center justify-center">
+                  <Car className="w-5 h-5 text-gold-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Service History</h2>
+                  {searchResults?.vehicle && (
+                    <p className="text-sm text-gray-400">
+                      {searchResults.vehicle.registration_number} - {searchResults.vehicle.car_make} {searchResults.vehicle.car_model}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowServiceHistory(false)
+                  setSearchResults(null)
+                }}
+                className="text-gray-400 hover:text-white transition"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {searchResults?.error ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  <p className="text-red-400">{searchResults.error}</p>
+                </div>
+              ) : searchResults?.serviceHistory?.length === 0 ? (
+                <div className="text-center py-12">
+                  <Car className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No service history found for this registration number</p>
+                </div>
+              ) : searchResults?.serviceHistory ? (
+                <div className="space-y-6">
+                  {/* Vehicle Info Card */}
+                  {searchResults.vehicle && (
+                    <Card className="bg-navy-800 border-gold-500/20 p-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Registration</p>
+                          <p className="text-white font-bold text-lg">{searchResults.vehicle.registration_number}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Vehicle</p>
+                          <p className="text-white font-medium">
+                            {searchResults.vehicle.car_make} {searchResults.vehicle.car_model} {searchResults.vehicle.car_year || ''}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Owner</p>
+                          <p className="text-white font-medium">{searchResults.vehicle.owner_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase">Total Services</p>
+                          <p className="text-gold-500 font-bold text-lg">{searchResults.totalServices}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Service History Timeline */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gold-500 mb-4">Service Timeline</h3>
+                    <div className="space-y-4">
+                      {searchResults.serviceHistory.map((service: any, idx: number) => (
+                        <Card 
+                          key={service.id} 
+                          className="bg-navy-800 border-gold-500/20 p-4 relative"
+                        >
+                          {/* Timeline connector */}
+                          {idx < searchResults.serviceHistory.length - 1 && (
+                            <div className="absolute left-8 top-16 bottom-0 w-0.5 bg-gold-500/20" style={{ height: 'calc(100% + 1rem)' }} />
+                          )}
+                          
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-gold-500/20 rounded-full flex items-center justify-center flex-shrink-0 relative z-10">
+                              <Calendar className="w-5 h-5 text-gold-500" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-4 flex-wrap">
+                                <button
+                                  onClick={() => {
+                                    // Find the booking in the main bookings array
+                                    const booking = bookings.find(b => b.id === service.id)
+                                    if (booking) {
+                                      setSelectedBooking(booking)
+                                      // Always use service_price (base price), NOT total_price
+                                      setPriceInput(String(booking.service_price || 0))
+                                      // Parse existing charges from notes if any
+                                      if (booking.notes && booking.notes.includes('--- Additional Charges ---')) {
+                                        const chargesSection = booking.notes.split('--- Additional Charges ---')[1]
+                                        const lines = chargesSection?.split('\n').filter((l: string) => l.trim() && !l.startsWith('Base Service') && !l.startsWith('Total')) || []
+                                        const parsedCharges = lines.map((line: string) => {
+                                          const parts = line.split(':')
+                                          return { description: parts[0]?.trim() || '', amount: parts[1]?.trim().replace('£', '') || '0' }
+                                        }).filter((c: {description: string, amount: string}) => c.description)
+                                        setAdditionalCharges(parsedCharges)
+                                      } else {
+                                        setAdditionalCharges([])
+                                      }
+                                      setShowServiceHistory(false) // Close service history modal
+                                    }
+                                  }}
+                                  className="text-left hover:opacity-80 transition cursor-pointer group"
+                                >
+                                  <p className="text-white font-bold group-hover:text-gold-500 transition">{service.service_name}</p>
+                                  <p className="text-sm text-gray-400 group-hover:text-gray-300 transition">
+                                    {new Date(service.booking_date).toLocaleDateString('en-GB', {
+                                      weekday: 'long',
+                                      year: 'numeric',
+                                      month: 'long',
+                                      day: 'numeric',
+                                    })}
+                                  </p>
+                                </button>
+                                <div className="text-right">
+                                  <p className="text-gold-500 font-bold text-lg">
+                                    £{parseFloat(service.total_price || service.service_price || 0).toFixed(2)}
+                                  </p>
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeColor(service.status)}`}>
+                                    {getStatusIcon(service.status)}
+                                    <span className="capitalize">{service.status}</span>
+                                  </span>
+                                </div>
+                              </div>
+                              {/* Price breakdown */}
+                              <div className="mt-3 p-3 bg-navy-900 rounded-lg space-y-2">
+                                <p className="text-xs text-gray-400 uppercase font-bold">Price Breakdown</p>
+                                {service.notes && service.notes.includes('--- Additional Charges ---') ? (
+                                  <>
+                                    {/* Parse base service and charges from notes */}
+                                    {(() => {
+                                      const [baseNotes, chargesSection] = service.notes.split('\n\n--- Additional Charges ---')
+                                      const chargesLines = chargesSection?.split('\n').filter((l: string) => l.trim() && !l.startsWith('Base Service') && !l.startsWith('Total')) || []
+                                      return (
+                                        <>
+                                          {chargesLines.map((charge: string, idx: number) => {
+                                            const parts = charge.split(':')
+                                            const desc = parts[0]?.trim()
+                                            const amt = parts[1]?.trim().replace('£', '')
+                                            return desc && amt ? (
+                                              <div key={idx} className="flex justify-between text-sm">
+                                                <span className="text-gray-400">{desc}</span>
+                                                <span className="text-gray-300">£{parseFloat(amt).toFixed(2)}</span>
+                                              </div>
+                                            ) : null
+                                          })}
+                                        </>
+                                      )
+                                    })()}
+                                    <div className="border-t border-gold-500/20 pt-2 flex justify-between text-sm font-bold">
+                                      <span className="text-gold-500">Total Quoted</span>
+                                      <span className="text-gold-500">£{parseFloat(service.total_price || 0).toFixed(2)}</span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="flex justify-between text-sm">
+                                    <span className="text-gray-400">Base Price</span>
+                                    <span className="text-gold-500 font-bold">£{parseFloat(service.total_price || service.service_price || 0).toFixed(2)}</span>
+                                  </div>
+                                )}
+                              </div>
+                              {/* Notes */}
+                              {service.notes && (
+                                <div className="mt-3 p-3 bg-navy-900 rounded-lg">
+                                  <p className="text-xs text-gray-400 uppercase mb-1">Service Notes</p>
+                                  <p className="text-sm text-gray-300">{service.notes.split('\n\n--- Additional Charges ---')[0]}</p>
+                                </div>
+                              )}
+                              {service.payment_status === 'paid' && (
+                                <div className="mt-2 flex items-center gap-2 text-green-400 text-sm">
+                                  <CheckCircle className="w-4 h-4" />
+                                  <span>Payment received: £{parseFloat(service.payment_amount || 0).toFixed(2)}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">Loading...</p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-navy-800 border-t border-gold-500/20 px-6 py-4 flex justify-end">
+              <Button
+                onClick={() => {
+                  setShowServiceHistory(false)
+                  setSearchResults(null)
+                }}
+                className="bg-gold-500 hover:bg-gold-600 text-navy-950 font-bold"
+              >
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   )
