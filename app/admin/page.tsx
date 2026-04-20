@@ -1116,9 +1116,32 @@ export default function AdminPage() {
                             </div>
                             <div className="flex-1">
                               <div className="flex items-start justify-between gap-4 flex-wrap">
-                                <div>
-                                  <p className="text-white font-bold">{service.service_name}</p>
-                                  <p className="text-sm text-gray-400">
+                                <button
+                                  onClick={() => {
+                                    // Find the booking in the main bookings array
+                                    const booking = bookings.find(b => b.id === service.id)
+                                    if (booking) {
+                                      setSelectedBooking(booking)
+                                      setPriceInput(String(booking.total_price || booking.service_price || 0))
+                                      // Parse existing charges from notes if any
+                                      if (booking.notes && booking.notes.includes('--- Additional Charges ---')) {
+                                        const chargesSection = booking.notes.split('--- Additional Charges ---')[1]
+                                        const lines = chargesSection?.split('\n').filter((l: string) => l.trim() && !l.startsWith('Base Service') && !l.startsWith('Total')) || []
+                                        const parsedCharges = lines.map((line: string) => {
+                                          const parts = line.split(':')
+                                          return { description: parts[0]?.trim() || '', amount: parts[1]?.trim().replace('£', '') || '0' }
+                                        }).filter((c: {description: string, amount: string}) => c.description)
+                                        setAdditionalCharges(parsedCharges)
+                                      } else {
+                                        setAdditionalCharges([])
+                                      }
+                                      setShowServiceHistory(false) // Close service history modal
+                                    }
+                                  }}
+                                  className="text-left hover:opacity-80 transition cursor-pointer group"
+                                >
+                                  <p className="text-white font-bold group-hover:text-gold-500 transition">{service.service_name}</p>
+                                  <p className="text-sm text-gray-400 group-hover:text-gray-300 transition">
                                     {new Date(service.booking_date).toLocaleDateString('en-GB', {
                                       weekday: 'long',
                                       year: 'numeric',
@@ -1126,7 +1149,7 @@ export default function AdminPage() {
                                       day: 'numeric',
                                     })}
                                   </p>
-                                </div>
+                                </button>
                                 <div className="text-right">
                                   <p className="text-gold-500 font-bold text-lg">
                                     £{parseFloat(service.total_price || service.service_price || 0).toFixed(2)}
