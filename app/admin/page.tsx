@@ -249,7 +249,9 @@ export default function AdminPage() {
   // Initialize price input and parse charges when selecting a booking
   useEffect(() => {
     if (selectedBooking) {
-      setPriceInput(String(selectedBooking.total_price || selectedBooking.service_price || 0))
+      // Always use service_price (base price from services table), NOT total_price
+      // total_price already includes charges, so using it would double-count
+      setPriceInput(String(selectedBooking.service_price || 0))
       setEditingPrice(false)
       
       // Parse existing charges from notes
@@ -924,8 +926,20 @@ export default function AdminPage() {
                         <Button
                           onClick={() => {
                             setEditingPrice(false)
-                            setPriceInput(String(selectedBooking.total_price || selectedBooking.service_price || 0))
-                            setAdditionalCharges([])
+                            setPriceInput(String(selectedBooking.service_price || 0))
+                            // Re-parse charges from notes instead of clearing
+                            const notes = selectedBooking.notes || ''
+                            const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
+                            if (chargesSection) {
+                              const chargeLines = chargesSection.split('\n').filter((l: string) => l.includes(': £') && !l.startsWith('Base Service') && !l.startsWith('Total'))
+                              const parsedCharges = chargeLines.map((line: string) => {
+                                const [desc, amt] = line.split(': £')
+                                return { description: desc.trim(), amount: amt?.trim() || '0' }
+                              })
+                              setAdditionalCharges(parsedCharges)
+                            } else {
+                              setAdditionalCharges([])
+                            }
                           }}
                           className="bg-navy-700 hover:bg-navy-600 text-gray-300 border border-gold-500/20"
                         >
@@ -1122,7 +1136,8 @@ export default function AdminPage() {
                                     const booking = bookings.find(b => b.id === service.id)
                                     if (booking) {
                                       setSelectedBooking(booking)
-                                      setPriceInput(String(booking.total_price || booking.service_price || 0))
+                                      // Always use service_price (base price), NOT total_price
+                                      setPriceInput(String(booking.service_price || 0))
                                       // Parse existing charges from notes if any
                                       if (booking.notes && booking.notes.includes('--- Additional Charges ---')) {
                                         const chargesSection = booking.notes.split('--- Additional Charges ---')[1]
