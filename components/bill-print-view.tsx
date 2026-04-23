@@ -264,30 +264,75 @@ function InvoiceBody({
       {/* Line items table */}
       <table style={{ width: '100%', marginBottom: '2rem', borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ background: '#111', color: 'white' }}>
-            <th style={{ textAlign: 'left', padding: '0.75rem 1rem', fontSize: '0.875rem', fontWeight: 600 }}>Description</th>
-            <th style={{ textAlign: 'right', padding: '0.75rem 1rem', fontSize: '0.875rem', fontWeight: 600 }}>Amount</th>
+          <tr>
+            <th style={{ textAlign: 'left', padding: '0.75rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#111', borderBottom: '1px solid #000' }}>Description</th>
+            <th style={{ textAlign: 'right', padding: '0.75rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#111', borderBottom: '1px solid #000' }}>Amount</th>
           </tr>
         </thead>
         <tbody>
+          {/* Service with check count */}
           <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-            <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem' }}>{booking.service_name || 'Service'}</td>
-            <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', textAlign: 'right' }}>£{basePrice.toFixed(2)}</td>
+            <td style={{ padding: '1rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#111' }}>
+              {booking.service_name || 'Service'} {booking.service_name?.toLowerCase().includes('full') ? '60 Checks' : booking.service_name?.toLowerCase().includes('interim') ? '25 Checks' : ''}
+            </td>
+            <td style={{ padding: '1rem 0', fontSize: '0.875rem', fontWeight: 600, textAlign: 'right', color: '#111' }}>£{basePrice.toFixed(2)}</td>
           </tr>
+
+          {/* Service Includes section for Interim/Full Service */}
+          {booking.service_name && (booking.service_name.toLowerCase().includes('interim') || booking.service_name.toLowerCase().includes('full')) && (
+            <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+              <td colSpan={2} style={{ padding: '0.75rem 0', color: '#111' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#111', marginBottom: '0.5rem' }}>Service Includes:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 2rem', fontSize: '0.75rem', color: '#374151' }}>
+                  {booking.service_name.toLowerCase().includes('interim') && (
+                    <>
+                      <p>• Oil Filter</p>
+                      <p>• Engine Oil</p>
+                      <p>• Brake Fluid</p>
+                      <p>• Coolant</p>
+                      <p>• Windscreen Additive</p>
+                      <p>• Power Steering Fluid</p>
+                      <p>• External Lights Check</p>
+                      <p>• Instrument Warning Lights</p>
+                      <p>• Horn Operation</p>
+                      <p>• Visual Brake Pads Check</p>
+                    </>
+                  )}
+                  {booking.service_name.toLowerCase().includes('full') && (
+                    <>
+                      <p>• Oil Filter</p>
+                      <p>• Engine Oil</p>
+                      <p>• Brake Fluid</p>
+                      <p>• Coolant</p>
+                      <p>• Windscreen Additive</p>
+                      <p>• Power Steering Fluid</p>
+                      <p>• External Lights Check</p>
+                      <p>• Instrument Warning Lights</p>
+                      <p>• Horn Operation</p>
+                      <p>• Visual Brake Pads Check</p>
+                      <p style={{ gridColumn: '1 / -1', marginTop: '0.25rem', fontWeight: 600 }}>• Change spark plugs (dependant upon age and mileage)</p>
+                    </>
+                  )}
+                </div>
+              </td>
+            </tr>
+          )}
+
+          {/* Additional charges */}
           {additionalCharges.map((charge, idx) => (
             <tr key={idx} style={{ borderBottom: '1px solid #e5e7eb' }}>
-              <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: '#374151' }}>{charge.description}</td>
-              <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', textAlign: 'right' }}>£{parseFloat(charge.amount).toFixed(2)}</td>
+              <td style={{ padding: '0.75rem 0', fontSize: '0.875rem', color: '#374151' }}>{charge.description}</td>
+              <td style={{ padding: '0.75rem 0', fontSize: '0.875rem', textAlign: 'right' }}>£{parseFloat(charge.amount).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
-        <tfoot>
-          <tr style={{ background: '#f3f4f6' }}>
-            <td style={{ padding: '0.75rem 1rem', fontWeight: 900, textAlign: 'right', color: '#111' }}>Total</td>
-            <td style={{ padding: '0.75rem 1rem', fontWeight: 900, textAlign: 'right', color: '#111', fontSize: '1.125rem' }}>£{total.toFixed(2)}</td>
-          </tr>
-        </tfoot>
       </table>
+
+      {/* Total section */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '2rem', borderBottom: 'none', marginBottom: '2rem' }}>
+        <p style={{ fontSize: '1rem', fontWeight: 700, color: '#111' }}>Total</p>
+        <p style={{ fontSize: '1rem', fontWeight: 700, color: '#111' }}>£{total.toFixed(2)}</p>
+      </div>
 
       {/* Footer */}
       <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem', textAlign: 'center' }}>
