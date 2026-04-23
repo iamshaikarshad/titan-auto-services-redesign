@@ -261,32 +261,16 @@ function InvoiceBody({
         </div>
       </div>
 
-      {/* Service Details - Interim or Full Service */}
+      {/* Service Details - Green Box for Interim or Full Service */}
       {booking.service_name && (booking.service_name.toLowerCase().includes('interim') || booking.service_name.toLowerCase().includes('full')) && (
-        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
-          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#111', marginBottom: '0.75rem', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>
+        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#ffffff', border: '3px solid #4ade80', borderRadius: '0.375rem' }}>
+          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#111', marginBottom: '0.5rem' }}>
             {booking.service_name.toLowerCase().includes('full') ? 'Full Service - 60 Checks' : 'Interim Service - 25 Checks'}
           </p>
-          <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>Service Includes:</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 1rem' }}>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Oil Filter</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Engine Oil</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Brake Fluid</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Coolant</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Windscreen Additive</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Power Steering Fluid</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• External Lights Check</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Instrument Warning Lights</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Horn Operation</p>
-            <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Visual Brake Pads Check</p>
-          </div>
           {booking.service_name.toLowerCase().includes('full') && (
-            <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px dashed #d1d5db' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '0.25rem' }}>Additional Full Service Checks:</p>
-              <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• All Interim Service checks included</p>
-              <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Change spark plugs (dependant upon age and mileage)</p>
-              <p style={{ fontSize: '0.75rem', color: '#4b5563' }}>• Comprehensive 60-point vehicle inspection</p>
-            </div>
+            <p style={{ fontSize: '0.75rem', color: '#4b5563', marginTop: '0.25rem' }}>
+              • Change spark plugs (dependant upon age and mileage)
+            </p>
           )}
         </div>
       )}
