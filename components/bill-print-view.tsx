@@ -263,13 +263,13 @@ function InvoiceBody({
 
       {/* Service Details - Green Box for Interim or Full Service */}
       {booking.service_name && (booking.service_name.toLowerCase().includes('interim') || booking.service_name.toLowerCase().includes('full')) && (
-        <div style={{ marginBottom: '2rem', padding: '1rem', background: '#ffffff', border: '3px solid #4ade80', borderRadius: '0.375rem' }}>
-          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#111', marginBottom: '0.5rem' }}>
+        <div style={{ marginBottom: '2rem', padding: '0.75rem 1rem', background: '#dcfce7', border: '2px solid #22c55e', borderRadius: '0.375rem' }}>
+          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#15803d', marginBottom: '0.25rem' }}>
             {booking.service_name.toLowerCase().includes('full') ? 'Full Service - 60 Checks' : 'Interim Service - 25 Checks'}
           </p>
           {booking.service_name.toLowerCase().includes('full') && (
-            <p style={{ fontSize: '0.75rem', color: '#4b5563', marginTop: '0.25rem' }}>
-              • Change spark plugs (dependant upon age and mileage)
+            <p style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.25rem' }}>
+              Change spark plugs (dependant upon age and mileage)
             </p>
           )}
         </div>
