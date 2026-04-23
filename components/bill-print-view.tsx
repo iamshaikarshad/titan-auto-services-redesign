@@ -269,7 +269,15 @@ function InvoiceBody({
           </p>
           {booking.service_name.toLowerCase().includes('full') && (
             <p style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.25rem' }}>
-              Change spark plugs (dependant upon age and mileage)
+              • Includes all Interim Service checks<br/>
+              • Change spark plugs (dependant upon age and mileage)
+            </p>
+          )}
+          {booking.service_name.toLowerCase().includes('interim') && (
+            <p style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.25rem' }}>
+              • Oil Filter, Engine Oil, Brake Fluid, Coolant<br/>
+              • Power Steering Fluid, Windscreen Additive<br/>
+              • Visual checks: Lights, Warning Indicators, Brakes
             </p>
           )}
         </div>
