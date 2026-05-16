@@ -237,6 +237,7 @@ function BookingPageContent() {
       errors.phone = 'Please enter a valid phone number.'
     }
     if (!formData.vehicle.trim()) errors.vehicle = 'Vehicle details are required.'
+    if (!formData.registrationNumber.trim()) errors.registrationNumber = 'Registration number is required.'
     setContactErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -714,12 +715,17 @@ function BookingPageContent() {
                         placeholder={field.placeholder}
                         value={formData[field.key as keyof BookingFormData]}
                         onChange={(e) => {
-                          setFormData({ ...formData, [field.key]: e.target.value })
+                          const value = field.key === 'registrationNumber'
+                            ? e.target.value.toUpperCase()
+                            : e.target.value
+                          setFormData({ ...formData, [field.key]: value })
                           if (contactErrors[field.key as keyof BookingFormData]) {
                             setContactErrors({ ...contactErrors, [field.key]: undefined })
                           }
                         }}
                         className={`w-full bg-navy-700 border rounded px-4 py-2 text-white focus:outline-none focus:border-gold-500 placeholder:text-gray-600 ${
+                          field.key === 'registrationNumber' ? 'uppercase' : ''
+                        } ${
                           contactErrors[field.key as keyof BookingFormData]
                             ? 'border-red-500/70'
                             : 'border-gold-500/20'
