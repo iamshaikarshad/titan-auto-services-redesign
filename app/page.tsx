@@ -647,10 +647,12 @@ export default function HomePage() {
             </Button>
           </div>
 
-          {/* Instant price widget */}
+          {/* TEMPORARILY HIDDEN: bookmygarage.com instant price widget.
+              Uncomment the block below to re-enable the "Get a price now" flow.
           <div className="mt-12">
             <RegWidget />
           </div>
+          */}
         </motion.div>
       </section>
       </div>

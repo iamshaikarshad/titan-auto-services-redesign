@@ -396,15 +396,19 @@ function BookingPageContent() {
           <h1 className="text-5xl md:text-6xl font-bold mb-6">Book Your Service</h1>
           <p className="text-xl text-gray-300">Fast, reliable, professional servicing in Maidstone.</p>
 
+          {/* TEMPORARILY HIDDEN: bookmygarage.com instant price widget + OR divider.
+              Uncomment the block below to re-enable the "Get a price now" flow.
           <RegWidget />
 
-          {/* OR divider */}
+          OR divider
           <div className="flex items-center gap-4 mt-10 max-w-2xl mx-auto">
             <div className="flex-1 h-px bg-gold-500/20" />
             <span className="text-gray-400 font-bold tracking-widest text-sm">OR</span>
             <div className="flex-1 h-px bg-gold-500/20" />
           </div>
           <p className="text-gray-400 mt-4 text-sm">Fill in the form below to book directly with us</p>
+          */}
+          <p className="text-gray-400 mt-8 text-sm">Fill in the form below to book directly with us</p>
         </motion.div>
       </div>
 
