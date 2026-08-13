@@ -49,7 +49,20 @@ export async function POST(request: NextRequest) {
       apiVersion: '2023-10-16',
     })
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    // Derive the base URL from the actual request so redirects always return
+    // to the live domain the user is on. Fall back to env var, then localhost.
+    // This avoids Vercel DEPLOYMENT_NOT_FOUND errors when NEXT_PUBLIC_BASE_URL
+    // points to a stale/renamed domain.
+    const originHeader = request.headers.get('origin')
+    const forwardedHost = request.headers.get('x-forwarded-host')
+    const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+    const baseUrl =
+      originHeader ||
+      (forwardedHost ? `${forwardedProto}://${forwardedHost}` : '') ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      'http://localhost:3000'
+
+    console.log('[v0] Stripe checkout baseUrl resolved to:', baseUrl)
 
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
