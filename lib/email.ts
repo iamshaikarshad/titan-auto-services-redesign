@@ -12,9 +12,8 @@ const transporter = nodemailer.createTransport({
 
 // Everyone on the business side who should be notified of a new booking
 const BUSINESS_NOTIFICATION_RECIPIENTS = [
-//   'info@titanautoservices.co.uk',
-//   'Titan.auto2025@gmail.com',
-    'iamshaikarshad@gmail.com',
+  'info@titanautoservices.co.uk',
+  'Titan.auto2025@gmail.com',
 ]
 
 interface BookingNotificationData {
