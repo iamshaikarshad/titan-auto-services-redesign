@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Pool } from '@neondatabase/serverless'
+import { sendBookingNotification, sendBookingConfirmation } from '@/lib/email'
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
@@ -257,6 +258,30 @@ export async function POST(request: NextRequest) {
       // Commit transaction
       await client.query('COMMIT')
 
+      // Fire off both booking emails — one internal notification to the
+      // business inboxes, one confirmation to the customer. These are
+      // intentionally awaited (rather than left unhandled) so both log
+      // lines always complete before the serverless function is frozen,
+      // but any failure inside either function is caught internally and
+      // will never affect the booking response below.
+      const emailPayload = {
+        bookingId: booking.id,
+        name,
+        email,
+        phone,
+        vehicle,
+        registrationNumber,
+        serviceName: serviceName || 'Other',
+        sessionTime,
+        bookingDate: bookingDateTime,
+        servicePrice,
+        notes: fullNotes,
+      }
+      await Promise.all([
+        sendBookingNotification(emailPayload),
+        sendBookingConfirmation(emailPayload),
+      ])
+
       return NextResponse.json(
         {
           success: true,
@@ -330,4 +355,3 @@ export async function GET(request: NextRequest) {
     }
   }
 }
-
