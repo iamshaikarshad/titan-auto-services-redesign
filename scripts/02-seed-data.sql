@@ -1,9 +1,9 @@
 -- Insert initial services
 INSERT INTO services (name, description, category, base_price, estimated_duration_minutes) VALUES
 ('MOT Testing', 'Professional MOT testing with DVSA approval. Complete vehicle inspection and diagnostics.', 'Inspection', 45.00, 30),
-('Full Car Servicing', 'Comprehensive service including oil change, filter replacement, and fluid checks.', 'Servicing', 150.00, 90),
-('Interim Servicing', 'Quick service for oil and filter change with basic checks.', 'Servicing', 75.00, 45),
-('Tyre & Wheel Alignment', 'Tyre fitting, balancing, rotation, and professional wheel alignment.', 'Tyres', 60.00, 60),
+('Full Car Servicing', 'Comprehensive service including oil change, filter replacement, and fluid checks.', 'Servicing', 205.00, 90),
+('Interim Servicing', 'Quick service for oil and filter change with basic checks.', 'Servicing', 115.00, 45),
+('Tyre & Wheel Alignment', 'Tyre fitting, balancing, rotation, and professional wheel alignment.', 'Tyres', 40.00, 60),
 ('Brake Service & Repairs', 'Complete brake system repairs, pad replacement, and safety inspections.', 'Brakes', 80.00, 75),
 ('Engine Diagnostics', 'Advanced diagnostic equipment to identify and resolve engine issues.', 'Diagnostics', 50.00, 45),
 ('Air Conditioning Service', 'Professional air conditioning maintenance and refrigerant recharge.', 'Climate', 75.00, 60),

@@ -13,7 +13,7 @@ import Image from 'next/image'
 // ─── Pricing data ────────────────────────────────────────────────────────────
 
 const tyrePricing = [
-  { size: '14"', from: 35, to: 45 },
+  { size: '14"', from: 40, to: 45 },
   { size: '15"', from: 40, to: 50 },
   { size: '16"', from: 60, to: 70 },
   { size: '17"', from: 65, to: 85 },
@@ -23,7 +23,7 @@ const tyrePricing = [
 
 const servicingPricing = {
   petrol: [
-    { cc: 'Up to 1000cc', interim: 105, full: 205 },
+    { cc: 'Up to 1000cc', interim: 115, full: 205 },
     { cc: 'Up to 1300cc', interim: 145, full: 205 },
     { cc: 'Up to 1600cc', interim: 155, full: 205 },
     { cc: 'Up to 2000cc', interim: 165, full: 245 },
@@ -215,7 +215,7 @@ const allServices: { icon: React.ElementType; title: string; description: string
     icon: Wrench,
     title: 'Car Servicing',
     description: 'Full and interim servicing with genuine parts and comprehensive maintenance.',
-    price: 'From £105',
+    price: 'From £115',
     features: ['Oil & Filter', 'Fluid Checks', 'Parts Inspection', 'Warranty Included'],
     serviceKey: 'servicing',
   },
