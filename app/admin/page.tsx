@@ -265,23 +265,9 @@ export default function AdminPage() {
     }
     setAdditionalCharges(parsedCharges)
 
-    // Calculate base price as: total_price - sum of charges
-    // This ensures the base price is always correct regardless of how total_price was derived
-    const chargesSum = parsedCharges.reduce((sum, charge) => sum + (parseFloat(charge.amount) || 0), 0)
-    const totalPrice = parseFloat(String(selectedBooking.total_price)) || 0
-    
-    // If there are charges, calculate base = total - charges
-    // Otherwise use service_price or fallback to total_price
-    let basePrice = 0
-    if (chargesSum > 0 && totalPrice > 0) {
-      basePrice = Math.max(0, totalPrice - chargesSum)
-    } else if (selectedBooking.service_price) {
-      basePrice = selectedBooking.service_price
-    } else {
-      basePrice = totalPrice
-    }
-    
-    setPriceInput(String(basePrice))
+    // Use the booking's stored total_price as the displayed base price.
+    // Do not fall back to the current services.base_price because it can change over time.
+    setPriceInput(String(parseFloat(String(selectedBooking.total_price)) || 0))
   }, [selectedBooking])
 
   const getTimelineRange = (): { from: Date; to: Date } | null => {
@@ -940,7 +926,7 @@ export default function AdminPage() {
                         <Button
                           onClick={() => {
                             setEditingPrice(false)
-                            setPriceInput(String(selectedBooking.service_price || 0))
+                            setPriceInput(String(parseFloat(String(selectedBooking.total_price)) || 0))
                             // Re-parse charges from notes instead of clearing
                             const notes = selectedBooking.notes || ''
                             const chargesSection = notes.split('\n\n--- Additional Charges ---')[1]
@@ -1150,8 +1136,8 @@ export default function AdminPage() {
                                     const booking = bookings.find(b => b.id === service.id)
                                     if (booking) {
                                       setSelectedBooking(booking)
-                                      // Always use service_price (base price), NOT total_price
-                                      setPriceInput(String(booking.service_price || 0))
+                                      // Use the price stored on this booking, not the current service catalogue price
+                                      setPriceInput(String(parseFloat(String(booking.total_price)) || 0))
                                       // Parse existing charges from notes if any
                                       if (booking.notes && booking.notes.includes('--- Additional Charges ---')) {
                                         const chargesSection = booking.notes.split('--- Additional Charges ---')[1]
