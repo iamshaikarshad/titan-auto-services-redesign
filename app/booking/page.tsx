@@ -21,7 +21,7 @@ const services = [
 ]
 
 const tyreSizes = [
-  { label: '14" — from £35 to £45', value: '14"' },
+  { label: '14" — from £40 to £45', value: '14"' },
   { label: '15" — from £40 to £50', value: '15"' },
   { label: '16" — from £60 to £70', value: '16"' },
   { label: '17" — from £65 to £85', value: '17"' },
@@ -52,7 +52,7 @@ const servicingEngineSizes = {
 // Price lookup: [fuelType][engineSize][serviceType]
 const servicingPrices: Record<string, Record<string, { interim: number; full: number }>> = {
   petrol: {
-    'Up to 1000cc': { interim: 105, full: 205 },
+    'Up to 1000cc': { interim: 115, full: 205 },
     'Up to 1300cc': { interim: 145, full: 205 },
     'Up to 1600cc': { interim: 155, full: 205 },
     'Up to 2000cc': { interim: 165, full: 245 },
