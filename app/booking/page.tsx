@@ -10,7 +10,7 @@ import { AlertCircle, CheckCircle2, Gauge, Wrench, Zap, Shield, Clock, Award, Wi
 const services = [
   { id: 'mot',         name: 'PreMOT',              price: 45,  icon: Gauge,       priceLabel: 'From £45' },
   { id: 'servicing',   name: 'Car Servicing',       price: 105, icon: Wrench,      priceLabel: 'From £105' },
-  { id: 'tyres',       name: 'Tyres & Alignment',   price: 35,  icon: Zap,         priceLabel: 'From £35' },
+  { id: 'tyres',       name: 'Tyres',               price: 40,  icon: Zap,         priceLabel: 'From £40' },
   { id: 'brakes',      name: 'Brake Service',       price: 80,  icon: Shield,      priceLabel: 'From £80' },
   { id: 'diagnostics', name: 'Engine Diagnostics',  price: 50,  icon: Clock,       priceLabel: 'From £50' },
   { id: 'aircon',      name: 'General Repairs',     price: 40,  icon: Award,       priceLabel: 'From £40' },
@@ -22,7 +22,7 @@ const services = [
 
 const tyreSizes = [
   { label: '14" — from £40 to £45', value: '14"' },
-  { label: '15" — from £40 to £50', value: '15"' },
+  { label: '15" — from £45 to £50', value: '15"' },
   { label: '16" — from £60 to £70', value: '16"' },
   { label: '17" — from £65 to £85', value: '17"' },
   { label: '18" — from £70 to £90', value: '18"' },
