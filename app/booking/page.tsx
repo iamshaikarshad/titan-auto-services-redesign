@@ -102,6 +102,9 @@ interface BookingFormData {
   phone: string
   vehicle: string
   registrationNumber: string
+  postalCode: string
+  fullAddress: string
+  city: string
   tyreSize: string
   fuelType: string
   engineSize: string
@@ -198,6 +201,9 @@ function BookingPageContent() {
     phone: '',
     vehicle: '',
     registrationNumber: '',
+    postalCode: '',
+    fullAddress: '',
+    city: '',
     tyreSize: '',
     fuelType: 'petrol',
     engineSize: '',
@@ -220,7 +226,7 @@ function BookingPageContent() {
       && (!isServicingSelected || (formData.engineSize !== '' && serviceType !== null))
       && (!isOtherSelected || formData.otherDescription.trim() !== ''),
     datetime: formData.date !== '' && formData.time !== '' && !isDateDisabled(formData.date),
-    contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '',
+    contact: formData.name !== '' && formData.email !== '' && formData.phone !== '' && formData.vehicle !== '' && formData.registrationNumber !== '' && formData.postalCode !== '' && formData.fullAddress !== '' && formData.city !== '',
   }
 
   const validateContactStep = (): boolean => {
@@ -238,6 +244,12 @@ function BookingPageContent() {
     }
     if (!formData.vehicle.trim()) errors.vehicle = 'Vehicle details are required.'
     if (!formData.registrationNumber.trim()) errors.registrationNumber = 'Registration number is required.'
+    if (!formData.postalCode.trim()) errors.postalCode = 'Postcode is required.'
+    else if (!/^[A-Z0-9]{1,10}$/.test(formData.postalCode.trim())) errors.postalCode = 'Postcode must contain only letters and numbers (maximum 10 characters).'
+    if (!formData.fullAddress.trim()) errors.fullAddress = 'Full address is required.'
+    else if (!/^[A-Za-z0-9 ]{1,255}$/.test(formData.fullAddress.trim())) errors.fullAddress = 'Full address can contain only letters, numbers and spaces.'
+    if (!formData.city.trim()) errors.city = 'City is required.'
+    else if (!/^[A-Za-z ]{1,255}$/.test(formData.city.trim())) errors.city = 'City can contain only letters and spaces.'
     setContactErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -711,17 +723,28 @@ function BookingPageContent() {
                     { label: 'Phone', key: 'phone', type: 'tel', placeholder: '07700 900000' },
                     { label: 'Vehicle (Make & Model)', key: 'vehicle', type: 'text', placeholder: 'Ford Focus' },
                     { label: 'Registration Number', key: 'registrationNumber', type: 'text', placeholder: 'AB12 CDE' },
+                    { label: 'Postcode', key: 'postalCode', type: 'text', placeholder: 'ME15 6QT' },
+                    { label: 'Full Address', key: 'fullAddress', type: 'text', placeholder: '11 Waterloo Street' },
+                    { label: 'City', key: 'city', type: 'text', placeholder: 'Maidstone' },
                   ].map((field) => (
                     <div key={field.key}>
                       <label className="block text-white font-bold mb-2">{field.label}</label>
                       <input
                         type={field.type}
                         placeholder={field.placeholder}
+                        maxLength={field.key === 'postalCode' ? 10 : field.key === 'registrationNumber' ? 8 : field.key === 'fullAddress' || field.key === 'city' ? 255 : undefined}
                         value={formData[field.key as keyof BookingFormData]}
                         onChange={(e) => {
+                          const rawValue = e.target.value
                           const value = field.key === 'registrationNumber'
-                            ? e.target.value.toUpperCase()
-                            : e.target.value
+                            ? rawValue.toUpperCase()
+                            : field.key === 'postalCode'
+                            ? rawValue.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10)
+                            : field.key === 'fullAddress'
+                            ? rawValue.replace(/[^A-Za-z0-9 ]/g, '').slice(0, 255)
+                            : field.key === 'city'
+                            ? rawValue.replace(/[^A-Za-z ]/g, '').slice(0, 255)
+                            : rawValue
                           setFormData({ ...formData, [field.key]: value })
                           if (contactErrors[field.key as keyof BookingFormData]) {
                             setContactErrors({ ...contactErrors, [field.key]: undefined })

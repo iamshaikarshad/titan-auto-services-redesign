@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
       phone, 
       vehicle,
       registrationNumber,
+      postalCode,
+      fullAddress,
+      city,
       notes,
       tyreSize,
       fuelType,
@@ -78,12 +81,20 @@ export async function POST(request: NextRequest) {
 
     console.log('[v0] Booking request received:', { service, date, time, name, email, phone, vehicle, registrationNumber, fuelType, engineSize, serviceType })
 
+    const normalizedPostalCode = typeof postalCode === 'string' ? postalCode.trim().toUpperCase() : ''
+    const normalizedAddress = typeof fullAddress === 'string' ? fullAddress.trim() : ''
+    const normalizedCity = typeof city === 'string' ? city.trim() : ''
+
     // Validate required fields
-    if (!service || !date || !time || !name || !email || !phone || !vehicle) {
+    if (!service || !date || !time || !name || !email || !phone || !vehicle || !registrationNumber?.trim() || !normalizedPostalCode || !normalizedAddress || !normalizedCity) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
+    }
+
+    if (!/^[A-Z0-9]{1,10}$/.test(normalizedPostalCode) || !/^[A-Za-z0-9 ]{1,255}$/.test(normalizedAddress) || !/^[A-Za-z ]{1,255}$/.test(normalizedCity)) {
+      return NextResponse.json({ error: 'Please check your postcode, address and city. Use only the permitted characters.' }, { status: 400 })
     }
 
     // Validate service type
@@ -160,16 +171,16 @@ export async function POST(request: NextRequest) {
         
         // Update existing customer
         await client.query(
-          'UPDATE customers SET first_name = $1, last_name = $2, phone = $3, car_make = $4, registration_number = $5, updated_at = NOW() WHERE id = $6',
-          [firstName, lastName, phone, vehicle, registrationNumber || null, customerId]
+          'UPDATE customers SET first_name = $1, last_name = $2, phone = $3, car_make = $4, registration_number = $5, address = $6, postal_code = $7, city = $8, updated_at = NOW() WHERE id = $9',
+          [firstName, lastName, phone.trim(), vehicle.trim(), registrationNumber.trim().toUpperCase(), normalizedAddress, normalizedPostalCode, normalizedCity, customerId]
         )
       } else {
         console.log('[v0] Creating new customer')
         
         // Create new customer
         const newCustomer = await client.query(
-          'INSERT INTO customers (first_name, last_name, email, phone, car_make, registration_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-          [firstName, lastName, email, phone, vehicle, registrationNumber || null]
+          'INSERT INTO customers (first_name, last_name, email, phone, car_make, registration_number, address, postal_code, city) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+          [firstName, lastName, email.trim(), phone.trim(), vehicle.trim(), registrationNumber.trim().toUpperCase(), normalizedAddress, normalizedPostalCode, normalizedCity]
         )
         customerId = newCustomer.rows[0].id
         console.log('[v0] New customer created:', customerId)
