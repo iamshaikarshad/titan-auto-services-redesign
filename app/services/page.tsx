@@ -92,7 +92,7 @@ const serviceDetails: Record<ServiceKey, ServiceDetail> = {
     notes: ['Warranty included on all parts and labour.'],
   },
   tyres: {
-    title: 'Tyres & Wheel Alignment',
+    title: 'Tyres',
     icon: Zap,
     description: 'Tyre fitting, balancing, rotation, and professional wheel alignment for all makes and models.',
     bookingHref: '/booking?service=tyres',
@@ -221,9 +221,9 @@ const allServices: { icon: React.ElementType; title: string; description: string
   },
   {
     icon: Zap,
-    title: 'Tyres & Wheel Alignment',
+    title: 'Tyres',
     description: 'Tyre fitting, balancing, rotation, and professional wheel alignment.',
-    price: 'From £35',
+    price: 'From £40',
     features: ['Quality Tyres', 'Balancing', 'Alignment', 'Same Day Available'],
     serviceKey: 'tyres',
   },
